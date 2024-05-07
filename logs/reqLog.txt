@@ -1,4 +1,28 @@
-20240506	17:24:33	b73ef553-8d60-467f-91fd-11b3b36b6b2a	/old'	GET
-20240506	17:24:33	c0a36f3c-e01f-408e-890a-0266df5ef3db	/css/style.css	GET
-20240506	17:24:41	8ff93880-fc45-44a8-85ba-3513cb891de9	/	GET
-20240506	17:24:41	0d507054-8542-4ae6-a007-4707b4faa309	/css/style.css	GET
+20240507	11:10:06	d9a66d47-9301-482b-8ec7-922661b60dcb	GET	undefined	/
+20240507	11:10:06	28bbce0b-a4b1-47d3-9f00-bb5f1270f7c9	GET	undefined	/css/style.css
+20240507	11:12:23	7c9bf74e-05c2-431c-b78e-4497728c7cb0	OPTIONS	https://www.google.com	/
+20240507	11:12:23	fe9276e7-b0b5-4d62-8b8f-66b1c76938bf	GET	https://www.google.com	/
+20240507	11:16:54	7bfe116e-2a6c-4f63-92c7-787536a4fcdc	OPTIONS	https://www.google.com	/
+20240507	11:16:54	1aad6d17-eb85-439f-a2f6-06f034678a96	GET	https://www.google.com	/
+20240507	11:24:51	4eca30a2-dab0-42aa-9540-6ab24336bc66	OPTIONS	https://www.google.com	/
+20240507	11:24:51	7a4371b1-3660-446b-b7a4-07f198b65402	GET	https://www.google.com	/
+20240507	11:25:03	4a72a65f-fb92-4eb8-a31b-cdfcfaebd75c	GET	undefined	/css/style.css
+20240507	11:25:06	ed357620-769d-45fb-8667-e0a3ee0639ea	GET	undefined	/
+20240507	11:25:16	8a1e627c-cf5e-4236-a9e1-723a818dbe1a	OPTIONS	https://www.google.com	/
+20240507	11:25:16	6c2cc256-91b4-4811-a9cb-62b035b7d151	GET	https://www.google.com	/
+20240507	11:25:56	2303961a-fac4-4370-8e75-413dce11c5eb	OPTIONS	https://www.google.com	/
+20240507	11:25:56	70d1d559-4a00-45a0-9a45-cc5cdd484925	GET	https://www.google.com	/
+20240507	11:26:01	7ef2bc9a-52aa-4370-bdd2-d80f4914e39b	GET	undefined	/
+20240507	11:26:12	c24a3172-285c-4aa9-802d-3ccf3669963a	GET	undefined	/
+20240507	11:26:34	e7b30e55-0aec-467d-b6c8-043213cbf563	OPTIONS	https://www.google.com	/
+20240507	11:26:34	ec2bd46b-b4bf-47b0-988c-7018f542438f	GET	https://www.google.com	/
+20240507	11:27:13	9b89d1f7-05fb-4654-8d16-3c781e6afe99	GET	undefined	/
+20240507	11:27:32	8b3a4de3-503c-4789-9c14-1281f601e852	GET	undefined	/
+20240507	11:27:34	25d474c2-114e-4642-9c79-b7e2039a00e9	GET	undefined	/
+20240507	11:28:38	62e95fd7-2464-4f64-b2b9-1b05c3f0c8a5	GET	undefined	/
+20240507	11:31:10	37a50a56-864f-42ff-ba3f-db9f771b8ca2	GET	undefined	/
+20240507	11:37:02	a7498494-c286-4cbf-b2e4-cf635209deae	GET	undefined	/
+20240507	11:37:28	10a83f18-20bc-4a21-9ab1-6ab7746e6d61	GET	undefined	/
+20240507	11:37:28	c2a2c772-a552-49f1-8a72-75f772de6cc7	GET	undefined	/css/style.css
+20240507	11:41:58	b4546d11-ec57-4c1b-9466-f542b9445582	GET	undefined	/
+20240507	11:41:58	fb7f30a1-23b1-450b-bbda-ab974067c3c6	GET	undefined	/css/style.css
