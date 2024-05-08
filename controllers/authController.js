@@ -6,6 +6,11 @@ const userDB = {
 };
 
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+const fsPromises = require("fs").promises;
+const path = require("path");
 
 const handleLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -24,17 +29,53 @@ const handleLogin = async (req, res) => {
     });
 
   //check for the password match
-  const match = await bcrypt.compare(password,foundUser.password);
-  if(match){
-    //create JWTs for authorization 
+  const match = await bcrypt.compare(password, foundUser.password);
 
-    res.status(200).json({
-        "message":`User ${username} is logged in!`
+  if (match) {
+    //create JWTs for authorization
+    //creating access token
+    const accessToken = jwt.sign(
+      { username: foundUser.username },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "30s" }
+    );
+
+    //creating refresh token
+    const refreshToken = jwt.sign(
+      { username: foundUser.username },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // sving refreshToken with currrent user
+    const otherUsers = userDB.users.filter(
+      (user) => user.username !== foundUser.username
+    );
+    const currentUser = { ...foundUser, refreshToken };
+    userDB.setUsers([...otherUsers, currentUser]);
+
+    await fsPromises.writeFile(
+      path.join(__dirname, "..", "models", "users.json"),
+      JSON.stringify(userDB.users)
+    );
+
+    // saving refreshToken to the cookie
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+      maxAge: 24 * 60 * 60*1000,
     });
-  }else{
+
+    //sending accessToken as an response
+    res.status(200).json({
+      accessToken,
+    });
+
+  } else {
     return res.status(401).json({
-        message: "Unauthorized User", //401 ---> Unauthorized user
-      });
+      message: "Unauthorized User", //401 ---> Unauthorized user
+    });
   }
 };
 

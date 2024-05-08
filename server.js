@@ -2,8 +2,9 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const cors = require("cors");
-const corsOptions = require('./config/corsOptions');
+const corsOptions = require("./config/corsOptions");
 const errorHandler = require("./middleware/errorHandler");
+const verifyJWT = require("./middleware/verifyJWT");
 const { logger } = require("./middleware/logEvents");
 const PORT = process.env.PORT || 3500;
 
@@ -28,9 +29,10 @@ app.use(express.static(path.join(__dirname, "/public")));
 //routes middleware
 app.use("/", require("./routes/root"));
 app.use("/register", require("./routes/register"));
-app.use("/login", require("./routes/auth"));
-app.use("/employee", require("./routes/api/employees"));
+app.use("/auth", require("./routes/auth"));
 
+app.use(verifyJWT);
+app.use("/employee", require("./routes/api/employees"));
 
 app.all("*", (req, res) => {
   res.status(404);
@@ -44,7 +46,6 @@ app.all("*", (req, res) => {
     res.type("txt").send("404 NOT FOUND");
   }
 });
-
 
 //middleware for error handling
 app.use(errorHandler);
