@@ -23,7 +23,6 @@ const logEvents = async (message, logName) => {
 const logger =(req, res, next) => {
     //logEvents takes 2 parameters i.e. message and logName (file name where the log is to be maintained)
   logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`,'reqLog.txt');
-  console.log(`${req.method}\t${req.headers.origin}\t${req.url}`);
   next();
   //since the middleware is a custom made so need to use next() whereas in case of built-in middleware we dont require next();
 }
