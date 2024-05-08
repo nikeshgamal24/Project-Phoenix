@@ -188,3 +188,8 @@
 20240508	17:44:07	c33ac816-1f79-481e-9fa3-49fafa969b35	GET	undefined	/refresh
 20240508	17:44:15	77986f83-bd3b-449b-ac02-712993ee3160	POST	undefined	/employee
 20240508	17:44:21	f63ca385-c2df-460e-982c-45d47d68a6a4	GET	undefined	/employee
+20240508	22:23:17	d856b5b3-fd74-40c0-b564-df0154d83e2d	POST	undefined	/register
+20240508	22:24:36	084483d7-1cfb-4c04-8291-70b226bc57dd	POST	undefined	/register
+20240508	22:31:02	f1963c60-4460-4752-9008-a56858a84d20	POST	undefined	/register
+20240508	22:31:27	bda25405-3c59-4439-ae5c-aaa52e740955	POST	undefined	/register
+20240508	22:31:30	cd5ea5dd-6423-4315-b15c-f38b7bcf21b5	POST	undefined	/register

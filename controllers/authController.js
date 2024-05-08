@@ -1,16 +1,6 @@
-const userDB = {
-  users: require("../models/users.json"),
-  setUsers: function (data) {
-    this.users = data;
-  },
-};
-
+const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
-
-const fsPromises = require("fs").promises;
-const path = require("path");
 
 const handleLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -21,7 +11,7 @@ const handleLogin = async (req, res) => {
     });
 
   // check for user found or not
-  const foundUser = userDB.users.find((user) => user.username === username);
+  const foundUser = await User.findOne({ username }).exec();
 
   if (!foundUser)
     return res.status(401).json({
@@ -38,9 +28,9 @@ const handleLogin = async (req, res) => {
     //creating access token
     const accessToken = jwt.sign(
       {
-        "UserInfo": {
-          "username": foundUser.username,
-          "roles":roles,
+        UserInfo: {
+          username: foundUser.username,
+          roles: roles,
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
@@ -55,17 +45,9 @@ const handleLogin = async (req, res) => {
     );
 
     // sving refreshToken with currrent user
-    const otherUsers = userDB.users.filter(
-      (user) => user.username !== foundUser.username
-    );
-    const currentUser = { ...foundUser, refreshToken };
-    userDB.setUsers([...otherUsers, currentUser]);
-
-    await fsPromises.writeFile(
-      path.join(__dirname, "..", "models", "users.json"),
-      JSON.stringify(userDB.users)
-    );
-
+    foundUser.refreshToken = refreshToken;
+    const result = await foundUser.save();
+    console.log(result);
     // saving refreshToken to the cookie
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
