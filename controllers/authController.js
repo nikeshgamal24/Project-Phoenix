@@ -32,10 +32,17 @@ const handleLogin = async (req, res) => {
   const match = await bcrypt.compare(password, foundUser.password);
 
   if (match) {
+    const roles = Object.values(foundUser.roles);
+
     //create JWTs for authorization
     //creating access token
     const accessToken = jwt.sign(
-      { username: foundUser.username },
+      {
+        "UserInfo": {
+          "username": foundUser.username,
+          "roles":roles,
+        },
+      },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "30s" }
     );
@@ -64,14 +71,13 @@ const handleLogin = async (req, res) => {
       httpOnly: true,
       sameSite: "None",
       secure: true,
-      maxAge: 24 * 60 * 60*1000,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     //sending accessToken as an response
     res.status(200).json({
       accessToken,
     });
-
   } else {
     return res.status(401).json({
       message: "Unauthorized User", //401 ---> Unauthorized user

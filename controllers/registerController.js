@@ -31,7 +31,13 @@ const handleNewUser = async (req, res) => {
     //encrypt the password
     const hashedPassword = await bcrypt.hash(password, 10);
     //save to the database
-    const newUser = { username: username, password: hashedPassword };
+    const newUser = { 
+      "username": username, 
+      "roles":{
+        "User":2001
+      },
+      "password": hashedPassword 
+    };
     userDB.setUsers([...userDB.users, newUser]);
 
     //save to the database //for now json file
