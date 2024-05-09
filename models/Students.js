@@ -28,7 +28,7 @@ const studentSchema = new Schema({
     enum: ["BESE", "BEIT", "BECE", "BCA", "BEELX"],
   },
   role: {
-   type:Number,
+   type:[Number],
   },
   refreshToken: {
     type: String,

@@ -270,3 +270,5 @@
 20240509	19:13:09	cdcffe35-6e83-4c90-a461-057ac5d38c24	GET	undefined	/refresh
 20240509	19:13:14	a6d8040c-1a1a-43a0-be8f-6f6748e5de40	GET	undefined	/refresh
 20240509	19:13:22	950dd312-9423-4be2-b0c4-bc70785cb5fd	GET	undefined	/logout
+20240509	19:40:03	0d2d6961-6450-4365-a17a-2e65068acd83	POST	undefined	/register/
+20240509	19:42:19	43c029e9-4366-4f5b-af40-a9ab99a0eafe	POST	undefined	/register/

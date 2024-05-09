@@ -1,5 +1,6 @@
 const Student = require("../models/Students");
 const Teacher = require("../models/Teachers");
+const Admin = require("../models/Admins");
 const bcrypt = require("bcrypt");
 const roleList = require("../config/roleList");
 
@@ -19,6 +20,8 @@ const handleNewUser = async (req, res) => {
     duplicate = await Student.findOne({ email: email }).exec();
   } else if (role === roleList.Supervisor) {
     duplicate = await Teacher.findOne({ email: email }).exec();
+  }else if (role === roleList.Admin) {
+    duplicate = await Admin.findOne({ email: email }).exec();
   } else {
     return res.sendStatus(400);
   }
@@ -49,7 +52,15 @@ const handleNewUser = async (req, res) => {
         email: email,
         password: hashedPassword,
         phoneNumber: phoneNumber,
-        roles: [role],
+        role: [role],
+      });
+    } else if (role === roleList.Admin) {
+      result = await Admin.create({
+        fullname: fullname,
+        email: email,
+        password: hashedPassword,
+        phoneNumber: phoneNumber,
+        role: [role],
       });
     } else {
       return res.sendStatus(400);

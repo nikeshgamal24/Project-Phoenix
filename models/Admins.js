@@ -19,7 +19,7 @@ const adminSchema = new Schema({
     required: [true, "Please enter your phone number!"],
   },
   role: {
-    type:Number
+    type:[Number]
   },
   password: {
     type: String,
