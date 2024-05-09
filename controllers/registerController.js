@@ -1,35 +1,64 @@
-const User = require("../models/User");
+const Student = require("../models/Students");
+const Teacher = require("../models/Teachers");
 const bcrypt = require("bcrypt");
+const roleList = require("../config/roleList");
 
 const handleNewUser = async (req, res) => {
-  const { username, password } = req.body;
-  //status 400 --> Bad Request
-  if (!username || !password)
-    res.status(400).json({
-      message: "User and Password is required",
+  const { fullname, email, photo, password, phoneNumber, program, role } =
+    req.body;
+
+  // checkCredentials(req,res,{ fullname, email, photo, password, phoneNumber, program });
+  if (!fullname || !email || !password || !phoneNumber)
+    return res.status(400).json({
+      message: "All credentials are required",
     });
 
   //checking for duplicate username || email
-  const duplicate = await User.findOne({ username:username }).exec();
+  let duplicate;
+  if (role === roleList.Student) {
+    duplicate = await Student.findOne({ email: email }).exec();
+  } else if (role === roleList.Supervisor) {
+    duplicate = await Teacher.findOne({ email: email }).exec();
+  } else {
+    return res.sendStatus(400);
+  }
 
   // status 409--> for conflict status
   if (duplicate)
     return res.status(409).json({
-      message: "Duplicate username",
+      message: "Duplicate Credentials.",
     }); //conflicting status
 
   try {
     //encrypt the password
     const hashedPassword = await bcrypt.hash(password, 10);
     //creating and save to the database
-    const newUser = await User.create({
-      username: username,
-      password: hashedPassword,
-    });
-    console.log(newUser);
+    let result;
+    if (role === roleList.Student) {
+      result = await Student.create({
+        fullname: fullname,
+        email: email,
+        password: hashedPassword,
+        phoneNumber: phoneNumber,
+        program: program,
+        role: role,
+      });
+    } else if (role === roleList.Supervisor) {
+      result = await Teacher.create({
+        fullname: fullname,
+        email: email,
+        password: hashedPassword,
+        phoneNumber: phoneNumber,
+        roles: [role],
+      });
+    } else {
+      return res.sendStatus(400);
+    }
 
-    res.status(200).json({
-      message: `New user ${username} has been created!`,
+    //201--> successfully created
+    res.status(201).json({
+      message: `New User ${fullname} has been created!`,
+      data:result,
     });
   } catch (err) {
     res.status(500).json({
