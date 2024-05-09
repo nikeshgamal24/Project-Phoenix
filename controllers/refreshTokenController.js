@@ -21,8 +21,7 @@ const handleRefreshToken = async (req, res) => {
 
   //evaluate jwt for creating access token
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    console.log("decoded");
-    console.log(decoded);
+
     if (err || foundUser.email !== decoded.email) return res.sendStatus(403);
 
     const roles = Object.values(foundUser.role);
@@ -35,7 +34,7 @@ const handleRefreshToken = async (req, res) => {
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "30s" }
+      { expiresIn: "10s" }
     );
     foundUser.password = undefined;
     foundUser.refreshToken = undefined;

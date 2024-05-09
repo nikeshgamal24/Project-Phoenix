@@ -9,7 +9,7 @@ const handleLogin = async (req, res) => {
   const { email, password, role } = req.body;
 
   if (!email || !password)
-   return res.status(400).json({
+    return res.status(400).json({
       message: "Username and password are required to login!",
     });
 
@@ -55,14 +55,14 @@ const handleLogin = async (req, res) => {
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "30s" }
+      { expiresIn: "10s" }
     );
 
     //creating refresh token
     const refreshToken = jwt.sign(
       { email: foundUser.email },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "15s" }
     );
 
     // sving refreshToken with currrent user
@@ -73,15 +73,15 @@ const handleLogin = async (req, res) => {
       httpOnly: true,
       sameSite: "None",
       secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 15 * 1000,
     });
 
-    foundUser.password=undefined;
-    foundUser.refreshToken=undefined;
+    foundUser.password = undefined;
+    foundUser.refreshToken = undefined;
     //sending accessToken as an response
     res.status(200).json({
       accessToken,
-      user:foundUser
+      user: foundUser,
     });
   } else {
     return res.status(401).json({
