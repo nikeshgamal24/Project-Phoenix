@@ -55,14 +55,14 @@ const handleLogin = async (req, res) => {
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "10s" }
+      { expiresIn: "1h" }
     );
 
     //creating refresh token
     const refreshToken = jwt.sign(
       { email: foundUser.email },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "15s" }
+      { expiresIn: "1d" }
     );
 
     // sving refreshToken with currrent user
@@ -73,7 +73,7 @@ const handleLogin = async (req, res) => {
       httpOnly: true,
       sameSite: "None",
       secure: true,
-      maxAge: 15 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     foundUser.password = undefined;
