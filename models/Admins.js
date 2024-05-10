@@ -14,9 +14,9 @@ const adminSchema = new Schema({
     type:  String,
     required: [true, "Please, Enter your full name!"],
   },
+  photo:String,
   phoneNumber: {
     type: String,
-    required: [true, "Please enter your phone number!"],
   },
   role: {
     type:[Number]
