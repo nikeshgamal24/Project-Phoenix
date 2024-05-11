@@ -31,7 +31,7 @@ const createNewEvent = async (req, res) => {
         reportDeadline: req.body.final.reportDeadline,
       },
       year: req.body.year,
-      author:req.userId,
+      author: req.userId,
     });
 
     return res.status(201).json({
@@ -43,6 +43,31 @@ const createNewEvent = async (req, res) => {
   }
 };
 
+const getAllEvents = async (req, res) => {
+  const events = await Event.find();
+  if (!events) return res.status(204).json({ message: "No employees found." });
+  res.status(200).json({
+    data: events,
+  });
+};
+
+const getEvent = async (req, res) => {
+  if (!req?.params?.id)
+    return res.status(400).json({ message: "Event ID required." });
+
+  const event = await Event.findOne({ _id: req.params.id }).exec();
+  if (!event) {
+    return res
+      .status(204)
+      .json({ message: `No employee matches ID ${req.params.id}.` });
+  }
+  res.status(200).json({
+    data: event,
+  });
+};
+
 module.exports = {
   createNewEvent,
+  getAllEvents,
+  getEvent
 };

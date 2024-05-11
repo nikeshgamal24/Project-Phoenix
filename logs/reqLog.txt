@@ -399,3 +399,9 @@
 20240511	14:57:53	4f10baf9-70c9-4498-88ef-6e5054ac31d4	POST	undefined	/api/event/create
 20240511	14:59:52	fca3f7a8-db1c-4ead-84f9-d7a628d02683	POST	undefined	/api/event/create
 20240511	15:00:29	6e0933da-8a52-45e9-ab8b-2507d99fdcd6	POST	undefined	/api/event/create
+20240511	15:07:03	2ad910f4-53ee-4459-bd15-5c4bbe7fb9e0	GET	undefined	/api/event/events
+20240511	15:07:14	7b7f0f3c-980d-4342-a61b-efd2a80d43be	POST	undefined	/api/auth
+20240511	15:07:38	027eb9d1-dea0-4e65-9dce-9aead93b416f	GET	undefined	/api/event/events
+20240511	15:08:03	bb3a8452-30c5-4c37-a477-6803ecbc1090	GET	undefined	/api/event/events
+20240511	15:08:28	6dedbfba-eb54-4ecd-a9b3-0fefca81631b	GET	undefined	/api/event/events
+20240511	15:11:50	3826cf63-8498-455a-84c5-71c4c85af914	GET	undefined	/api/event/events/663f370cf2df66a310e3d31f
