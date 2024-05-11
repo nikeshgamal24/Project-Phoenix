@@ -44,7 +44,7 @@ const handleNewUser = async (req, res) => {
         password: hashedPassword,
         phoneNumber: phoneNumber,
         program: program,
-        role: role,
+        role: [role],
       });
     } else if (role === roleList.Supervisor) {
       result = await Teacher.create({

@@ -60,7 +60,7 @@ const handleLogin = async (req, res) => {
 
     //creating refresh token
     const refreshToken = jwt.sign(
-      { email: foundUser.email },
+      { email: foundUser.email ,},
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "1d" }
     );

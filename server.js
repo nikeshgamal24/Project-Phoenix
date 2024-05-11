@@ -43,13 +43,14 @@ app.use(express.static(path.join(__dirname, "/public")));
 //routes middleware
 app.use("/", require("./routes/root"));
 
-app.use("/register", require("./routes/register"));
+app.use("/api/register", require("./routes/register"));
 app.use("/api/oauth/google", require("./routes/oauth"));
-app.use("/auth", require("./routes/auth"));
-app.use("/refresh", require("./routes/refresh"));
-app.use("/logout", require("./routes/logout"));
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/refresh", require("./routes/refresh"));
+app.use("/api/logout", require("./routes/logout"));
 
-// app.use(verifyJWT);
+app.use(verifyJWT);
+app.use("/api/event", require("./routes/api/events"));
 // app.use("/employee", require("./routes/api/employees"));
 
 app.all("*", (req, res) => {
