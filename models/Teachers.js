@@ -30,6 +30,7 @@ const teacherSchema = new Schema({
   refreshToken: {
     type: String,
   },
+  OTP:String,
 });
 
 

@@ -25,6 +25,7 @@ const adminSchema = new Schema({
     type: String,
   },
   refreshToken: String,
+  OTP:String,
 });
 
 module.exports = mongoose.model("Admin", adminSchema);

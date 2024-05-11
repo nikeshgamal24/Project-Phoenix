@@ -47,6 +47,7 @@ app.use("/api/register", require("./routes/register"));
 app.use("/api/oauth/google", require("./routes/oauth"));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/refresh", require("./routes/refresh"));
+app.use("/api/forgotPassword", require("./routes/forgotPassword"));
 app.use("/api/logout", require("./routes/logout"));
 
 app.use(verifyJWT);

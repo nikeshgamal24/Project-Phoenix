@@ -33,6 +33,7 @@ const studentSchema = new Schema({
   refreshToken: {
     type: String,
   },
+  OTP:String,
 });
 
 module.exports = mongoose.model("Student", studentSchema);
