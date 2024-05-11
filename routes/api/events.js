@@ -15,6 +15,7 @@ router
 // .delete(verifyRoles(ROLES_LIST.Admin), employeesController.deleteEmployee);
 
 router.route('/events/:id')
-    .get(verifyRoles(ROLES_LIST.Admin),eventController.getEvent);
+    .get(verifyRoles(ROLES_LIST.Admin),eventController.getEvent)
+    .put(verifyRoles(ROLES_LIST.Admin),eventController.updateEvent)
 
 module.exports = router;

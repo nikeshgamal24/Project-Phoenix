@@ -405,3 +405,13 @@
 20240511	15:08:03	bb3a8452-30c5-4c37-a477-6803ecbc1090	GET	undefined	/api/event/events
 20240511	15:08:28	6dedbfba-eb54-4ecd-a9b3-0fefca81631b	GET	undefined	/api/event/events
 20240511	15:11:50	3826cf63-8498-455a-84c5-71c4c85af914	GET	undefined	/api/event/events/663f370cf2df66a310e3d31f
+20240511	15:23:25	119b84f8-b0c8-41de-a9de-3fdfb37330d9	POST	undefined	/api/event/create
+20240511	15:23:52	41a12a37-8767-4cea-ad4e-f13cc5f5176c	POST	undefined	/api/event/create
+20240511	15:24:03	36838095-c959-4d6b-87cf-b6a2b51ee6ad	GET	undefined	/api/event/events
+20240511	15:25:24	a320fafa-729f-4969-9fe7-42c34a6c8b66	GET	undefined	/api/event/events
+20240511	15:25:32	9932a3b6-3ce3-4b6e-9001-90ff88b0fac7	GET	undefined	/api/event/events/663f370cf2df66a310e3d31f
+20240511	15:26:00	a0ef1623-4b46-4dc4-b73c-d14a443762e0	GET	undefined	/api/event/events/663f370cf2df66a310e3d31f
+20240511	15:37:31	e361bfc2-57a6-4904-933f-7c29ad7f6af4	PUT	undefined	/api/event/events/663f370cf2df66a310e3d31f
+20240511	15:37:48	25826f1a-e4e1-4378-8a41-7e1e8cc736c6	PUT	undefined	/api/event/events/663f370cf2df66a310e3d31f
+20240511	15:38:52	2487e862-72f1-4888-95d0-48d64c2fa613	PUT	undefined	/api/event/events/663f370cf2df66a310e3d31f
+20240511	15:39:28	e5326a89-4536-462e-82f8-5d6703d70aac	GET	undefined	/api/event/events
