@@ -505,3 +505,10 @@
 20240512	10:17:33	6215da95-1759-4b4e-8ab9-9a8a15f49b44	POST	undefined	/api/forgotPassword/password
 20240512	10:17:41	fddd9444-7761-4336-af58-e60b6c63ab81	POST	undefined	/api/auth
 20240512	10:17:45	820f235c-d774-424b-9657-c887a36fece6	POST	undefined	/api/auth
+20240512	11:37:55	fcc899aa-0f73-44b1-a6a8-7b601a245355	POST	undefined	/api/auth
+20240512	11:38:06	beaedfeb-8197-4d74-86bc-eb4fe45e7d3f	POST	undefined	/api/forgotPassword/email
+20240512	11:39:03	e7edfda3-6989-4b86-9d43-c627e5609a40	POST	undefined	/api/forgotPassword/OTP
+20240512	11:39:49	02487f65-f5ed-42a9-a924-c8885987d06f	POST	undefined	/api/forgotPassword/OTP
+20240512	11:40:13	20871061-ab09-4b50-bd3c-9a76855201d4	POST	undefined	/api/forgotPassword/password
+20240512	11:40:18	bd6df46d-2131-4eaa-8c43-16da3a248163	POST	undefined	/api/auth
+20240512	11:40:23	490fe613-97be-476d-abd6-7279aa484685	POST	undefined	/api/auth
