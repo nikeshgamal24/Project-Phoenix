@@ -6,7 +6,12 @@ const Admin = require("../models/Admins");
 const Teacher = require("../models/Teachers");
 
 const matchOTP = async (req, res) => {
-  const { accessToken, OTP } = req.body;
+  const { OTP } = req.body;
+  // const authHeader = req.headers["authorization"];
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401); //Unauthorized
+
+  const accessToken = authHeader.split(" ")[1];
   console.log(req.body);
   if (!accessToken || !OTP)
     return res.sendStatus(401).send("Unauthorized User");
@@ -24,7 +29,7 @@ const matchOTP = async (req, res) => {
         return res.sendStatus(403).send("Forbidden");
 
       const currentUserEmail = decoded.UserInfo.email;
-      const role = decoded.UserInfo.role ;
+      const role = decoded.UserInfo.role;
       console.log(currentUserEmail, role);
 
       try {
