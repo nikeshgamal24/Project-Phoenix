@@ -49,10 +49,10 @@ app.use("/api/auth", require("./routes/auth"));
 app.use("/api/refresh", require("./routes/refresh"));
 app.use("/api/forgotPassword/email", require("./routes/forgotPassword"));
 app.use("/api/logout", require("./routes/logout"));
-
-app.use(verifyJWT);
 app.use("/api/forgotPassword/OTP", require("./routes/matchOTP"));
 app.use("/api/forgotPassword/password", require("./routes/passwordReset"));
+
+app.use(verifyJWT);
 app.use("/api/event", require("./routes/api/events"));
 // app.use("/employee", require("./routes/api/employees"));
 

@@ -7,12 +7,12 @@ const Teacher = require("../models/Teachers");
 
 const passwordReset = async (req, res) => {
   console.log(req.body);
-  const { token, password } = req.body;
-  // const authHeader = req.headers.authorization || req.headers.Authorization;
-  // if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401); //Unauthorized
+  const {password } = req.body;
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401); //Unauthorized
 
-  // const accessToken = authHeader.split(" ")[1];
-  const accessToken = token;
+  const accessToken = authHeader.split(" ")[1];
+  // const accessToken = token;
   if (!accessToken || !password)
     return res.status(401).json({
       message: "Unauthorized User",
