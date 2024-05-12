@@ -21,7 +21,6 @@ const studentSchema = new Schema({
   },
   phoneNumber: {
     type: String,
-    required: [true, "Please enter your phone number!"],
   },
   program: {
     type: String,

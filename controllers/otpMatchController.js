@@ -6,7 +6,8 @@ const Admin = require("../models/Admins");
 const Teacher = require("../models/Teachers");
 
 const matchOTP = async (req, res) => {
-  const {OTP } = req.body;
+  const { OTP } = req.body;
+  console.log(OTP);
   // const authHeader = req.headers["authorization"];
   const authHeader = req.headers.authorization || req.headers.Authorization;
   if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401); //Unauthorized
@@ -14,7 +15,7 @@ const matchOTP = async (req, res) => {
 
   // const accessToken =token;
   if (!accessToken || !OTP)
-    return res.sendStatus(401).send("Unauthorized User");
+    return res.sendStatus(401);
 
   //verify and decode access token and chech for the user
   //evaluate jwt for creating access token
@@ -26,7 +27,7 @@ const matchOTP = async (req, res) => {
       console.log(decoded);
 
       if (err || !decoded.UserInfo.email || !OTP)
-        return res.sendStatus(403).send("Forbidden");
+        return res.sendStatus(403);
 
       const currentUserEmail = decoded.UserInfo.email;
       const role = decoded.UserInfo.role;
@@ -54,12 +55,13 @@ const matchOTP = async (req, res) => {
           return res.sendStatus(400);
         }
 
-        if (!foundUser) return res.sendStatus(404).send("User not found");
+        if (!foundUser) return res.sendStatus(404);
 
+        console.log(foundUser.OTP);
         const otpMatch = await bcrypt.compare(OTP, foundUser.OTP);
-
+        console.log(otpMatch);
         //otp is not matched
-        if (!otpMatch) return res.sendStatus(401).send("Unauthorized User");
+        if (!otpMatch) return res.sendStatus(401);
 
         //when otp is match
         //create access token from refresh token
@@ -73,7 +75,7 @@ const matchOTP = async (req, res) => {
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: "10m" }
         );
-
+        console.log(accessToken);
         res.status(200).json({ accessToken });
       } catch (err) {
         console.error(`"error-message":${err.message}`);
@@ -81,8 +83,6 @@ const matchOTP = async (req, res) => {
       }
     }
   );
-
-  //match otp
 };
 
 module.exports = { matchOTP };
