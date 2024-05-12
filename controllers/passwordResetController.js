@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const roleList = require('../config/roleList');
+const roleList = require("../config/roleList");
 const Student = require("../models/Students");
 const Admin = require("../models/Admins");
 const Teacher = require("../models/Teachers");
@@ -40,12 +40,7 @@ const passwordReset = async (req, res) => {
 
     if (!foundUser) return res.sendStatus(404).send("User not found");
 
-    console.log(OTP);
-    console.log(foundUser);
     const otpMatch = await bcrypt.compare(OTP, foundUser.OTP);
-
-    console.log("otpMatch");
-    console.log(otpMatch);
 
     //otp is not matched
     if (!otpMatch) return res.sendStatus(401).send("Unauthorized User");
@@ -53,7 +48,11 @@ const passwordReset = async (req, res) => {
     //hash new password
     const newHashedPassword = await bcrypt.hash(password, 10);
     foundUser.password = newHashedPassword;
+    foundUser.OTP = "";
     const updatedUser = await foundUser.save();
+    foundUser.password = undefined;
+    foundUser.refreshToken = undefined;
+    foundUser.OTP = undefined;
     return res.status(200).json({
       user: updatedUser,
     });

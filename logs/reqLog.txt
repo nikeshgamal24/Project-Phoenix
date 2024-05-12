@@ -468,3 +468,14 @@
 20240511	21:56:25	11ffa7f3-cbd7-4434-ae0e-b90974c37759	GET	undefined	/api/logout
 20240511	21:56:30	ebd9cddc-2355-4080-ae3c-25b24dcad8df	GET	undefined	/api/event/events
 20240511	21:56:45	1984b621-6959-4bd0-9098-69395886e119	GET	undefined	/api/refresh
+20240511	22:03:44	2d2bc94d-b067-427b-8066-0dc2dc943b99	POST	undefined	/api/register
+20240511	22:04:15	a5be8359-a3c8-4718-816e-be5b21f29779	POST	undefined	/api/register
+20240511	22:04:29	4f88c679-0cc5-4dd2-aa4b-249ac7714a51	POST	undefined	/api/auth
+20240511	22:04:39	80aa50eb-f6b9-4f1d-a536-f6b8cf3b55df	GET	undefined	/api/event/events
+20240511	22:04:49	e26c0c2a-5889-49d5-9a12-4ab1b587109e	GET	undefined	/api/logout
+20240511	22:04:55	e22510a2-b16c-4056-babe-4dd37074a6e2	GET	undefined	/api/refresh
+20240511	22:05:33	b1a89f78-8111-4675-b33e-54da193d8959	GET	undefined	/api/forgotPassword
+20240511	22:06:05	571b850b-cdb5-4b74-9600-0891fc98fb09	POST	undefined	/api/passwordReset
+20240511	22:06:21	c3fbb460-8179-4d1e-99c2-28463d412138	POST	undefined	/api/auth
+20240511	22:06:27	6ceae76a-4641-4f47-91ec-45fc1b3c4efc	POST	undefined	/api/auth
+20240511	22:08:12	f982fdc9-f53e-4022-9f8e-d2d752dc7e20	GET	undefined	/api/logout
