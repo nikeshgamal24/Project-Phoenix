@@ -5,16 +5,14 @@ const Student = require("../models/Students");
 const Admin = require("../models/Admins");
 const Teacher = require("../models/Teachers");
 
-const passwordReset = async (req, res) => {
+const matchOTP = async (req, res) => {
+  const { accessToken, OTP } = req.body;
   console.log(req.body);
-  const { accessToken, password } = req.body;
+  if (!accessToken || !OTP)
+    return res.sendStatus(401).send("Unauthorized User");
 
-  if (!accessToken || !password)
-    return res.status(401).json({
-      message: "Unauthorized User",
-    });
-
-  // verify token and save new hashedPassword to db
+  //verify and decode access token and chech for the user
+  //evaluate jwt for creating access token
   jwt.verify(
     accessToken,
     process.env.ACCESS_TOKEN_SECRET,
@@ -22,11 +20,11 @@ const passwordReset = async (req, res) => {
       console.log("decoded");
       console.log(decoded);
 
-      if (err || !decoded.UserInfo.email)
+      if (err || !decoded.UserInfo.email || !OTP)
         return res.sendStatus(403).send("Forbidden");
 
       const currentUserEmail = decoded.UserInfo.email;
-      const role = decoded.UserInfo.role;
+      const role = decoded.UserInfo.role ;
       console.log(currentUserEmail, role);
 
       try {
@@ -53,6 +51,11 @@ const passwordReset = async (req, res) => {
 
         if (!foundUser) return res.sendStatus(404).send("User not found");
 
+        const otpMatch = await bcrypt.compare(OTP, foundUser.OTP);
+
+        //otp is not matched
+        if (!otpMatch) return res.sendStatus(401).send("Unauthorized User");
+
         //when otp is match
         //create access token from refresh token
         const accessToken = jwt.sign(
@@ -66,22 +69,15 @@ const passwordReset = async (req, res) => {
           { expiresIn: "10m" }
         );
 
-        //hash new password
-        const newHashedPassword = await bcrypt.hash(password, 10);
-        foundUser.password = newHashedPassword;
-        foundUser.OTP = "";
-        const updatedUser = await foundUser.save();
-        updatedUser.password = undefined;
-        updatedUser.refreshToken = undefined;
-        return res.status(200).json({
-          user: updatedUser,
-        });
+        res.status(200).json({ accessToken });
       } catch (err) {
         console.error(`"error-message":${err.message}`);
         return res.sendStatus(400);
       }
     }
   );
+
+  //match otp
 };
 
-module.exports = { passwordReset };
+module.exports = { matchOTP };

@@ -51,6 +51,7 @@ app.use("/api/forgotPassword/email", require("./routes/forgotPassword"));
 app.use("/api/logout", require("./routes/logout"));
 
 app.use(verifyJWT);
+app.use("/api/forgotPassword/OTP", require("./routes/matchOTP"));
 app.use("/api/forgotPassword/password", require("./routes/passwordReset"));
 app.use("/api/event", require("./routes/api/events"));
 // app.use("/employee", require("./routes/api/employees"));
