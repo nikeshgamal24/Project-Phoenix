@@ -1,8 +1,8 @@
 const Student = require("../models/Students");
 const Admin = require("../models/Admins");
 const Teacher = require("../models/Teachers");
-
 const jwt = require("jsonwebtoken");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
 const handleRefreshToken = async (req, res) => {
   const cookies = req.cookies;
@@ -21,7 +21,6 @@ const handleRefreshToken = async (req, res) => {
 
   //evaluate jwt for creating access token
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-
     if (err || foundUser.email !== decoded.email) return res.sendStatus(403);
 
     const role = Object.values(foundUser.role);

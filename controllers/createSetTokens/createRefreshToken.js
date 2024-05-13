@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const createRefreshToken = (foundUser, expirationTime) => {
   const refreshToken = jwt.sign(
     { email: foundUser.email },

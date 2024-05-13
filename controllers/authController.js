@@ -64,7 +64,7 @@ const handleLogin = async (req, res) => {
       const result = await foundUser.save();
 
       // saving refreshToken to the cookie
-      setCookie(refreshToken);
+      setCookie(res,refreshToken);
 
       foundUser.password = undefined;
       foundUser.refreshToken = undefined;

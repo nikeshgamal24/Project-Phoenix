@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { searchUser } = require("./verifyEmails/searchUser");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
 function generateOTP() {
   // Generate a random 6-digit number

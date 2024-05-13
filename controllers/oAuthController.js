@@ -12,6 +12,7 @@ const { validateStudentEmail } = require("./verifyEmails/validateStudentEmail");
 const { searchUser } = require("./verifyEmails/searchUser");
 const { createRefreshToken } = require("./createSetTokens/createRefreshToken");
 const { setCookie } = require("./createSetTokens/setCookie");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
 const updateUserDetails = async (userModel, googleUser, role, refreshToken) => {
   const updatedUser = await userModel.findOneAndUpdate(
@@ -78,6 +79,8 @@ const googleOauthHandler = async (req, res) => {
       console.error("error-message:User doesn't exist");
       return res.redirect("http://localhost:5173");
     }
+    console.log("validUser");
+    console.log(validUser);
 
     //creating access token
     const accessToken = createAccessToken(
@@ -89,7 +92,7 @@ const googleOauthHandler = async (req, res) => {
     //creating refresh token
     //creating refresh token
     const refreshToken = createRefreshToken(
-      foundUser,
+      googleUser,
       process.env.REFRESH_TOKEN_EXPIRATION_TIME
     );
 
@@ -104,8 +107,7 @@ const googleOauthHandler = async (req, res) => {
 
     // set cookie
     // saving refreshToken to the cookie
-    setCookie(refreshToken);
-
+    setCookie(res,refreshToken);
     // redirect back to client
     res.redirect(`http://localhost:5173/${role}`);
   } catch (err) {

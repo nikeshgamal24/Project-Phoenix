@@ -5,6 +5,7 @@ const Student = require("../models/Students");
 const Admin = require("../models/Admins");
 const Teacher = require("../models/Teachers");
 const { searchUser } = require("./verifyEmails/searchUser");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
 const matchOTP = async (req, res) => {
   const { OTP } = req.body;
@@ -30,14 +31,18 @@ const matchOTP = async (req, res) => {
       try {
         // check for user found or not
         let foundUser;
-        if (role.includes(roleList.Student)) {
-          foundUser = await searchUser(Student, currentUserEmail, role);
-        } else if (role.includes(roleList.Supervisor)) {
-          foundUser = await searchUser(Teacher, currentUserEmail, role);
-        } else if (role.includes(roleList.Admin)) {
-          foundUser = await searchUser(Admin, currentUserEmail, role);
-        } else {
-          return res.sendStatus(400);
+        switch (role) {
+          case roleList.Student:
+            foundUser = await searchUser(Student, currentUserEmail, role);
+            break;
+          case roleList.Supervisor:
+            foundUser = await searchUser(Teacher, currentUserEmail, role);
+            break;
+          case roleList.Admin:
+            foundUser = await searchUser(Admin, currentUserEmail, role);
+            break;
+          default:
+            return res.sendStatus(400);
         }
 
         if (!foundUser) return res.sendStatus(404);

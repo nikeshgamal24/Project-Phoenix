@@ -1,4 +1,6 @@
-const createAccessToken = (foundUser,role,expirationTime) => {
+const jwt = require("jsonwebtoken");
+
+const createAccessToken = (foundUser, role, expirationTime) => {
   const accessToken = jwt.sign(
     {
       UserInfo: {
@@ -9,7 +11,7 @@ const createAccessToken = (foundUser,role,expirationTime) => {
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: expirationTime }
   );
-  return accessToken;w
+  return accessToken;
 };
 
 module.exports = { createAccessToken };
