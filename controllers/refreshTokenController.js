@@ -26,15 +26,10 @@ const handleRefreshToken = async (req, res) => {
 
     const role = Object.values(foundUser.role);
     //create access token from refresh token
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email: foundUser.email,
-          role: role,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1h" }
+    const accessToken = createAccessToken(
+      foundUser,
+      role,
+      process.env.ACCESS_TOKEN_EXPIRATION_TIME
     );
     foundUser.password = undefined;
     foundUser.refreshToken = undefined;
