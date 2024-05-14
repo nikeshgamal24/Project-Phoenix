@@ -19,6 +19,8 @@ const handleLogin = async (req, res) => {
 
   // check for user found or not
   let foundUser;
+  console.log(typeof(role));
+  console.log(typeof(roleList.Student));
   switch (role) {
     case roleList.Student:
       foundUser = await searchUser(Student, email, role);
@@ -32,19 +34,19 @@ const handleLogin = async (req, res) => {
     default:
       return res.sendStatus(400);
   }
-
+  
   if (!foundUser)
     return res.status(401).json({
       message: "Unauthorized User", //401 ---> Unauthorized user
     });
-
+console.log('found user working ');
   try {
     //check for the password match
     const match = await bcrypt.compare(password, foundUser.password);
-
+    console.log('password match section working');
     if (match) {
       const role = Object.values(foundUser.role);
-
+      console.log('foundUser role section working');
       //create JWTs for authorization
       //creating access token
       const accessToken = createAccessToken(
@@ -65,9 +67,10 @@ const handleLogin = async (req, res) => {
 
       // saving refreshToken to the cookie
       setCookie(res,refreshToken);
-
+      console.log('setCookie section working');
       foundUser.password = undefined;
       foundUser.refreshToken = undefined;
+      console.log('authController working');
       //sending accessToken as an response
       res.status(200).json({
         accessToken,

@@ -39,6 +39,8 @@ const googleOauthHandler = async (req, res) => {
     // get the code from qs
     const code = req.query.code;
     const role = Number(req.query.state);
+    console.log("code and role");
+    console.log(code,role);
 
     // get id and access token with code
     const { id_token, access_token } = await getGoogleOAuthTokens(
@@ -46,9 +48,11 @@ const googleOauthHandler = async (req, res) => {
       res,
       code
     );
+    console.log('getGoogleOAuthTokens working',id_token,access_token);
 
     const googleUser = await getGoogleUser({ id_token, access_token });
     // jwt.decode(id_token);
+    console.log("googleUser",googleUser);
 
     if (!googleUser.verified_email) {
       res.sendStatus(403).send("Google account is not verified");
@@ -61,23 +65,27 @@ const googleOauthHandler = async (req, res) => {
       case roleList.Admin:
         validUser = await searchUser(Admin, googleUser.email, role);
         validUserModel = Admin;
+        console.log("admin section oauth",validUser,validUserModel);
         break;
       case roleList.Student:
         //validate student email-->boolean state
         validUser = validateStudentEmail(googleUser.email);
         validUserModel = Student;
+        console.log("student section oauth",validUser,validUserModel);
         break;
       case roleList.Supervisor:
         validUser = validateSupervisorEmail(googleUser.email);
         validUserModel = Teacher;
+        console.log("supervisor section oauth",validUser,validUserModel);
         break;
       default:
         return res.sendStatus(401);
     }
-
+    console.log("Outside switch statement");
+    console.log("validUser section oauth",validUser,validUserModel);
     if (!validUser) {
       console.error("error-message:User doesn't exist");
-      return res.redirect("http://localhost:5173");
+      return res.redirect(process.env.CLIENT_BASE_URL);
     }
     console.log("validUser");
     console.log(validUser);
@@ -95,7 +103,7 @@ const googleOauthHandler = async (req, res) => {
       googleUser,
       process.env.REFRESH_TOKEN_EXPIRATION_TIME
     );
-
+ console.log("Tokens",accessToken,refreshToken);
     // upsert the user based on the role and model
     //function passing the role required model and refreshToken to save to the db
     const user = await updateUserDetails(
@@ -105,14 +113,16 @@ const googleOauthHandler = async (req, res) => {
       refreshToken
     );
 
+    console.log("user after update",user);
     // set cookie
     // saving refreshToken to the cookie
     setCookie(res,refreshToken);
+    console.log("cookie set oauth");
     // redirect back to client
-    res.redirect(`http://localhost:5173/${role}`);
+    res.redirect(`${process.env.CLIENT_BASE_URL}/${role}`);
   } catch (err) {
     console.error(err.message);
-    return res.redirect("http://localhost:5173");
+    return res.redirect(process.env.CLIENT_BASE_URL);
   }
 };
 
