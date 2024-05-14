@@ -5,6 +5,14 @@ const roleList = require("../config/roleList");
 const jwt = require("jsonwebtoken");
 const { getGoogleOAuthTokens } = require("./getGoogleOAuthTokens");
 const { getGoogleUser } = require("./getGoogleUser");
+const {
+  validateSupervisorEmail,
+} = require("./verifyEmails/validateSupervisorEmail");
+const { validateStudentEmail } = require("./verifyEmails/validateStudentEmail");
+const { searchUser } = require("./verifyEmails/searchUser");
+const { createRefreshToken } = require("./createSetTokens/createRefreshToken");
+const { setCookie } = require("./createSetTokens/setCookie");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
 const updateUserDetails = async (userModel, googleUser, role, refreshToken) => {
   const updatedUser = await userModel.findOneAndUpdate(
@@ -23,8 +31,6 @@ const updateUserDetails = async (userModel, googleUser, role, refreshToken) => {
       new: true,
     }
   );
-  console.log("inside udpatUserDetails");
-  console.log(updatedUser);
   return updatedUser;
 };
 
@@ -33,7 +39,8 @@ const googleOauthHandler = async (req, res) => {
     // get the code from qs
     const code = req.query.code;
     const role = Number(req.query.state);
-    console.log(typeof role);
+    console.log("code and role");
+    console.log(code,role);
 
     // get id and access token with code
     const { id_token, access_token } = await getGoogleOAuthTokens(
@@ -42,8 +49,11 @@ const googleOauthHandler = async (req, res) => {
       code
     );
 console.log("getGoogleOAuthTokens",id_token,access_token);
+
+
     const googleUser = await getGoogleUser({ id_token, access_token });
     // jwt.decode(id_token);
+    console.log("googleUser",googleUser);
 
     if (!googleUser.verified_email) {
       res.sendStatus(403).send("Google account is not verified");
@@ -51,82 +61,69 @@ console.log("getGoogleOAuthTokens",id_token,access_token);
 
     let validUser;
     let validUserModel;
-    // let necessaryModel;
-    if (role === roleList.Admin) {
-      //validate admin email-->boolean state
-      //just check whether the googleUser present in db inside admin collection or not
-      validUser = await Admin.findOne({
-        email: googleUser.email,
-        role: { $in: [role] },
-      }).exec();
-      validUserModel = Admin;
-    } else if (role === roleList.Student) {
-      //validate student email-->boolean state
-      // Define the regex pattern
-      const studentEmailRegex = /^[a-zA-Z]+\.[0-9]{6}@ncit\.edu\.np$/;
 
-      validUser = studentEmailRegex.test(googleUser.email);
-      validUserModel = Student;
-    } else if (role === roleList.Supervisor) {
-      //validate super email-->boolean state
-      const supervisorEmailRegex =
-        /^[a-zA-Z]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*\.edu\.np$/;
-      const studentEmailRegex = /^[a-zA-Z]+\.[0-9]{6}@ncit\.edu\.np$/;
-
-      const isStudentEmail = studentEmailRegex.test(googleUser.email);
-      validUser =
-        supervisorEmailRegex.test(googleUser.email) && !isStudentEmail;
-      validUserModel = Teacher;
-    } else {
-      return res.sendStatus(401);
+    switch (role) {
+      case roleList.Admin:
+        validUser = await searchUser(Admin, googleUser.email, role);
+        validUserModel = Admin;
+        console.log("admin section oauth",validUser,validUserModel);
+        break;
+      case roleList.Student:
+        //validate student email-->boolean state
+        validUser = validateStudentEmail(googleUser.email);
+        validUserModel = Student;
+        console.log("student section oauth",validUser,validUserModel);
+        break;
+      case roleList.Supervisor:
+        validUser = validateSupervisorEmail(googleUser.email);
+        validUserModel = Teacher;
+        console.log("supervisor section oauth",validUser,validUserModel);
+        break;
+      default:
+        return res.sendStatus(401);
     }
-
+    console.log("Outside switch statement");
+    console.log("validUser section oauth",validUser,validUserModel);
     if (!validUser) {
       console.error("error-message:User doesn't exist");
-      return res.redirect("http://localhost:5173");
+      return res.redirect(process.env.CLIENT_BASE_URL);
     }
+    console.log("validUser");
+    console.log(validUser);
 
     //creating access token
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email: googleUser.email,
-          role: roleList.Admin,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1h" }
+    const accessToken = createAccessToken(
+      googleUser,
+      role,
+      process.env.ACCESS_TOKEN_EXPIRATION_TIME
     );
 
     //creating refresh token
-    const refreshToken = jwt.sign(
-      { email: googleUser.email },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
+    //creating refresh token
+    const refreshToken = createRefreshToken(
+      googleUser,
+      process.env.REFRESH_TOKEN_EXPIRATION_TIME
     );
-
+ console.log("Tokens",accessToken,refreshToken);
     // upsert the user based on the role and model
     //function passing the role required model and refreshToken to save to the db
-    const user =await updateUserDetails(
+    const user = await updateUserDetails(
       validUserModel,
       googleUser,
       role,
       refreshToken
     );
-    console.log(user);
+
+    console.log("user after update",user);
     // set cookie
     // saving refreshToken to the cookie
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      sameSite: "None",
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    setCookie(res,refreshToken);
+    console.log("cookie set oauth");
     // redirect back to client
-    res.redirect(`http://localhost:5173/${role}`);
+    res.redirect(`${process.env.CLIENT_BASE_URL}/${role}`);
   } catch (err) {
     console.error(err.message);
-    return res.redirect("http://localhost:5173");
+    return res.redirect(process.env.CLIENT_BASE_URL);
   }
 };
 

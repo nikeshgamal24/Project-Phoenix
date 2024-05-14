@@ -5,6 +5,8 @@ const Teacher = require("../models/Teachers");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { searchUser } = require("./verifyEmails/searchUser");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
 function generateOTP() {
   // Generate a random 6-digit number
@@ -18,25 +20,22 @@ const forgotPassword = async (req, res) => {
   //check for email and role
   if (!email || !role) return res.sendStatus(400);
 
+  // check for user found or not
   let foundUser;
-  if (role === roleList.Admin) {
-    foundUser = await Admin.findOne({
-      email: email,
-      role: { $in: [role] },
-    }).exec();
-  } else if (role === roleList.Student) {
-    foundUser = await Student.findOne({
-      email: email,
-      role: { $in: [role] },
-    }).exec();
-  } else if (role === roleList.Supervisor) {
-    foundUser = await Teacher.findOne({
-      email: email,
-      role: { $in: [role] },
-    }).exec();
-  } else {
-    return res.sendStatus(400);
+  switch (role) {
+    case roleList.Student:
+      foundUser = await searchUser(Student, email, role);
+      break;
+    case roleList.Supervisor:
+      foundUser = await searchUser(Teacher, email, role);
+      break;
+    case roleList.Admin:
+      foundUser = await searchUser(Admin, email, role);
+      break;
+    default:
+      return res.sendStatus(400);
   }
+
   //404 status check
   if (!foundUser)
     return res
@@ -53,15 +52,10 @@ const forgotPassword = async (req, res) => {
     const resultUser = await foundUser.save();
 
     //create an access token to send to the client side
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email: foundUser.email,
-          role: foundUser.role,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "10m" }
+    const accessToken = createAccessToken(
+      foundUser,
+      role,
+      process.env.ACCESS_TOKEN_EXPIRATION_TIME
     );
 
     // Send the reset token to the user's email

@@ -1,8 +1,8 @@
 const Student = require("../models/Students");
 const Admin = require("../models/Admins");
 const Teacher = require("../models/Teachers");
-
 const jwt = require("jsonwebtoken");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
 const handleRefreshToken = async (req, res) => {
   const cookies = req.cookies;
@@ -21,20 +21,14 @@ const handleRefreshToken = async (req, res) => {
 
   //evaluate jwt for creating access token
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-
     if (err || foundUser.email !== decoded.email) return res.sendStatus(403);
 
     const role = Object.values(foundUser.role);
     //create access token from refresh token
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email: foundUser.email,
-          role: role,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1h" }
+    const accessToken = createAccessToken(
+      foundUser,
+      role,
+      process.env.ACCESS_TOKEN_EXPIRATION_TIME
     );
     foundUser.password = undefined;
     foundUser.refreshToken = undefined;

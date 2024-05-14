@@ -5,3 +5,19 @@
 20240508	11:56:50	a6947f42-ecc0-445d-a3b1-4c39a9b458e8	ReferenceError:decoded is not defined
 20240508	11:57:12	e6f03d0e-9037-42de-9546-0ee485f6db86	ReferenceError:decoded is not defined
 20240508	11:58:34	4d15f66f-ceef-408f-bdc2-f7685ff14da3	ReferenceError:accessToken is not defined
+20240514	15:15:11	2b326782-6e96-4515-b89c-17fbadaa6fa9	Error:Not Allowed by CORS
+20240514	15:15:12	42db08b3-0f0a-487f-b7fa-becb86cd6cbd	Error:Not Allowed by CORS
+20240514	15:22:58	aa626c5e-218f-455c-928c-fab6c1196ada	TypeError:allowedOrigins.includes is not a function
+20240514	15:22:59	f7f1b932-a1ca-4335-acdb-4f7a2c9f6248	TypeError:allowedOrigins.includes is not a function
+20240514	15:23:38	1c5cc17d-d0ce-4f8b-9ea2-1b2986b6ca4e	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:23:39	3fa8c9ff-df14-4999-99c4-fd539646bf0d	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:24:53	e15aadce-6852-4232-8db7-6589ed3f43f2	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:24:53	0337c1eb-8bfb-4b83-b487-5b71c48b0aee	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:26:33	c5289115-4fb2-4fc1-94d4-120428dcf2bb	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:26:33	58820b77-c901-47f1-bf60-6ecc2cb398e2	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:27:27	7c9bca15-9a11-41c8-ad33-e38d51cf3e85	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:27:28	7b5f13ce-5de6-4e3d-b6de-38c846fae91b	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:28:11	cce5239b-442f-448b-b8b4-33f9b2da0152	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:28:12	60ee8298-85fb-4a0b-9ed4-c0e2db16ab99	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:29:19	77cf0406-b099-4b77-990a-e26b25647349	TypeError:allowedOrigins.indexOf is not a function
+20240514	15:29:20	835ae3ca-2b58-41b6-89af-d742f8f51016	TypeError:allowedOrigins.indexOf is not a function

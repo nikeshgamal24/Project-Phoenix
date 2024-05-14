@@ -4,6 +4,10 @@ const Admin = require("../models/Admins");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const roleList = require("../config/roleList");
+const { searchUser } = require("./verifyEmails/searchUser");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
+const { createRefreshToken } = require("./createSetTokens/createRefreshToken");
+const { setCookie } = require("./createSetTokens/setCookie");
 
 const handleLogin = async (req, res) => {
   const { email, password, role } = req.body;
@@ -15,78 +19,71 @@ const handleLogin = async (req, res) => {
 
   // check for user found or not
   let foundUser;
-  if (role === roleList.Student) {
-    foundUser = await Student.findOne({
-      email: email,
-      role: { $in: [role] },
-    }).exec();
-  } else if (role === roleList.Supervisor || role === roleList.Defense) {
-    foundUser = await Teacher.findOne({
-      email: email,
-      role: { $in: [role] },
-    }).exec();
-  } else if (role === roleList.Admin) {
-    foundUser = await Admin.findOne({
-      email: email,
-      role: { $in: [role] },
-    }).exec();
-  } else {
-    return res.sendStatus(400);
+  console.log(typeof(role));
+  console.log(typeof(roleList.Student));
+  switch (role) {
+    case roleList.Student:
+      foundUser = await searchUser(Student, email, role);
+      break;
+    case roleList.Supervisor:
+      foundUser = await searchUser(Teacher, email, role);
+      break;
+    case roleList.Admin:
+      foundUser = await searchUser(Admin, email, role);
+      break;
+    default:
+      return res.sendStatus(400);
   }
-
+  
   if (!foundUser)
     return res.status(401).json({
       message: "Unauthorized User", //401 ---> Unauthorized user
     });
+console.log('found user working ');
+  try {
+    //check for the password match
+    const match = await bcrypt.compare(password, foundUser.password);
+    console.log('password match section working');
+    if (match) {
+      const role = Object.values(foundUser.role);
+      console.log('foundUser role section working');
+      //create JWTs for authorization
+      //creating access token
+      const accessToken = createAccessToken(
+        foundUser,
+        role,
+        process.env.ACCESS_TOKEN_EXPIRATION_TIME
+      );
 
-  //check for the password match
-  const match = await bcrypt.compare(password, foundUser.password);
+      //creating refresh token
+      const refreshToken = createRefreshToken(
+        foundUser,
+        process.env.REFRESH_TOKEN_EXPIRATION_TIME
+      );
 
-  if (match) {
-    const role = Object.values(foundUser.role);
+      // sving refreshToken with currrent user
+      foundUser.refreshToken = refreshToken;
+      const result = await foundUser.save();
 
-    //create JWTs for authorization
-    //creating access token
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email: foundUser.email,
-          role: role,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    //creating refresh token
-    const refreshToken = jwt.sign(
-      { email: foundUser.email ,},
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    // sving refreshToken with currrent user
-    foundUser.refreshToken = refreshToken;
-    const result = await foundUser.save();
-    // saving refreshToken to the cookie
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      sameSite: "None",
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-
-    foundUser.password = undefined;
-    foundUser.refreshToken = undefined;
-    //sending accessToken as an response
-    res.status(200).json({
-      accessToken,
-      user: foundUser,
-    });
-  } else {
-    return res.status(401).json({
-      message: "Unauthorized User", //401 ---> Unauthorized user
-    });
+      // saving refreshToken to the cookie
+      setCookie(res,refreshToken);
+      console.log('setCookie section working');
+      foundUser.password = undefined;
+      foundUser.refreshToken = undefined;
+      console.log('authController working');
+      //sending accessToken as an response
+      res.status(200).json({
+        accessToken,
+        user: foundUser,
+      });
+    } else {
+      return res.status(401).json({
+        message: "Unauthorized User", //401 ---> Unauthorized user
+      });
+    }
+  } catch (err) {
+    console.log(`"error-message":${err.message}`);
+    return res.sendStatus(400);
   }
 };
 

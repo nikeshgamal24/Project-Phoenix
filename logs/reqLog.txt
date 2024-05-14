@@ -690,6 +690,7 @@
 20240512	19:02:54	3249fba7-eb2c-46bb-9348-66ff2cd6fda8	POST	http://localhost:5173	/api/forgotPassword/password
 20240512	19:03:02	1248930b-01de-442e-abe5-e9445c1d8556	OPTIONS	http://localhost:5173	/api/auth
 20240512	19:03:02	525609bf-842c-48e7-a0c3-730b91a3894c	POST	http://localhost:5173	/api/auth
+
 20240514	16:53:13	b17ea151-9528-409f-bcbc-29d56f6aa521	GET	undefined	/api/oauth/google?state=2001&code=4%2F0AdLIrYdhwdzXJJ9JlFjNST0Jt5EQKYZEbFwytPfRkbnOosQBCY06WaPmLypwaKsrdlxvWA&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&authuser=0&hd=ncit.edu.np&prompt=consent
 20240514	16:55:01	a6c80a31-8feb-4059-bd8f-9923a8c3b894	GET	undefined	/api/oauth/google?state=2001&code=4%2F0AdLIrYfx1o7m1AjSsJNti4SMHigLR4dTI6b3_8RPzmvoyVjmX6sSGwt7Pw2MPpjQeqRqLw&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&authuser=0&hd=ncit.edu.np&prompt=consent
 20240514	16:56:55	c45cc32a-efcd-4d4a-9668-fc424087f108	GET	undefined	/api/oauth/google?state=2001&code=4%2F0AdLIrYeDtYr81sASXuaFsJ-BTJE4OkGiisv7-aHkTGUK-9wU4MDpibkeWeTsYrq3pVpREQ&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&authuser=0&hd=ncit.edu.np&prompt=consent
@@ -702,3 +703,4 @@
 20240514	16:57:12	15aea73a-969f-4baf-aa2d-bd8af672fdfb	OPTIONS	http://localhost:5173	/api/logout
 20240514	16:57:12	055fb8cd-a1fc-45d9-ab48-afc6d4a2fd5c	GET	http://localhost:5173	/api/logout
 20240514	16:57:12	f35d737b-0f70-4678-8227-327027659b31	GET	http://localhost:5173	/api/refresh
+
