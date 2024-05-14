@@ -4,6 +4,9 @@ const Admin = require("../models/Admins");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const roleList = require("../config/roleList");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
+const { createRefreshToken } = require("./createSetTokens/createRefreshToken");
+const { setCookie } = require("./createSetTokens/setCookie");
 
 const handleLogin = async (req, res) => {
   const { email, password, role } = req.body;
@@ -47,34 +50,20 @@ const handleLogin = async (req, res) => {
 
     //create JWTs for authorization
     //creating access token
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email: foundUser.email,
-          role: role,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1h" }
-    );
+    const accessToken = createAccessToken(foundUser,role,process.env.ACCESS_TOKEN_EXPIRATION_TIME);
+    if (!accessToken) return res.status(400).send("Access Token creation fail");
+
 
     //creating refresh token
-    const refreshToken = jwt.sign(
-      { email: foundUser.email ,},
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
-    );
+    const refreshToken = createRefreshToken(foundUser,process.env.REFRESH_TOKEN_EXPIRATION_TIME );
+    if (!refreshToken) return res.status(400).send("Refresh Token creation fail");
+
 
     // sving refreshToken with currrent user
     foundUser.refreshToken = refreshToken;
     const result = await foundUser.save();
     // saving refreshToken to the cookie
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      sameSite: "None",
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    setCookie(res,refreshToken);
 
     foundUser.password = undefined;
     foundUser.refreshToken = undefined;

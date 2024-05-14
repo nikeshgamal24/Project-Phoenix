@@ -4,6 +4,8 @@ const roleList = require("../config/roleList");
 const Student = require("../models/Students");
 const Admin = require("../models/Admins");
 const Teacher = require("../models/Teachers");
+require("dotenv").config();
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
 const passwordReset = async (req, res) => {
   console.log(req.body);
@@ -59,16 +61,9 @@ const passwordReset = async (req, res) => {
 
         //when otp is match
         //create access token from refresh token
-        const accessToken = jwt.sign(
-          {
-            UserInfo: {
-              email: foundUser.email,
-              role: role,
-            },
-          },
-          process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "10m" }
-        );
+        const accessToken = createAccessToken(foundUser,role,process.env.OTP_ACCESS_TOKEN_EXPIRATION_TIME);
+
+        if (!accessToken) return res.status(400).send("Access Token creation fail");
 
         //hash new password
         const newHashedPassword = await bcrypt.hash(password, 10);

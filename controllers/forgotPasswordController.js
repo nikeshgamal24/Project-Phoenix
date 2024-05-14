@@ -5,6 +5,7 @@ const Teacher = require("../models/Teachers");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
 function generateOTP() {
   // Generate a random 6-digit number
@@ -53,16 +54,7 @@ const forgotPassword = async (req, res) => {
     const resultUser = await foundUser.save();
 
     //create an access token to send to the client side
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email: foundUser.email,
-          role: foundUser.role,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "10m" }
-    );
+    const accessToken = createAccessToken(foundUser,foundUser.role,process.env.OTP_ACCESS_TOKEN_EXPIRATION_TIME);
 
     // Send the reset token to the user's email
     const transporter = nodemailer.createTransport({

@@ -2,9 +2,12 @@ const Admin = require("../models/Admins");
 const Student = require("../models/Students");
 const Teacher = require("../models/Teachers");
 const roleList = require("../config/roleList");
-const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const { getGoogleOAuthTokens } = require("./getGoogleOAuthTokens");
 const { getGoogleUser } = require("./getGoogleUser");
+const { createAccessToken } = require("./createSetTokens/createAccessToken");
+const { createRefreshToken } = require("./createSetTokens/createRefreshToken");
+const { setCookie } = require("./createSetTokens/setCookie");
 
 const updateUserDetails = async (userModel, googleUser, role, refreshToken) => {
   const updatedUser = await userModel.findOneAndUpdate(
@@ -86,28 +89,26 @@ const googleOauthHandler = async (req, res) => {
       return res.redirect("http://localhost:5173");
     }
 
+    console.log("entering into access token creation");
     //creating access token
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email: googleUser.email,
-          role: roleList.Admin,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1h" }
+    const accessToken = createAccessToken(
+      googleUser,
+      role,
+      process.env.ACCESS_TOKEN_EXPIRATION_TIME
     );
 
+    console.log(accessToken);
+    if (!accessToken) return res.status(400).send("Access Token creation fail");
     //creating refresh token
-    const refreshToken = jwt.sign(
-      { email: googleUser.email },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
+    const refreshToken = createRefreshToken(
+      googleUser,
+      process.env.REFRESH_TOKEN_EXPIRATION_TIME
     );
-
+    console.log(refreshToken);
+    if (!refreshToken) return res.status(400).send("Refresh Token creation fail");
     // upsert the user based on the role and model
     //function passing the role required model and refreshToken to save to the db
-    const user =await updateUserDetails(
+    const user = await updateUserDetails(
       validUserModel,
       googleUser,
       role,
@@ -116,12 +117,8 @@ const googleOauthHandler = async (req, res) => {
     console.log(user);
     // set cookie
     // saving refreshToken to the cookie
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      sameSite: "None",
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    setCookie(res, refreshToken);
+
     // redirect back to client
     res.redirect(`http://localhost:5173/${role}`);
   } catch (err) {
