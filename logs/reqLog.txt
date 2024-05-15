@@ -921,3 +921,5 @@
 20240515	22:42:46	19fe2cf9-8c3a-45a2-b1a3-658ebdfad0de	POST	undefined	/api/event/create
 20240515	22:42:51	71e425bb-8789-461b-b321-cea6edcfc42f	POST	undefined	/api/event/create
 20240515	22:49:05	8438c091-e0d5-4c11-b01a-f2b87f840def	POST	undefined	/api/event/create
+20240515	23:42:40	62e8ad4a-f6dd-428a-b031-632da966d47c	GET	undefined	/api/refresh
+20240515	23:42:53	87b8c489-3a73-4d4a-91b8-36ba37985004	POST	undefined	/api/event/create

@@ -23,6 +23,7 @@ const eventSchema = new Schema(
     },
     eventStatus: {
       type: String,
+      default:"101"
     },
     proposal: {
       phase: {
