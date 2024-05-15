@@ -3,6 +3,9 @@ const router = express.Router();
 const ROLES_LIST = require("../../config/roleList");
 const verifyRoles = require("../../middleware/verifyRoles");
 const eventController = require("../../controllers/eventController");
+const Event = require("../../models/Admins");
+
+
 
 router
   .route("/create")
@@ -14,8 +17,9 @@ router
 // .put(verifyRoles(ROLES_LIST.Admin), )
 // .delete(verifyRoles(ROLES_LIST.Admin), employeesController.deleteEmployee);
 
-router.route('/events/:id')
-    .get(verifyRoles(ROLES_LIST.Admin),eventController.getEvent)
-    .put(verifyRoles(ROLES_LIST.Admin),eventController.updateEvent)
+router
+  .route("/events/:id")
+  .get(verifyRoles(ROLES_LIST.Admin), eventController.getEvent)
+  .put(verifyRoles(ROLES_LIST.Admin), eventController.updateEvent);
 
 module.exports = router;

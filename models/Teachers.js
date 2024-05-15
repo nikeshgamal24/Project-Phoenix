@@ -31,6 +31,12 @@ const teacherSchema = new Schema({
     type: String,
   },
   OTP:String,
+  timeStamps: {
+    type: Date,
+    timestamps: true,
+},
+}, {
+timestamps: true,
 });
 
 

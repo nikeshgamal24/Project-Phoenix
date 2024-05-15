@@ -1,4 +1,17 @@
 const Event = require("../models/Events");
+const { generateEventId } = require("./utility functions/generateEventId");
+
+//sensitive fields that will be undefined by the funciton filterSensitiveFields
+const sensitiveFields = ["role", "password", "refreshToken"];
+
+// Function to filter out sensitive fields from an object
+const filterSensitiveFields = (obj, sensitiveFields) => {
+  const filteredObj = { ...obj };
+  sensitiveFields.forEach((field) => {
+    filteredObj[field] = undefined;
+  });
+  return filteredObj;
+};
 
 // Create a new event
 const createNewEvent = async (req, res) => {
@@ -9,13 +22,17 @@ const createNewEvent = async (req, res) => {
   ) {
     return res.status(400).json({ message: "Required Fields are empty" });
   }
+  const eventId =await generateEventId(Number(req.body.eventType));
+
 
   try {
     const newEvent = await Event.create({
+      eventId:eventId,
       eventName: req.body.eventName,
       description: req.body.description,
       eventTarget: req.body.eventTarget,
       eventType: req.body.eventType,
+      eventStatus:req.body.eventStatus,
       proposal: {
         defense: req.body.proposal.defense,
         defenseDate: req.body.proposal.defenseDate,
@@ -34,9 +51,19 @@ const createNewEvent = async (req, res) => {
       year: req.body.year,
       author: req.userId,
     });
+    console.log("after creation");
+    console.log(newEvent);
+    // // // Populate the author field
+    await newEvent.populate("author");
+
+    const filteredDetails = filterSensitiveFields(
+      newEvent.author.toObject(),
+      sensitiveFields
+    );
 
     return res.status(201).json({
-      event: newEvent,
+      event: { ...newEvent.toObject(), author: filteredDetails },
+      // newEvent: newEvent,
     });
   } catch (err) {
     console.error(err.message);
@@ -45,13 +72,31 @@ const createNewEvent = async (req, res) => {
 };
 
 // get all created events
+
 const getAllEvents = async (req, res) => {
-  const events = await Event.find();
-  if (!events) return res.status(204).json({ message: "No employees found." });
-  res.status(200).json({
-    results: events.length,
-    data: events,
-  });
+  try {
+    // Find all events and populate the author field
+    const events = await Event.find().populate("author").lean();
+
+    // Check if events are empty
+    if (!events.length)
+      return res.status(204).json({ message: "No events found." });
+
+    // Filter sensitive fields from authors
+    const populatedEvents = events.map((event) => {
+      event.author = filterSensitiveFields(event.author, sensitiveFields);
+      return event;
+    });
+
+    // Send response
+    res.status(200).json({
+      results: populatedEvents.length,
+      data: populatedEvents,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
+  }
 };
 
 //update a specified event based on event id
@@ -98,18 +143,31 @@ const updateEvent = async (req, res) => {
 
 //get specified event based on event id
 const getEvent = async (req, res) => {
-  if (!req?.params?.id)
+  // Check if ID is provided
+  if (!req?.params?.id) {
     return res.status(400).json({ message: "Event ID required." });
-
-  const event = await Event.findOne({ _id: req.params.id }).exec();
-  if (!event) {
-    return res
-      .status(204)
-      .json({ message: `No employee matches ID ${req.params.id}.` });
   }
-  res.status(200).json({
-    data: event,
-  });
+
+  try {
+    // Find event by ID and populate the author field
+    const event = await Event.findById(req.params.id).populate("author").lean();
+
+    // Check if event exists
+    if (!event) {
+      return res
+        .status(204)
+        .json({ message: `No event matches ID ${req.params.id}.` });
+    }
+
+    // Filter sensitive fields from the author
+    event.author = filterSensitiveFields(event.author, sensitiveFields);
+
+    // Send response
+    return res.status(200).json({ data: event });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error." });
+  }
 };
 
 module.exports = {

@@ -42,6 +42,12 @@ const studentSchema = new Schema({
     type: String,
   },
   OTP:String,
+  timeStamps: {
+    type: Date,
+    timestamps: true,
+},
+}, {
+timestamps: true,
 });
 
 module.exports = mongoose.model("Student", studentSchema);
