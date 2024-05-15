@@ -12,8 +12,11 @@ const {
   extractRollAndBatch,
 } = require("./utility functions/extractRollAndBatch");
 const {
-  updateRollAndBatch,
-} = require("./utility functions/updateRollAndBatch");
+   updateRollBatchAndStatus,
+} = require("./utility functions/updateRollBatchAndStatus");
+const {
+  initializeProgressStatus,
+} = require("./utility functions/initializeProgressStatus");
 
 const updateUserDetails = async (userModel, googleUser, role, refreshToken) => {
   const updatedUser = await userModel.findOneAndUpdate(
@@ -32,8 +35,6 @@ const updateUserDetails = async (userModel, googleUser, role, refreshToken) => {
       new: true,
     }
   );
-  console.log("inside udpatUserDetails");
-  console.log(updatedUser);
   return updatedUser;
 };
 
@@ -42,8 +43,6 @@ const googleOauthHandler = async (req, res) => {
     // get the code from qs
     const code = req.query.code;
     const role = Number(req.query.state);
-    console.log(typeof role);
-
     // get id and access token with code
     const { id_token, access_token } = await getGoogleOAuthTokens(
       req,
@@ -58,8 +57,7 @@ const googleOauthHandler = async (req, res) => {
       res.sendStatus(403).send("Google account is not verified");
     }
 
-    let validUser;
-    let validUserModel;
+    let validUser, validUserModel, rollNumber, batchNumber, progressStatus;
     // let necessaryModel;
     if (role === roleList.Admin) {
       //validate admin email-->boolean state
@@ -76,9 +74,14 @@ const googleOauthHandler = async (req, res) => {
 
       validUser = studentEmailRegex.test(googleUser.email);
       validUserModel = Student;
-      const { rollNumber, batchNumber } = extractRollAndBatch(googleUser.email);
-      console.log(rollNumber, batchNumber );
-      updateRollAndBatch(res,googleUser.email, rollNumber, batchNumber);
+
+      //extract roll number and batch number from the email address of the student
+      const { rollNo, batchNo } = extractRollAndBatch(googleUser.email);
+      rollNumber = rollNo;
+      batchNumber = batchNo;
+
+      //determine the progress status of the student on their project based on the year of their academic and setting the progress status to database
+      progressStatus = initializeProgressStatus(batchNumber);
     } else if (role === roleList.Supervisor) {
       //validate super email-->boolean state
       const supervisorEmailRegex =
@@ -124,7 +127,18 @@ const googleOauthHandler = async (req, res) => {
       role,
       refreshToken
     );
-    console.log(user);
+
+    //update rollnumber, batch number only if the googleUser is a student of the organization else skip the update function call
+    if (validUserModel === Student) {
+      updateRollBatchAndStatus(
+        res,
+        googleUser.email,
+        rollNumber,
+        batchNumber,
+        progressStatus
+      );
+    }
+
     // set cookie
     // saving refreshToken to the cookie
     setCookie(res, refreshToken);

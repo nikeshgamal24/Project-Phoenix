@@ -1,5 +1,5 @@
 const Student = require('../../models/Students');
-const updateRollAndBatch = async (res,email,rollNumber,batchNumber)=>{
+const updateRollBatchAndStatus = async (res,email,rollNumber,batchNumber,progressStatus)=>{
     try{
         if(!email) return res.sendStatus(401);
 
@@ -13,6 +13,7 @@ const updateRollAndBatch = async (res,email,rollNumber,batchNumber)=>{
               {
                 rollNumber: rollNumber,
                 batchNumber:batchNumber,
+                progressStatus:progressStatus,
               }
             );
           } 
@@ -23,4 +24,4 @@ const updateRollAndBatch = async (res,email,rollNumber,batchNumber)=>{
 
 }
 
-module.exports = {updateRollAndBatch};
+module.exports = {updateRollBatchAndStatus};
