@@ -7,6 +7,12 @@ const studentSchema = new Schema({
       type: String,
       required: [true, "Please, Enter your full name!"],
   },
+  rollNumber:{
+    type:Number,
+  },
+  batchNumber:{
+    type:Number,
+  },
   email: {
     type: String,
     required: [true, "Please your calid email address!"],
@@ -23,8 +29,7 @@ const studentSchema = new Schema({
     type: String,
   },
   program: {
-    type: String,
-    enum: ["BESE", "BEIT", "BECE", "BCA", "BEELX"],
+    type: Number,
   },
   role: {
    type:[Number],

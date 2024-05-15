@@ -54,6 +54,7 @@ app.use("/api/forgotPassword/password", require("./routes/passwordReset"));
 
 app.use(verifyJWT);
 app.use("/api/event", require("./routes/api/events"));
+app.use("/api/student", require("./routes/api/students"));
 // app.use("/employee", require("./routes/api/employees"));
 
 app.all("*", (req, res) => {

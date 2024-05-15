@@ -8,6 +8,12 @@ const { getGoogleUser } = require("./getGoogleUser");
 const { createAccessToken } = require("./createSetTokens/createAccessToken");
 const { createRefreshToken } = require("./createSetTokens/createRefreshToken");
 const { setCookie } = require("./createSetTokens/setCookie");
+const {
+  extractRollAndBatch,
+} = require("./utility functions/extractRollAndBatch");
+const {
+  updateRollAndBatch,
+} = require("./utility functions/updateRollAndBatch");
 
 const updateUserDetails = async (userModel, googleUser, role, refreshToken) => {
   const updatedUser = await userModel.findOneAndUpdate(
@@ -70,6 +76,9 @@ const googleOauthHandler = async (req, res) => {
 
       validUser = studentEmailRegex.test(googleUser.email);
       validUserModel = Student;
+      const { rollNumber, batchNumber } = extractRollAndBatch(googleUser.email);
+      console.log(rollNumber, batchNumber );
+      updateRollAndBatch(res,googleUser.email, rollNumber, batchNumber);
     } else if (role === roleList.Supervisor) {
       //validate super email-->boolean state
       const supervisorEmailRegex =
@@ -105,7 +114,8 @@ const googleOauthHandler = async (req, res) => {
       process.env.REFRESH_TOKEN_EXPIRATION_TIME
     );
     console.log(refreshToken);
-    if (!refreshToken) return res.status(400).send("Refresh Token creation fail");
+    if (!refreshToken)
+      return res.status(400).send("Refresh Token creation fail");
     // upsert the user based on the role and model
     //function passing the role required model and refreshToken to save to the db
     const user = await updateUserDetails(

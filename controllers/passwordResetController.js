@@ -54,7 +54,7 @@ const passwordReset = async (req, res) => {
             role: { $in: [role] },
           }).exec();
         } else {
-          return res.sendStatus(400);
+          return res.sendStatus(401);
         }
 
         if (!foundUser) return res.sendStatus(404).send("User not found");
