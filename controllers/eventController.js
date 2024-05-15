@@ -22,17 +22,15 @@ const createNewEvent = async (req, res) => {
   ) {
     return res.status(400).json({ message: "Required Fields are empty" });
   }
-  const eventId =await generateEventId(Number(req.body.eventType));
-
+  const eventId = await generateEventId(Number(req.body.eventType));
 
   try {
     const newEvent = await Event.create({
-      eventId:eventId,
+      eventId: eventId,
       eventName: req.body.eventName,
       description: req.body.description,
       eventTarget: req.body.eventTarget,
       eventType: req.body.eventType,
-      eventStatus:req.body.eventStatus,
       proposal: {
         defense: req.body.proposal.defense,
         defenseDate: req.body.proposal.defenseDate,
@@ -76,7 +74,10 @@ const createNewEvent = async (req, res) => {
 const getAllEvents = async (req, res) => {
   try {
     // Find all events and populate the author field
-    const events = await Event.find().populate("author").lean();
+    const events = await Event.find()
+      .sort({ createdAt: -1 })
+      .populate("author")
+      .lean();
 
     // Check if events are empty
     if (!events.length)
