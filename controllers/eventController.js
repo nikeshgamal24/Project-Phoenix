@@ -1,17 +1,10 @@
 const Event = require("../models/Events");
+const { filterSensitiveFields } = require("./utility functions/filterSensitiveDetails");
 const { generateEventId } = require("./utility functions/generateEventId");
 
 //sensitive fields that will be undefined by the funciton filterSensitiveFields
 const sensitiveFields = ["role", "password", "refreshToken"];
 
-// Function to filter out sensitive fields from an object
-const filterSensitiveFields = (obj, sensitiveFields) => {
-  const filteredObj = { ...obj };
-  sensitiveFields.forEach((field) => {
-    filteredObj[field] = undefined;
-  });
-  return filteredObj;
-};
 
 // Create a new event
 const createNewEvent = async (req, res) => {
@@ -86,6 +79,8 @@ const getAllEvents = async (req, res) => {
     // Filter sensitive fields from authors
     const populatedEvents = events.map((event) => {
       event.author = filterSensitiveFields(event.author, sensitiveFields);
+      console.log(event.author);
+      if(!event.author) return res.sendStatus(400);
       return event;
     });
 

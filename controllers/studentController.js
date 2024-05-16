@@ -1,5 +1,8 @@
 const Student = require("../models/Students");
-
+const Event = require("../models/Events");
+const {
+  filterSensitiveFields,
+} = require("./utility functions/filterSensitiveDetails");
 const updateStudent = async (req, res) => {
   try {
     if (!req?.params?.id) {
@@ -26,4 +29,26 @@ const updateStudent = async (req, res) => {
   }
 };
 
-module.exports = { updateStudent };
+const getAllEvents = async (req, res) => {
+  try {
+    const events = await Event.find().sort({ createdAt: -1 });
+
+    //if events is empty then 204: no content
+    if (!events) return res.sendStatus(204);
+    const sensitiveFields = ["projects"];
+
+    const filteredEventsDetails = events.map((event) => {
+      const filteredEvent = filterSensitiveFields(event._doc, sensitiveFields);
+      if(!filteredEvent) return res.status(400);
+      return filteredEvent;
+    });
+    res.status(200).json({
+      data: filteredEventsDetails,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
+
+module.exports = { updateStudent, getAllEvents };
