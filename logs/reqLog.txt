@@ -1012,3 +1012,10 @@
 20240517	22:24:19	8886dbf1-4cc9-49c3-af62-6bac85f19aac	GET	undefined	/api/student/team/students
 20240517	22:24:41	36fc98c7-a320-45e7-9a1d-2b7441179ff8	GET	undefined	/api/student/team/students
 20240517	22:24:58	cee2ac04-b3af-4a41-a113-5f78ef01a4d7	GET	undefined	/api/student/team/students
+20240517	23:17:26	c569cbbe-2d63-4d2d-81e9-6396819e4fb2	GET	undefined	/api/refresh
+20240517	23:17:38	7e849b00-fb4f-4764-8541-8e0c49a3943e	GET	undefined	/api/student/event
+20240517	23:17:54	ac043a8d-cd5b-41a7-bcec-810c5f3d8dc2	GET	undefined	/api/student/event
+20240517	23:18:06	a399a668-024e-444a-9b15-289b12da7944	GET	undefined	/api/student/event
+20240517	23:18:19	6f349bc0-b6dd-4323-bf72-a74549d1081a	GET	undefined	/api/student/event
+20240517	23:18:48	df504411-003c-4b3a-b138-2885675642e9	GET	undefined	/api/student/event
+20240517	23:19:39	8b9842ff-34f7-4915-b7bf-69d9869c480c	GET	undefined	/api/student/event

@@ -74,7 +74,7 @@ const getAllEvents = async (req, res) => {
 
     // Check if events are empty
     if (!events.length)
-      return res.json({ message: "No events found.",data:[] });
+      return res.sendStatus(204);
 
     // Filter sensitive fields from authors
     const populatedEvents = events.map((event) => {

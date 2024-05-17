@@ -82,9 +82,7 @@ const getMyEvent = async (req, res) => {
       role: { $in: [role] },
     });
 
-    if (!currectStudent)
-      return res
-        .sendStatus(401);
+    if (!currectStudent) return res.sendStatus(401);
 
     //check the status of the student program
     const { program, batchNumber } = currectStudent;
@@ -97,10 +95,7 @@ const getMyEvent = async (req, res) => {
     }).populate("author");
 
     if (!studentCurrentEvent)
-      return res.status(204).json({
-        message: "No matched events found",
-        data: {},
-      });
+      return res.sendStatus(204);
 
     //hide sensitive details of author
     const sensitiveDetails = ["role", "refreshToken", "password", "OTP"];
