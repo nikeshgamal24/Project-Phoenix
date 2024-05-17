@@ -4,11 +4,13 @@ const initializeProgressStatus = (batchNumber) => {
   const currentAcademicYear = year - batchNumber - 1;
   switch (currentAcademicYear) {
     case 4:
-      return "20-0.0";
+      return "2000";
     case 3:
-      return "10-0.0";
+      return "1000";
+    case 2:
+      return "0000";
     default:
-      return "00-0.0";
+      return '----';
   }
 };
 

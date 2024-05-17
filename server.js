@@ -11,6 +11,7 @@ const { logger } = require("./middleware/logEvents");
 const credentials = require("./middleware/credentials");
 const mongoose = require("mongoose");
 const connectDB = require("./config/dbConn");
+const { swaggerDocs } = require("./utils/swagger");
 const PORT = process.env.PORT || 3500;
 
 //connect mongoDB
@@ -52,6 +53,8 @@ app.use("/api/logout", require("./routes/logout"));
 app.use("/api/forgotPassword/OTP", require("./routes/matchOTP"));
 app.use("/api/forgotPassword/password", require("./routes/passwordReset"));
 
+//excute the swagger docs function
+// swaggerDocs(app, PORT);
 app.use(verifyJWT);
 app.use("/api/event", require("./routes/api/events"));
 app.use("/api/student", require("./routes/api/students"));

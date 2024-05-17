@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
@@ -11,6 +13,8 @@
     "mongoose": "^8.3.4",
     "nodemailer": "^6.9.13",
     "qs": "^6.12.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.1",
     "validator": "^13.12.0"
   },

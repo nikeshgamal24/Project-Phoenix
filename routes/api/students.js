@@ -12,4 +12,8 @@ router
   .route("/students/:id")
   .put(verifyRoles(roleList.Student), studentController.updateStudent);
 
+router
+  .route("/event")
+  .get(verifyRoles(roleList.Student), studentController.getMyEvent);
+
 module.exports = router;

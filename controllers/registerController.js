@@ -38,6 +38,15 @@ const handleNewUser = async (req, res) => {
     //creating and save to the database
     let result;
     if (role === roleList.Student) {
+      //extract roll number and batch number from the email address of the student
+      const { rollNo, batchNo } = extractRollAndBatch(googleUser.email);
+      rollNumber = rollNo;
+      batchNumber = batchNo;
+
+      //determine the progress status of the student on their project based on the year of their academic and setting the progress status to database
+      const progressStatus = initializeProgressStatus(batchNumber);
+
+      //create a new student and save to the database
       result = await Student.create({
         fullname: fullname,
         email: email,
@@ -45,8 +54,12 @@ const handleNewUser = async (req, res) => {
         phoneNumber: phoneNumber,
         program: program,
         role: [role],
+        rollNumber,
+        batchNumber,
+        progressStatus
       });
     } else if (role === roleList.Supervisor) {
+
       result = await Teacher.create({
         fullname: fullname,
         email: email,
