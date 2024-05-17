@@ -28,7 +28,7 @@ const eventSchema = new Schema(
     proposal: {
       phase: {
         type: String,
-        default: "Phase 1",
+        default: "1",
       },
       defense: {
         type: Boolean,
@@ -45,7 +45,7 @@ const eventSchema = new Schema(
     mid: {
       phase: {
         type: String,
-        default: "Phase 1",
+        default: "1",
       },
       defense: {
         type: Boolean,
@@ -62,7 +62,7 @@ const eventSchema = new Schema(
     final: {
       phase: {
         type: String,
-        default: "Phase 1",
+        default: "1",
       },
       defense: {
         type: Boolean,
