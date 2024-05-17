@@ -84,8 +84,7 @@ const getMyEvent = async (req, res) => {
 
     if (!currectStudent)
       return res
-        .status(404)
-        .json({ message: "No Matched Student Details", data: [] });
+        .sendStatus(401);
 
     //check the status of the student program
     const { program, batchNumber } = currectStudent;
@@ -98,9 +97,9 @@ const getMyEvent = async (req, res) => {
     }).populate("author");
 
     if (!studentCurrentEvent)
-      return res.status(404).json({
+      return res.status(204).json({
         message: "No matched events found",
-        data: [],
+        data: {},
       });
 
     //hide sensitive details of author
