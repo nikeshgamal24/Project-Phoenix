@@ -1,5 +1,6 @@
 const Student = require("../models/Students");
 const Event = require("../models/Events");
+const Project = require("../models/Projects");
 const jwt = require("jsonwebtoken");
 const {
   filterSensitiveFields,
@@ -7,6 +8,9 @@ const {
 const {
   initializeEventTypeBasedOnBatch,
 } = require("./utility functions/initializeEventTypeBasedOnBatch");
+const {
+  generateCustomProjectId,
+} = require("./utility functions/generateCustomProjectId");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -94,8 +98,7 @@ const getMyEvent = async (req, res) => {
       eventTarget: { $in: [program, "72354"] },
     }).populate("author");
 
-    if (!studentCurrentEvent)
-      return res.sendStatus(204);
+    if (!studentCurrentEvent) return res.sendStatus(204);
 
     //hide sensitive details of author
     const sensitiveDetails = ["role", "refreshToken", "password", "OTP"];
@@ -161,9 +164,55 @@ const getAllStudentsList = async (req, res) => {
     return res.sendStatus(500);
   }
 };
+
+const createProjectTeam = async (req, res) => {
+  try {
+    if (!req?.body?.projectName || !req?.body?.teamMembers) {
+      return res.status(400).json({ message: "Required Fields are empty" });
+    }
+   
+    console.log("project details request body");
+    console.log(req.body);
+    const {projectName,projectDescription,teamMembers} = req.body;
+    const { batchNumber } = await Student.findOne({
+      _id: req.userId,
+    });
+    console.log("batchNumber");
+    console.log(batchNumber);
+    //create customproject Id
+    // Example usage:
+    const eventType = initializeEventTypeBasedOnBatch(batchNumber);
+    console.log("eventType");
+    console.log(eventType);
+    const projectId = await generateCustomProjectId(eventType);
+    console.log("projectId");
+    console.log(projectId);
+
+    const newProject = await Project.create({
+      projectId: projectId,
+      projectName: projectName,
+      projectDescription: projectDescription,
+      teamMembers: teamMembers,
+    });
+
+    //unable to create team
+    if (!newProject) return res.sendStatus(400);
+
+    //save reference id to Student.projects and Event.projects
+
+    //if sucessfully created new project then return
+    return res.status(200).json({
+      data: newProject,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(500);
+  }
+};
 module.exports = {
   updateStudent,
   getAllEvents,
   getMyEvent,
   getAllStudentsList,
+  createProjectTeam,
 };

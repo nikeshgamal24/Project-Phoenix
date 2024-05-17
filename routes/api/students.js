@@ -17,6 +17,10 @@ router
   .get(verifyRoles(roleList.Student), studentController.getMyEvent);
 
 router
+  .route("/team/create")
+  .post(verifyRoles(roleList.Student), studentController.createProjectTeam);
+
+router
   .route("/team/students")
   .get(verifyRoles(roleList.Student), studentController.getAllStudentsList);
 

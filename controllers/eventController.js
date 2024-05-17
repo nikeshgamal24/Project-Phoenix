@@ -95,47 +95,7 @@ const getAllEvents = async (req, res) => {
   }
 };
 
-//update a specified event based on event id
-// const updateEvent = async (req, res) => {
-//   if (!req?.params?.id) {
-//     return res.status(400).json({ message: "ID parameter is required." });
-//   }
 
-//   const event = await Event.findOne({ _id: req.params.id }).exec();
-//   if (!event) {
-//     return res
-//       .status(204)
-//       .json({ message: `No employee matches ID ${req.params.id}.` });
-//   }
-//   try {
-//     const {
-//       eventName,
-//       description,
-//       eventTarget,
-//       eventType,
-//       proposal,
-//       mid,
-//       final,
-//       year,
-//     } = req.body;
-
-//     if (eventName) event.eventName = eventName;
-//     if (description) event.description = description;
-//     if (eventTarget) event.eventTarget = eventTarget;
-//     if (eventType) event.eventType = eventType;
-//     if (proposal) event.proposal = proposal;
-//     if (mid) event.mid = mid;
-//     if (final) event.final = final;
-//     if (year) event.year = year;
-//     const result = await event.save();
-//     return res.status(200).json({
-//       data: result,
-//     });
-//   } catch (err) {
-//     console.error(`"error-message":${err.message}`);
-//     return res.sendStatus(400);
-//   }
-// };
 const updateEvent = async (req, res) => {
   if (!req?.params?.id) {
     return res.status(400).json({ message: "ID parameter is required." });

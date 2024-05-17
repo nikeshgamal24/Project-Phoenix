@@ -23,7 +23,7 @@ const eventSchema = new Schema(
     },
     eventStatus: {
       type: String,
-      default:"101"
+      default: "101",
     },
     proposal: {
       phase: {
@@ -81,10 +81,12 @@ const eventSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Admin",
     },
-    projects: [{
-      type: Schema.Types.ObjectId,
-      ref: "Project",
-    }],
+    projects: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Project",
+      },
+    ],
     timeStamps: {
       type: Date,
       timestamps: true,
