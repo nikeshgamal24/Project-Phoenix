@@ -119,4 +119,57 @@ const getMyEvent = async (req, res) => {
     return res.sendStatus(400);
   }
 };
-module.exports = { updateStudent, getAllEvents, getMyEvent };
+
+const getAllStudentsList = async (req, res) => {
+  try {
+    //get the user from the access token
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+    if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401); //Unauthorized
+
+    const accessToken = authHeader.split(" ")[1];
+
+    const { UserInfo } = jwt.decode(accessToken);
+    const { email, role } = UserInfo;
+
+    const currectStudent = await Student.findOne({
+      email: email,
+      role: { $in: [role] },
+    });
+
+    if (!currectStudent)
+      return res
+        .status(404)
+        .json({ message: "No Matched Student Details", data: [] });
+
+    //check the status of the student program
+    const { progressStatus, program, batchNumber } = currectStudent;
+
+    //list of all student of same batch ,program and with same status code
+    const studentList = await Student.find({
+      progressStatus: progressStatus,
+      batchNumber: batchNumber,
+      program: program,
+    });
+
+    //if no matched is found
+    if (!studentList)
+      return res
+        .status(404)
+        .json({ message: "No Matched Student Details", data: [] });
+
+    //return student list if any
+    return res.status(200).json({
+      results: studentList.length,
+      data: studentList,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(500);
+  }
+};
+module.exports = {
+  updateStudent,
+  getAllEvents,
+  getMyEvent,
+  getAllStudentsList,
+};
