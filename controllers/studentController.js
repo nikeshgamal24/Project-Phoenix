@@ -148,6 +148,7 @@ const getAllStudentsList = async (req, res) => {
       progressStatus: progressStatus,
       batchNumber: batchNumber,
       program: program,
+      isAssociated:false,
     });
 
     //if no matched is found
@@ -201,6 +202,8 @@ const createProjectTeam = async (req, res) => {
       });
 
       currentStudent.project = newProject._id;
+      //update the student isAssociated field 
+      currentStudent.isAssociated=true;
       await currentStudent.save();
     });
 
