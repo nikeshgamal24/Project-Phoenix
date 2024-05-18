@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const projectSchema = new Schema(
   {
-    projectId: {
+    projectCode: {
       type: String,
     },
     projectName: {
@@ -17,6 +17,10 @@ const projectSchema = new Schema(
         ref: "Student",
       },
     ],
+    event:{
+      type: Schema.Types.ObjectId,
+      ref: "Event",
+    },
     proposal: {
       phase: {
         type: String,

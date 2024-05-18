@@ -13,7 +13,7 @@ const generateCustomProjectId = async (eventType) => {
     if (latestProject) {
       // Extract the serial number from the latest project ID
       const latestSerialNumber = parseInt(
-        latestProject.projectId.split("-")[2],
+        latestProject.projectCode.split("-")[2],
         10
       );
       serialNumber = latestSerialNumber + 1; // Increment the serial number

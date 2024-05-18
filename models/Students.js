@@ -58,6 +58,12 @@ const studentSchema = new Schema(
     batchNumber: {
       type: Number,
     },
+    projects:[
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Project",
+      }
+    ],
     progressStatus: {
       type: String,
       default: "00-0.0",

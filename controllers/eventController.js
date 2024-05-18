@@ -15,11 +15,11 @@ const createNewEvent = async (req, res) => {
   ) {
     return res.status(400).json({ message: "Required Fields are empty" });
   }
-  const eventId = await generateEventId(Number(req.body.eventType));
+  const eventCode = await generateEventId(Number(req.body.eventType));
 
   try {
     const newEvent = await Event.create({
-      eventId: eventId,
+      eventCode: eventCode,
       eventName: req.body.eventName,
       description: req.body.description,
       eventTarget: req.body.eventTarget,

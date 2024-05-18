@@ -170,10 +170,10 @@ const createProjectTeam = async (req, res) => {
     if (!req?.body?.projectName || !req?.body?.teamMembers) {
       return res.status(400).json({ message: "Required Fields are empty" });
     }
-   
+
     console.log("project details request body");
     console.log(req.body);
-    const {projectName,projectDescription,teamMembers} = req.body;
+    const { projectName, projectDescription, teamMembers ,eventId} = req.body;
     const { batchNumber } = await Student.findOne({
       _id: req.userId,
     });
@@ -184,21 +184,37 @@ const createProjectTeam = async (req, res) => {
     const eventType = initializeEventTypeBasedOnBatch(batchNumber);
     console.log("eventType");
     console.log(eventType);
-    const projectId = await generateCustomProjectId(eventType);
+    const projectCode = await generateCustomProjectId(eventType);
     console.log("projectId");
-    console.log(projectId);
+    console.log(projectCode);
 
     const newProject = await Project.create({
-      projectId: projectId,
+      projectCode: projectCode,
       projectName: projectName,
       projectDescription: projectDescription,
       teamMembers: teamMembers,
+      event:eventId,
     });
 
     //unable to create team
     if (!newProject) return res.sendStatus(400);
 
     //save reference id to Student.projects and Event.projects
+    teamMembers.forEach(async (id) => {
+      const currentStudent = await Student.findOne({
+        _id: id,
+      });
+
+      currentStudent.projects = [...currentStudent.projects, newProject._id];
+      await currentStudent.save();
+    });
+
+    //for saving projects in event collections
+    const currentEvent = await Event.findOne({
+      _id:eventId,
+    })
+    currentEvent.projects= [...currentEvent.projects,newProject._id];
+    await currentEvent.save();
 
     //if sucessfully created new project then return
     return res.status(200).json({
