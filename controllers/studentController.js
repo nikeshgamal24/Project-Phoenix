@@ -243,10 +243,48 @@ const createProjectTeam = async (req, res) => {
     return res.sendStatus(500);
   }
 };
+
+//get project by id
+const getProjectById = async (req, res) => {
+  if (!req?.params?.id) {
+    return res.status(400).json({ message: "ID parameter is required." });
+  }
+
+  try {
+    let project = await Project.findOne({
+      _id: req.params.id,
+    }).populate("teamMembers");
+
+    if (!project) {
+      return res
+        .status(204)
+        .json({ message: `No Project matches with id: ${req.params.id}.` });
+    }
+
+    const sensitiveDetails = ["password", "OTP", "refreshToken"];
+
+    const filteredStudentsDetails = project.teamMembers.map((student) => {
+      const filteredStudent = filterSensitiveFields(
+        student.toObject(),
+        sensitiveDetails
+      );
+      return filteredStudent;
+    });
+    
+    return res.status(200).json({
+      data: {...project.toObject(),teamMembers:filteredStudentsDetails},
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    res.sendStatus(400);
+  }
+};
+
 module.exports = {
   updateStudent,
   getAllEvents,
   getMyEvent,
   getAllStudentsList,
   createProjectTeam,
+  getProjectById,
 };
