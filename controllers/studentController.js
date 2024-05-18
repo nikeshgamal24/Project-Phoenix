@@ -12,6 +12,9 @@ const {
   generateCustomProjectId,
 } = require("./utility functions/generateCustomProjectId");
 const eventStatusList = require("../config/eventStatusList");
+const {
+  updateProgressStatus,
+} = require("./utility functions/updateProgressStatus");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -148,7 +151,7 @@ const getAllStudentsList = async (req, res) => {
       progressStatus: progressStatus,
       batchNumber: batchNumber,
       program: program,
-      isAssociated:false,
+      isAssociated: false,
     });
 
     //if no matched is found
@@ -202,8 +205,10 @@ const createProjectTeam = async (req, res) => {
       });
 
       currentStudent.project = newProject._id;
-      //update the student isAssociated field 
-      currentStudent.isAssociated=true;
+      //update the student isAssociated field
+      currentStudent.isAssociated = true;
+      currentStudent.progressStatus = updateProgressStatus(currentStudent);
+      if (!currentStudent.progressStatus) return res.sendStatus(400);
       await currentStudent.save();
     });
 
