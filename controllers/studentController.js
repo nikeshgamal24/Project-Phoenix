@@ -11,6 +11,7 @@ const {
 const {
   generateCustomProjectId,
 } = require("./utility functions/generateCustomProjectId");
+const eventStatusList = require("../config/eventStatusList");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -96,6 +97,7 @@ const getMyEvent = async (req, res) => {
     let studentCurrentEvent = await Event.findOne({
       eventType: allowedEventType,
       eventTarget: { $in: [program, "72354"] },
+      eventStatus: eventStatusList.active,
     }).populate("author");
 
     if (!studentCurrentEvent) return res.sendStatus(204);
@@ -173,7 +175,7 @@ const createProjectTeam = async (req, res) => {
 
     console.log("project details request body");
     console.log(req.body);
-    const { projectName, projectDescription, teamMembers ,eventId} = req.body;
+    const { projectName, projectDescription, teamMembers, eventId } = req.body;
     const { batchNumber } = await Student.findOne({
       _id: req.userId,
     });
@@ -193,7 +195,7 @@ const createProjectTeam = async (req, res) => {
       projectName: projectName,
       projectDescription: projectDescription,
       teamMembers: teamMembers,
-      event:eventId,
+      event: eventId,
     });
 
     //unable to create team
@@ -211,9 +213,9 @@ const createProjectTeam = async (req, res) => {
 
     //for saving projects in event collections
     const currentEvent = await Event.findOne({
-      _id:eventId,
-    })
-    currentEvent.projects= [...currentEvent.projects,newProject._id];
+      _id: eventId,
+    });
+    currentEvent.projects = [...currentEvent.projects, newProject._id];
     await currentEvent.save();
 
     //if sucessfully created new project then return
