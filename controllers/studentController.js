@@ -252,7 +252,7 @@ const getProjectById = async (req, res) => {
   try {
     let project = await Project.findOne({
       _id: req.params.id,
-    }).populate("teamMembers");
+    }).populate("teamMembers").populate('event');
 
     if (!project) {
       return res
