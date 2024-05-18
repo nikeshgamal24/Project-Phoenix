@@ -58,6 +58,10 @@ const studentSchema = new Schema(
     batchNumber: {
       type: Number,
     },
+    isAssociated: {
+      type: Boolean,
+      default: false,
+    },
     project: {
       type: Schema.Types.ObjectId,
       ref: "Project",
