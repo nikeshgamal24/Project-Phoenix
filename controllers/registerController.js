@@ -3,7 +3,8 @@ const Teacher = require("../models/Teachers");
 const Admin = require("../models/Admins");
 const bcrypt = require("bcrypt");
 const roleList = require("../config/roleList");
-
+const {extractRollAndBatch} = require('./utility functions/extractRollAndBatch');
+const {initializeProgressStatus} = require('./utility functions/initializeProgressStatus');
 const handleNewUser = async (req, res) => {
   const { fullname, email, photo, password, phoneNumber, program, role } =
     req.body;
@@ -39,7 +40,7 @@ const handleNewUser = async (req, res) => {
     let result;
     if (role === roleList.Student) {
       //extract roll number and batch number from the email address of the student
-      const { rollNo, batchNo } = extractRollAndBatch(googleUser.email);
+      const { rollNo, batchNo } = extractRollAndBatch(email);
       rollNumber = rollNo;
       batchNumber = batchNo;
 
@@ -56,7 +57,8 @@ const handleNewUser = async (req, res) => {
         role: [role],
         rollNumber,
         batchNumber,
-        progressStatus
+        progressStatus,
+        isAssociated:false,
       });
     } else if (role === roleList.Supervisor) {
 
