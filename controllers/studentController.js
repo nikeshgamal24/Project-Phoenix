@@ -193,6 +193,7 @@ const createProjectTeam = async (req, res) => {
       projectDescription: projectDescription,
       teamMembers: teamMembers,
       event: eventId,
+      status:eventStatusList.active,
     });
 
     //unable to create team
@@ -221,22 +222,20 @@ const createProjectTeam = async (req, res) => {
 
     const populatedDetails = await newProject.populate("teamMembers");
 
-    const sensitiveDetails = ["password", "OTP", "refreshTOken"];
+    const sensitiveDetails = ["password", "OTP", "refreshToken"];
 
-    populatedDetails.teamMembers = populatedDetails.teamMembers.map(
-      (student) => {
-        const filterSensitiveDetails = filterSensitiveFields(
-          student,
-          sensitiveDetails
-        );
-        return filterSensitiveDetails;
-      }
-    );
+    const filteredStudentsDetails = populatedDetails.teamMembers.map((student) => {
+      const filteredStudent = filterSensitiveFields(
+        student.toObject(),
+        sensitiveDetails
+      );
+      return filteredStudent;
+    });
 
     //if sucessfully created new project then return
     //will return newProject details with populated student details
     return res.status(200).json({
-      data: populatedDetails,
+      data: {...populatedDetails.toObject(),teamMembers:filteredStudentsDetails},
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
@@ -270,7 +269,7 @@ const getProjectById = async (req, res) => {
       );
       return filteredStudent;
     });
-    
+
     return res.status(200).json({
       data: {...project.toObject(),teamMembers:filteredStudentsDetails},
     });

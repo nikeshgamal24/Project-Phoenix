@@ -21,6 +21,10 @@ const projectSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Event",
     },
+    status:{
+      type:String,
+      default:"101"
+    },
     proposal: {
       phase: {
         type: String,

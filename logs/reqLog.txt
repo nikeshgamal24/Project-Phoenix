@@ -1081,3 +1081,9 @@
 20240518	14:21:40	2daa0704-3c41-42e3-9ad9-f4501833feb9	GET	undefined	/api/student/project/66485e8946006364a9ae7f02
 20240518	14:22:43	03a38fde-ab3f-40bb-adc1-ea0a3951ff90	GET	undefined	/api/student/project/66485e8946006364a9ae7f02
 20240518	14:23:18	642298ad-640f-42f5-8045-cca4fe49a513	GET	undefined	/api/student/project/66485e8946006364a9ae7f02
+20240518	17:14:24	312814b5-1a25-49b6-909e-b7241af78274	GET	undefined	/api/refresh
+20240518	17:15:21	20584978-f904-4d3e-ade1-c8e93fbc5a69	POST	undefined	/api/student/team/create
+20240518	17:16:35	ff88ad20-63b1-4e06-a759-db13df776803	GET	undefined	/api/student/project/66485e8946006364a9ae7f02
+20240518	17:18:04	f3840aac-670a-4e3e-9711-bc63d618e136	GET	undefined	/api/student/project/66485e8946006364a9ae7f02
+20240518	17:18:08	b3e39195-9dc1-4d7d-b66a-e68234b1b24e	POST	undefined	/api/student/team/create
+20240518	17:18:40	1c3d4a74-f5de-4419-a327-8648850eb7f5	POST	undefined	/api/student/team/create
