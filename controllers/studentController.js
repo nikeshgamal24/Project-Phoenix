@@ -173,22 +173,15 @@ const createProjectTeam = async (req, res) => {
       return res.status(400).json({ message: "Required Fields are empty" });
     }
 
-    console.log("project details request body");
-    console.log(req.body);
+    //destructing the req.body to get the necessary values from the object
     const { projectName, projectDescription, teamMembers, eventId } = req.body;
     const { batchNumber } = await Student.findOne({
       _id: req.userId,
     });
-    console.log("batchNumber");
-    console.log(batchNumber);
-    //create customproject Id
-    // Example usage:
+
+    //create custom project code
     const eventType = initializeEventTypeBasedOnBatch(batchNumber);
-    console.log("eventType");
-    console.log(eventType);
     const projectCode = await generateCustomProjectId(eventType);
-    console.log("projectId");
-    console.log(projectCode);
 
     const newProject = await Project.create({
       projectCode: projectCode,
@@ -207,7 +200,7 @@ const createProjectTeam = async (req, res) => {
         _id: id,
       });
 
-      currentStudent.projects = [...currentStudent.projects, newProject._id];
+      currentStudent.project = newProject._id;
       await currentStudent.save();
     });
 
@@ -218,9 +211,24 @@ const createProjectTeam = async (req, res) => {
     currentEvent.projects = [...currentEvent.projects, newProject._id];
     await currentEvent.save();
 
+    const populatedDetails = await newProject.populate("teamMembers");
+
+    const sensitiveDetails = ["password", "OTP", "refreshTOken"];
+
+    populatedDetails.teamMembers = populatedDetails.teamMembers.map(
+      (student) => {
+        const filterSensitiveDetails = filterSensitiveFields(
+          student,
+          sensitiveDetails
+        );
+        return filterSensitiveDetails;
+      }
+    );
+
     //if sucessfully created new project then return
+    //will return newProject details with populated student details
     return res.status(200).json({
-      data: newProject,
+      data: populatedDetails,
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
