@@ -13,8 +13,9 @@ const {
 } = require("./utility functions/generateCustomProjectId");
 const eventStatusList = require("../config/eventStatusList");
 const {
-  updateProgressStatus,
-} = require("./utility functions/updateProgressStatus");
+  updateMajorProgressStatus,
+} = require("./utility functions/updateMajorProgressStatus");
+const progressStatusEligibilityCode = require("../config/progressStatusEligibilityCode");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -183,6 +184,25 @@ const createProjectTeam = async (req, res) => {
       _id: req.userId,
     });
 
+    //first check whether the teamMembers selected are associated with other projects or not
+    //1. check the isAssociated field and even one of the teamMember is already associated with other existing project then return with 409 conflicting status
+    let alreadyAssociated = false;
+    //will loop all the id and check whether there is isAssociated to true and if so not allowing further to proceed to create the project
+
+    //returns the promise array
+    const associationChecks = teamMembers.map(async (studentId) => {
+      const currentStudent = await Student.findOne({ _id: studentId });
+      return currentStudent.isAssociated;
+    });
+    
+
+    //get the value of the promises and returns the array
+    const results = await Promise.all(associationChecks);
+
+    //checks whether the array includes true value or not and return Boolean value if true
+    alreadyAssociated = results.includes(true);
+    if (alreadyAssociated) return res.sendStatus(409);
+
     //create custom project code
     const eventType = initializeEventTypeBasedOnBatch(batchNumber);
     const projectCode = await generateCustomProjectId(eventType);
@@ -193,7 +213,7 @@ const createProjectTeam = async (req, res) => {
       projectDescription: projectDescription,
       teamMembers: teamMembers,
       event: eventId,
-      status:eventStatusList.active,
+      status: eventStatusList.active,
     });
 
     //unable to create team
@@ -208,34 +228,39 @@ const createProjectTeam = async (req, res) => {
       currentStudent.project = newProject._id;
       //update the student isAssociated field
       currentStudent.isAssociated = true;
-      currentStudent.progressStatus = updateProgressStatus(currentStudent);
+      currentStudent.progressStatus = updateMajorProgressStatus(progressStatusEligibilityCode.proposal.eligibeForReportSubmission);
       if (!currentStudent.progressStatus) return res.sendStatus(400);
       await currentStudent.save();
     });
-
     //for saving projects in event collections
+
     const currentEvent = await Event.findOne({
       _id: eventId,
     });
+
     currentEvent.projects = [...currentEvent.projects, newProject._id];
     await currentEvent.save();
 
     const populatedDetails = await newProject.populate("teamMembers");
 
     const sensitiveDetails = ["password", "OTP", "refreshToken"];
-
-    const filteredStudentsDetails = populatedDetails.teamMembers.map((student) => {
-      const filteredStudent = filterSensitiveFields(
-        student.toObject(),
-        sensitiveDetails
-      );
-      return filteredStudent;
-    });
+    const filteredStudentsDetails = populatedDetails.teamMembers.map(
+      (student) => {
+        const filteredStudent = filterSensitiveFields(
+          student.toObject(),
+          sensitiveDetails
+        );
+        return filteredStudent;
+      }
+    );
 
     //if sucessfully created new project then return
     //will return newProject details with populated student details
     return res.status(200).json({
-      data: {...populatedDetails.toObject(),teamMembers:filteredStudentsDetails},
+      data: {
+        ...populatedDetails.toObject(),
+        teamMembers: filteredStudentsDetails,
+      },
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
@@ -252,7 +277,9 @@ const getProjectById = async (req, res) => {
   try {
     let project = await Project.findOne({
       _id: req.params.id,
-    }).populate("teamMembers").populate('event');
+    })
+      .populate("teamMembers")
+      .populate("event");
 
     if (!project) {
       return res
@@ -271,7 +298,7 @@ const getProjectById = async (req, res) => {
     });
 
     return res.status(200).json({
-      data: {...project.toObject(),teamMembers:filteredStudentsDetails},
+      data: { ...project.toObject(), teamMembers: filteredStudentsDetails },
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
