@@ -80,8 +80,7 @@ const googleOauthHandler = async (req, res) => {
       rollNumber = rollNo;
       batchNumber = batchNo;
 
-      //determine the progress status of the student on their project based on the year of their academic and setting the progress status to database
-      progressStatus = initializeProgressStatus(batchNumber);
+    
     } else if (role === roleList.Supervisor) {
       //validate super email-->boolean state
       const supervisorEmailRegex =
@@ -116,7 +115,7 @@ const googleOauthHandler = async (req, res) => {
       googleUser,
       process.env.REFRESH_TOKEN_EXPIRATION_TIME
     );
-    console.log(refreshToken);
+
     if (!refreshToken)
       return res.status(400).send("Refresh Token creation fail");
     // upsert the user based on the role and model
@@ -137,6 +136,11 @@ const googleOauthHandler = async (req, res) => {
         batchNumber,
         progressStatus
       );
+
+     if(!user.progressStatus){
+        //determine the progress status of the student on their project based on the year of their academic and setting the progress status to database
+        progressStatus = initializeProgressStatus(batchNumber);
+     }
     }
 
     // set cookie
