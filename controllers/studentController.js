@@ -275,7 +275,7 @@ const getProjectById = async (req, res) => {
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
-    res.sendStatus(400);
+    res.sendStatus(500);
   }
 };
 
