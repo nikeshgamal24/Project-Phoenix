@@ -1,7 +1,7 @@
 const eventTypeList = {
-  0: "00",//proposal defense
-  1: "01",//mid defense
-  2: "02",//final defense
+  0: "00",//project I
+  1: "01",//minor project
+  2: "02",//major
 };
 
 module.exports = eventTypeList;
