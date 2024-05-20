@@ -16,6 +16,11 @@ const {
   updateMajorProgressStatus,
 } = require("./utility functions/updateMajorProgressStatus");
 const progressStatusEligibilityCode = require("../config/progressStatusEligibilityCode");
+const { uploadFile } = require("./utility functions/uploadFile");
+const { uploadEventReport } = require("./utility functions/uploadEventReport");
+const {
+  determineDefenseType,
+} = require("./utility functions/determineDefenseType");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -194,7 +199,6 @@ const createProjectTeam = async (req, res) => {
       const currentStudent = await Student.findOne({ _id: studentId });
       return currentStudent.isAssociated;
     });
-    
 
     //get the value of the promises and returns the array
     const results = await Promise.all(associationChecks);
@@ -228,7 +232,9 @@ const createProjectTeam = async (req, res) => {
       currentStudent.project = newProject._id;
       //update the student isAssociated field
       currentStudent.isAssociated = true;
-      currentStudent.progressStatus = updateMajorProgressStatus(progressStatusEligibilityCode.proposal.eligibeForReportSubmission);
+      currentStudent.progressStatus = updateMajorProgressStatus(
+        progressStatusEligibilityCode.proposal.eligibeForReportSubmission
+      );
       if (!currentStudent.progressStatus) return res.sendStatus(400);
       await currentStudent.save();
     });
@@ -306,6 +312,59 @@ const getProjectById = async (req, res) => {
   }
 };
 
+const submitReport = async (req, res) => {
+  try {
+    if (!req?.params?.id) {
+      return res.status(400).json({ message: "Invalid Project Id" });
+    }
+    //get the progressStatus Code from the db
+    const { teamMembers } = await Project.findOne({
+      _id: req.params.id,
+    }).populate("teamMembers");
+
+    //determine the defenseType
+    const defenseType = determineDefenseType(teamMembers[0].progressStatus);
+
+    //check defenseType for unknown
+    if (defenseType === "unknown")
+      return res.status(409).json({
+        message: "Invalid progress status for submission",
+      });
+
+    //upload file to the cloudinary
+    const upload = await uploadFile(req.file.path);
+
+    //save the secure url to the projects' event type's filepath
+    const result = await uploadEventReport(
+      req.params.id,
+      defenseType,
+      upload.secure_url
+    );
+
+    //if null then send bad request as something went wrong fetching the project and updating the project fields
+    if (!result) return res.sendStatus(400);
+
+    //not null update the status
+    //1. get the team memebers
+    //2. use map and update the progress status of every stuent
+    //according to the defense type and eligibility the progress status will be changes after submitting the report for the defense once uploading the report is successfull
+    teamMembers.forEach(async (student) => {
+      student.progressStatus = updateMajorProgressStatus(
+        progressStatusEligibilityCode[defenseType].eligibleForDefense
+      );
+      await student.save();
+    });
+
+    //return record after saving the document
+    return res.status(200).json({
+      projectDetails: result,
+    });
+  } catch (err) {
+    console.error(`"error-message":${err.message}`);
+    return res.status(400);
+  }
+};
+
 module.exports = {
   updateStudent,
   getAllEvents,
@@ -313,4 +372,5 @@ module.exports = {
   getAllStudentsList,
   createProjectTeam,
   getProjectById,
+  submitReport,
 };
