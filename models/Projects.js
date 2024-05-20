@@ -10,6 +10,9 @@ const projectSchema = new Schema(
       type: String,
       required: [true, "Please, Enter your full name!"],
     },
+    projectType:{
+      type:String
+    },
     projectDescription: String,
     teamMembers: [
       {

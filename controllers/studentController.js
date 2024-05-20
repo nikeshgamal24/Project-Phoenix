@@ -214,6 +214,7 @@ const createProjectTeam = async (req, res) => {
     const newProject = await Project.create({
       projectCode: projectCode,
       projectName: projectName,
+      projectType:eventType,
       projectDescription: projectDescription,
       teamMembers: teamMembers,
       event: eventId,

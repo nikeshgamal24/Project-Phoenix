@@ -1153,3 +1153,5 @@
 20240519	21:07:17	abe29960-f59a-4b9f-9846-24417d318ae0	POST	undefined	/api/student/team/create
 20240519	21:09:09	d4fc3c5b-8d44-4148-abd0-23d45597130e	POST	undefined	/api/student/team/create
 20240519	21:10:21	c1e54739-f0f0-4603-bdb4-e759dbfbe6ef	POST	undefined	/api/student/team/create
+20240520	20:40:51	5868ddd2-fb2f-40e8-aee6-7ae453075066	GET	undefined	/api/refresh
+20240520	20:41:31	edcdfe41-d1f6-46ed-ae78-837d3b4e1f85	POST	undefined	/api/student/team/create
