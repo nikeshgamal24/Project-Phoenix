@@ -17,23 +17,20 @@ const projectSchema = new Schema(
         ref: "Student",
       },
     ],
-    event:{
+    event: {
       type: Schema.Types.ObjectId,
       ref: "Event",
     },
-    status:{
-      type:String,
-      default:"101"
+    status: {
+      type: String,
+      default: "101",
     },
     proposal: {
       phase: {
         type: String,
         default: "1",
       },
-      reportDeadline: {
-        type: Date,
-      },
-      filePath: {
+      reportPdf: {
         type: String,
       },
     },
@@ -42,10 +39,7 @@ const projectSchema = new Schema(
         type: String,
         default: "1",
       },
-      reportDeadline: {
-        type: Date,
-      },
-      filePath: {
+      reportPdf: {
         type: String,
       },
     },
@@ -54,10 +48,7 @@ const projectSchema = new Schema(
         type: String,
         default: "1",
       },
-      reportDeadline: {
-        type: Date,
-      },
-      filePath: {
+      reportPdf: {
         type: String,
       },
     },
