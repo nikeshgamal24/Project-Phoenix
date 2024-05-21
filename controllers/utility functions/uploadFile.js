@@ -11,9 +11,11 @@ cloudinary.config({
 const uploadFile = async (filePath) => {
     try{
         const result = await cloudinary.uploader.upload(filePath);
+        console.log('result after cloudinary uploader');
+        console.log(result);
         return result
     }catch(err){
-        console.ereor(`error-file-upload:${err.message}`);
+        console.error(`error-file-upload:${err.message}`);
     }
 };
 
