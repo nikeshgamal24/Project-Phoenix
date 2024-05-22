@@ -23,6 +23,12 @@ const {
 const {
   determineDefenseType,
 } = require("./utility functions/determineDefenseType");
+const {
+  updateProjectFirstProgressStatus,
+} = require("./utility functions/updateProjectFirstProgressStatus");
+const {
+  updateMinorProgressStatus,
+} = require("./utility functions/updateMinorProgressStatus");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -196,7 +202,7 @@ const createProjectTeam = async (req, res) => {
     let alreadyAssociated = false;
     //will loop all the id and check whether there is isAssociated to true and if so not allowing further to proceed to create the project
 
-    //returns the promise array
+    //returns the promise array that matches batch,program and not associated with other projects
     const associationChecks = teamMembers.map(async (studentId) => {
       const currentStudent = await Student.findOne({ _id: studentId });
       return currentStudent.isAssociated;
@@ -235,9 +241,27 @@ const createProjectTeam = async (req, res) => {
       currentStudent.project = newProject._id;
       //update the student isAssociated field
       currentStudent.isAssociated = true;
-      currentStudent.progressStatus = updateMajorProgressStatus(
-        progressStatusEligibilityCode.proposal.eligibeForReportSubmission
-      );
+
+      switch (eventType) {
+        case "0":
+          currentStudent.progressStatus = updateProjectFirstProgressStatus(
+            progressStatusEligibilityCode.proposal.eligibeForReportSubmission
+          );
+          break;
+        case "1":
+          currentStudent.progressStatus = updateMinorProgressStatus(
+            progressStatusEligibilityCode.proposal.eligibeForReportSubmission
+          );
+          break;
+        case "2":
+          currentStudent.progressStatus = updateMajorProgressStatus(
+            progressStatusEligibilityCode.proposal.eligibeForReportSubmission
+          );
+          break;
+        default:
+          break;
+      }
+
       if (!currentStudent.progressStatus) return res.sendStatus(400);
       await currentStudent.save();
     });
@@ -349,14 +373,38 @@ const submitReport = async (req, res) => {
     //if null then send bad request as something went wrong fetching the project and updating the project fields
     if (!result) return res.sendStatus(400);
 
+    //determine event type
+    const eventType = initializeEventTypeBasedOnBatch(
+      teamMembers[0].batchNumber
+    );
+
     //not null update the status
     //1. get the team memebers
     //2. use map and update the progress status of every stuent
     //according to the defense type and eligibility the progress status will be changes after submitting the report for the defense once uploading the report is successfull
     teamMembers.forEach(async (student) => {
-      student.progressStatus = updateMajorProgressStatus(
-        progressStatusEligibilityCode[defenseType].eligibleForDefense
-      );
+      //update the status code based on their event type
+
+      switch (eventType) {
+        case "0":
+          student.progressStatus = updateProjectFirstProgressStatus(
+            progressStatusEligibilityCode[defenseType].eligibleForDefense
+          );
+          break;
+        case "1":
+          student.progressStatus = updateMinorProgressStatus(
+            progressStatusEligibilityCode[defenseType].eligibleForDefense
+          );
+          break;
+        case "2":
+          student.progressStatus = updateMajorProgressStatus(
+            progressStatusEligibilityCode[defenseType].eligibleForDefense
+          );
+          break;
+        default:
+          break;
+      }
+
       await student.save();
     });
 
