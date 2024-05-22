@@ -1,12 +1,14 @@
-const Project = require('../../models/Projects');
+const Project = require("../../models/Projects");
 const generateCustomProjectId = async (eventType) => {
   try {
     // Get the current year
     const year = new Date().getFullYear().toString().slice(-2);
     // Get last two digits of the year
 
-    // Find the latest project in the database
-    const latestProject = await Project.findOne().sort({ _id: -1 });
+    // Find the latest project in the database for the given event type
+    const latestProject = await Project.findOne({
+      projectCode: new RegExp(`^P${eventType}-`),
+    }).sort({ _id: -1 });
 
     // Default serial number if no project exists
     let serialNumber = 1;
