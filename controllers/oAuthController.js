@@ -12,7 +12,7 @@ const {
   extractRollAndBatch,
 } = require("./utility functions/extractRollAndBatch");
 const {
-   updateRollBatchAndStatus,
+  updateRollBatchAndStatus,
 } = require("./utility functions/updateRollBatchAndStatus");
 const {
   initializeProgressStatus,
@@ -79,8 +79,6 @@ const googleOauthHandler = async (req, res) => {
       const { rollNo, batchNo } = extractRollAndBatch(googleUser.email);
       rollNumber = rollNo;
       batchNumber = batchNo;
-
-    
     } else if (role === roleList.Supervisor) {
       //validate super email-->boolean state
       const supervisorEmailRegex =
@@ -129,6 +127,8 @@ const googleOauthHandler = async (req, res) => {
 
     //update rollnumber, batch number only if the googleUser is a student of the organization else skip the update function call
     if (validUserModel === Student) {
+      //determine the progress status of the student on their project based on the year of their academic and setting the progress status to database
+      progressStatus = initializeProgressStatus(batchNumber);
       updateRollBatchAndStatus(
         res,
         googleUser.email,
@@ -136,11 +136,6 @@ const googleOauthHandler = async (req, res) => {
         batchNumber,
         progressStatus
       );
-
-     if(!user.progressStatus){
-        //determine the progress status of the student on their project based on the year of their academic and setting the progress status to database
-        progressStatus = initializeProgressStatus(batchNumber);
-     }
     }
 
     // set cookie

@@ -1423,3 +1423,14 @@
 20240522	18:43:35	24818452-10c4-47ef-a05d-4e6cfb5a541f	GET	undefined	/api/event/events/664ddc89cabc595ba1efed77
 20240522	18:44:30	adb4f58b-607c-4114-9907-d73ad9c38cef	GET	undefined	/api/event/events/664ddc89cabc595ba1efed77
 20240522	18:45:40	eddc8c23-e647-4242-b78b-4ae913282da0	GET	undefined	/api/event/events/664ddc89cabc595ba1efed77
+20240522	18:55:23	366f288e-b6f6-4ade-9dbf-c20ac32ae098	GET	undefined	/api/oauth/google?state=2001&code=4%2F0AdLIrYderICZnuVmcOj4Jg1IX0igHEprWJCL-rkjE9Quv3H9gy1UFnFvOr__ZfVGGmKyCg&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&authuser=0&hd=ncit.edu.np&prompt=consent
+20240522	18:55:29	3547bb6b-f697-47de-9ecf-3e4cedb80e0b	GET	http://localhost:5173	/api/refresh
+20240522	18:55:38	de3b0fc7-d703-4fa7-8a11-096cd6fbe356	OPTIONS	http://localhost:5173	/api/student/students/664deec4e6e7eefa141de968
+20240522	18:55:38	f67a1a59-f8bf-48c6-aac6-3610f36206dc	PUT	http://localhost:5173	/api/student/students/664deec4e6e7eefa141de968
+20240522	18:55:39	8bc3cb4f-a575-42fb-9f1c-02a559746d61	GET	http://localhost:5173	/api/refresh
+20240522	18:55:39	e0269b2b-6015-467a-a8de-f445a53c5c2e	OPTIONS	http://localhost:5173	/api/student/event
+20240522	18:55:39	d86e9f86-f672-468d-86df-c2bcd77cd677	OPTIONS	http://localhost:5173	/api/student/team/students
+20240522	18:55:39	f2d6f24e-0290-436e-b283-67c76ff91d34	OPTIONS	http://localhost:5173	/api/student/events
+20240522	18:55:39	9e666a81-d2bb-475c-beec-dda13b4fc24d	GET	http://localhost:5173	/api/student/event
+20240522	18:55:39	99afc14a-2cc1-49d7-b198-ca49fbffd6db	GET	http://localhost:5173	/api/student/team/students
+20240522	18:55:39	660e1f48-4520-498c-9480-8ab6099aeefe	GET	http://localhost:5173	/api/student/events

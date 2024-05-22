@@ -68,7 +68,6 @@ const studentSchema = new Schema(
     },
     progressStatus: {
       type: String,
-      default: "0000",
     },
     photo: String,
     phoneNumber: {
