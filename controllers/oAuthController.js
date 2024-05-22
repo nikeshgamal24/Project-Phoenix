@@ -148,10 +148,10 @@ const googleOauthHandler = async (req, res) => {
     setCookie(res, refreshToken);
 
     // redirect back to client
-    res.redirect(`http://localhost:5173/${role}`);
+    res.redirect(`${process.env.CLIENT_BASE_URL}/${role}`);
   } catch (err) {
     console.error(err.message);
-    return res.redirect("http://localhost:5173");
+    return res.redirect(`${process.env.CLIENT_BASE_URL}`);
   }
 };
 
