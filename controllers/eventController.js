@@ -151,7 +151,7 @@ const getEvent = async (req, res) => {
 
   try {
     // Find event by ID and populate the author field
-    const event = await Event.findById(req.params.id).populate("author").lean();
+    const event = await Event.findById(req.params.id).populate("author").populate("projects").lean();
 
     // Check if event exists
     if (!event) {
