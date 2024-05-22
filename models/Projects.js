@@ -10,8 +10,8 @@ const projectSchema = new Schema(
       type: String,
       required: [true, "Please, Enter your full name!"],
     },
-    projectType:{
-      type:String
+    projectType: {
+      type: String,
     },
     projectDescription: String,
     teamMembers: [
@@ -33,8 +33,16 @@ const projectSchema = new Schema(
         type: String,
         default: "1",
       },
-      reportPdf: {
-        type: String,
+      report: {
+        filePath: {
+          type: String,
+        },
+        submittedBy: {
+          type: String,
+        },
+        submittedOn: {
+          type: String,
+        },
       },
     },
     mid: {
@@ -42,8 +50,16 @@ const projectSchema = new Schema(
         type: String,
         default: "1",
       },
-      reportPdf: {
-        type: String,
+      report: {
+        filePath: {
+          type: String,
+        },
+        submittedBy: {
+          type: String,
+        },
+        submittedOn: {
+          type: String,
+        },
       },
     },
     final: {
@@ -51,8 +67,16 @@ const projectSchema = new Schema(
         type: String,
         default: "1",
       },
-      reportPdf: {
-        type: String,
+      report: {
+        filePath: {
+          type: String,
+        },
+        submittedBy: {
+          type: String,
+        },
+        submittedOn: {
+          type: String,
+        },
       },
     },
     timeStamps: {
