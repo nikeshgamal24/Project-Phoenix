@@ -10,7 +10,7 @@ const {
       const currentStudent = await Student.findOne({
         email: email,
         role: { $in: [role] },
-      }).select("-role -refreshToken -password -OTP");
+      }).select("-refreshToken -password -OTP");
   
       //if not found
       if (!currentStudent) return res.sendStatus(401); //unauthorized
