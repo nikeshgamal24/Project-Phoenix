@@ -23,7 +23,6 @@ router
   .route("/team/create")
   .post(verifyRoles(roleList.Student), studentController.createProjectTeam);
 
-
 //here id of the project
 router
   .route("/team/report/:id")
@@ -36,6 +35,7 @@ router
 router
   .route("/team/students")
   .get(verifyRoles(roleList.Student), studentController.getAllStudentsList);
+
 router
   .route("/project/:id")
   .get(verifyRoles(roleList.Student), studentController.getProjectById);

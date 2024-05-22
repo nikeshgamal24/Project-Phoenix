@@ -33,7 +33,7 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 
 //built-in middleware for json data
-app.use(express.json());
+  app.use(express.json());
 
 //middleware for cookie
 app.use(cookieParser());
@@ -54,8 +54,9 @@ app.use("/api/forgotPassword/OTP", require("./routes/matchOTP"));
 app.use("/api/forgotPassword/password", require("./routes/passwordReset"));
 
 //excute the swagger docs function
-// swaggerDocs(app, PORT);
+swaggerDocs(app, PORT);
 app.use(verifyJWT);
+app.use("/api/user", require("./routes/getUserInformation"));
 app.use("/api/event", require("./routes/api/events"));
 app.use("/api/student", require("./routes/api/students"));
 // app.use("/employee", require("./routes/api/employees"));
