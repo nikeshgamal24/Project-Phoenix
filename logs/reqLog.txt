@@ -1532,3 +1532,4 @@
 20240523	12:54:21	33424f78-98aa-4e61-8e69-f460da40c699	GET	http://localhost:5173	/api/refresh
 20240523	12:59:45	503eb2a1-190e-460c-87c2-36079bdfcb03	GET	undefined	/api/event/events/664ddc89cabc595ba1efed77
 20240523	13:00:36	1ab7dbc3-3dae-4a87-9fd8-3b77b460bb35	GET	undefined	/api/event/events/664ddc89cabc595ba1efed77
+20240523	13:08:33	9fdb7e94-654b-4b18-83d2-96bf12cea78a	GET	undefined	/api/event/events/664ddc89cabc595ba1efed77
