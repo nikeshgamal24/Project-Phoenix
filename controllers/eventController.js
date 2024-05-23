@@ -201,7 +201,7 @@ const getEvent = async (req, res) => {
 
     // Send response
     return res.status(200).json({
-      data: { eligibleStudentCountForEvent: studentCount, event },
+      data: { event, eligibleStudentCountForEvent: studentCount },
     });
   } catch (error) {
     console.error(error);
