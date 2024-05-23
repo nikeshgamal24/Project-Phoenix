@@ -1,8 +1,12 @@
 const Event = require("../models/Events");
+const Student = require("../models/Students");
 const {
   filterSensitiveFields,
 } = require("./utility functions/filterSensitiveDetails");
 const { generateEventId } = require("./utility functions/generateEventId");
+const {
+  getBatchYearFromEventType,
+} = require("./utility functions/getBatchYearFromEventType");
 
 //sensitive fields that will be undefined by the funciton filterSensitiveFields
 const sensitiveFields = ["role", "password", "refreshToken"];
@@ -164,26 +168,42 @@ const getEvent = async (req, res) => {
     event.author = filterSensitiveFields(event.author, sensitiveFields);
 
     /**********Populated the team members of the projects inside the event object*****************/
+
     // Map over each project and populate team members
     const populatedProjects = await Promise.all(
       event.projects.map(async (project) => {
         // Populate team members for the current project
-        const populatedProject = await project.populate({
+        const populatedData = await project.populate({
           path: "teamMembers",
           select: "-password -OTP -refreshToken",
         });
-
         // Return the populated project
-        return populatedProject;
+        return populatedData;
       })
     );
 
-    /**********Total student count on that particular event****************/
-    // get the student count that the particular event is associtated with
-    //function call that will return the number of student that is associated with that event
+    /**********Total student count eligible for particular event****************/
+    //get the batch number of the student
+    const batchNumber = getBatchYearFromEventType(event.eventType);
+
+    //1. Construct the query based on the event type
+    let query;
+    if (event.eventTarget === "72354") {
+      // If event type is '72354', include all students regardless of program
+      query = { batchNumber: batchNumber };
+    } else {
+      // Otherwise, include only students whose program matches the event target
+      query = { program: event.eventTarget, batchNumber: batchNumber };
+    }
+
+    // 2. based on event target get the student number who can participant in that event
+    const studentCount = await Student.find(query).countDocuments();
 
     // Send response
-    return res.status(200).json({ data: event });
+    return res.status(200).json({
+      eligibleStudentCountForEvent: studentCount,
+      data: event,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error." });
