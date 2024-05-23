@@ -1,6 +1,6 @@
 const Student = require("../models/Students");
 const Admin = require("../models/Admins");
-const Teacher = require("../models/Teachers");
+const Supervisor = require("../models/Supervisors");
 
 const jwt = require("jsonwebtoken");
 const { createAccessToken } = require("./createSetTokens/createAccessToken");
@@ -15,7 +15,7 @@ const handleRefreshToken = async (req, res) => {
   const foundUser =
     (await Admin.findOne({ refreshToken }).exec()) ??
     (await Student.findOne({ refreshToken }).exec()) ??
-    (await Teacher.findOne({ refreshToken }).exec());
+    (await Supervisor.findOne({ refreshToken }).exec());
 
   if (!foundUser) return res.sendStatus(403);
   // console.log(foundUser);

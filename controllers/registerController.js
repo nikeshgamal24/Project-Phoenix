@@ -1,5 +1,5 @@
 const Student = require("../models/Students");
-const Teacher = require("../models/Teachers");
+const Supervisor = require("../models/Supervisors");
 const Admin = require("../models/Admins");
 const bcrypt = require("bcrypt");
 const roleList = require("../config/roleList");
@@ -20,7 +20,7 @@ const handleNewUser = async (req, res) => {
   if (role === roleList.Student) {
     duplicate = await Student.findOne({ email: email }).exec();
   } else if (role === roleList.Supervisor) {
-    duplicate = await Teacher.findOne({ email: email }).exec();
+    duplicate = await Supervisor.findOne({ email: email }).exec();
   }else if (role === roleList.Admin) {
     duplicate = await Admin.findOne({ email: email }).exec();
   } else {
@@ -62,7 +62,7 @@ const handleNewUser = async (req, res) => {
       });
     } else if (role === roleList.Supervisor) {
 
-      result = await Teacher.create({
+      result = await Supervisor.create({
         fullname: fullname,
         email: email,
         password: hashedPassword,

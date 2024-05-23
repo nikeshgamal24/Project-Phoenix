@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const roleList = require("../config/roleList");
 const Student = require("../models/Students");
-const Teacher = require("../models/Teachers");
+const Supervisor = require("../models/Supervisors");
 const Admin = require("../models/Admins");
 
 const verifyJWT = (req, res, next) => {
@@ -22,7 +22,7 @@ const verifyJWT = (req, res, next) => {
         email: decoded.UserInfo.email,
       }).exec();
     } else if (decoded.UserInfo.role.includes(roleList.Supervisor)) {
-      freshUser = await Teacher.findOne({
+      freshUser = await Supervisor.findOne({
         email: decoded.UserInfo.email,
       }).exec();
     } else if (decoded.UserInfo.role.includes(roleList.Admin)) {

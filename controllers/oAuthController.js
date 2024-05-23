@@ -1,6 +1,6 @@
 const Admin = require("../models/Admins");
 const Student = require("../models/Students");
-const Teacher = require("../models/Teachers");
+const Supervisor = require("../models/Supervisors");
 const roleList = require("../config/roleList");
 require("dotenv").config();
 const { getGoogleOAuthTokens } = require("./getGoogleOAuthTokens");
@@ -88,14 +88,14 @@ const googleOauthHandler = async (req, res) => {
       const isStudentEmail = studentEmailRegex.test(googleUser.email);
       validUser =
         supervisorEmailRegex.test(googleUser.email) && !isStudentEmail;
-      validUserModel = Teacher;
+      validUserModel = Supervisor;
     } else {
       return res.sendStatus(401);
     }
 
     if (!validUser) {
       console.error("error-message:User doesn't exist");
-      return res.redirect("http://localhost:5173");
+      return res.redirect(`${process.env.CLIENT_BASE_URL}`);
     }
 
     console.log("entering into access token creation");

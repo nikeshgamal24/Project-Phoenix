@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const validator = require("validator");
 
-const teacherSchema = new Schema({
+const supervisorSchema = new Schema({
   fullname: {
     type: String,
     required: [true, "Please, Enter your full name!"],
@@ -40,5 +40,5 @@ timestamps: true,
 });
 
 
-module.exports = mongoose.model("Teacher", teacherSchema);
+module.exports = mongoose.model("Supervisor", supervisorSchema);
 

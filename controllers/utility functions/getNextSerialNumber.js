@@ -7,7 +7,13 @@ const getNextSerialNumberForEvent = async (eventType) => {
     return "01";
   }
 
-  const lastId = lastEvent.eventId;
+  console.log("eventType");
+  console.log(eventType);
+  console.log("lastEvent");
+  console.log(lastEvent);
+  const lastId = lastEvent.eventCode;
+  console.log("lastId");
+  console.log(lastId);
   const lastSerialNumber = lastId.slice(-3, -1); // Get the serial number part
 
   let nextSerialNumber = parseInt(lastSerialNumber, 10) + 1;

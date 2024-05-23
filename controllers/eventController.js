@@ -13,6 +13,7 @@ const sensitiveFields = ["role", "password", "refreshToken"];
 
 // Create a new event
 const createNewEvent = async (req, res) => {
+  console.log(req.body);
   if (
     !req?.body?.eventName ||
     !req?.body?.eventTarget ||

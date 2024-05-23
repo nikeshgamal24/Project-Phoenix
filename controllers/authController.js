@@ -1,5 +1,5 @@
 const Student = require("../models/Students");
-const Teacher = require("../models/Teachers");
+const Supervisor = require("../models/Supervisors");
 const Admin = require("../models/Admins");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -24,7 +24,7 @@ const handleLogin = async (req, res) => {
       role: { $in: [role] },
     }).exec();
   } else if (role === roleList.Supervisor || role === roleList.Defense) {
-    foundUser = await Teacher.findOne({
+    foundUser = await Supervisor.findOne({
       email: email,
       role: { $in: [role] },
     }).exec();

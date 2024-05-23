@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const roleList = require("../config/roleList");
 const Student = require("../models/Students");
 const Admin = require("../models/Admins");
-const Teacher = require("../models/Teachers");
+const Supervisor = require("../models/Supervisors");
 require("dotenv").config();
 const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
@@ -44,7 +44,7 @@ const passwordReset = async (req, res) => {
             role: { $in: [role] },
           }).exec();
         } else if (role.includes(roleList.Supervisor)) {
-          foundUser = await Teacher.findOne({
+          foundUser = await Supervisor.findOne({
             email: currentUserEmail,
             role: { $in: [role] },
           }).exec();
