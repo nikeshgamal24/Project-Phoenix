@@ -1,10 +1,11 @@
 const Event = require("../models/Events");
-const { filterSensitiveFields } = require("./utility functions/filterSensitiveDetails");
+const {
+  filterSensitiveFields,
+} = require("./utility functions/filterSensitiveDetails");
 const { generateEventId } = require("./utility functions/generateEventId");
 
 //sensitive fields that will be undefined by the funciton filterSensitiveFields
 const sensitiveFields = ["role", "password", "refreshToken"];
-
 
 // Create a new event
 const createNewEvent = async (req, res) => {
@@ -73,14 +74,13 @@ const getAllEvents = async (req, res) => {
       .lean();
 
     // Check if events are empty
-    if (!events.length)
-      return res.sendStatus(204);
+    if (!events.length) return res.sendStatus(204);
 
     // Filter sensitive fields from authors
     const populatedEvents = events.map((event) => {
       event.author = filterSensitiveFields(event.author, sensitiveFields);
 
-      if(!event.author) return res.sendStatus(400);
+      if (!event.author) return res.sendStatus(400);
       return event;
     });
 
@@ -94,7 +94,6 @@ const getAllEvents = async (req, res) => {
     res.status(500).json({ message: "Server error." });
   }
 };
-
 
 const updateEvent = async (req, res) => {
   if (!req?.params?.id) {
@@ -110,7 +109,7 @@ const updateEvent = async (req, res) => {
     "proposal",
     "mid",
     "final",
-    "year"
+    "year",
   ];
 
   allowedFields.forEach((field) => {
@@ -141,7 +140,6 @@ const updateEvent = async (req, res) => {
   }
 };
 
-
 //get specified event based on event id
 const getEvent = async (req, res) => {
   // Check if ID is provided
@@ -151,7 +149,9 @@ const getEvent = async (req, res) => {
 
   try {
     // Find event by ID and populate the author field
-    const event = await Event.findById(req.params.id).populate("author").populate("projects").lean();
+    const event = await Event.findById(req.params.id)
+      .populate("author")
+      .populate("projects");
 
     // Check if event exists
     if (!event) {
@@ -162,6 +162,25 @@ const getEvent = async (req, res) => {
 
     // Filter sensitive fields from the author
     event.author = filterSensitiveFields(event.author, sensitiveFields);
+
+    /**********Populated the team members of the projects inside the event object*****************/
+    // Map over each project and populate team members
+    const populatedProjects = await Promise.all(
+      event.projects.map(async (project) => {
+        // Populate team members for the current project
+        const populatedProject = await project.populate({
+          path: "teamMembers",
+          select: "-password -OTP -refreshToken",
+        });
+
+        // Return the populated project
+        return populatedProject;
+      })
+    );
+
+    /**********Total student count on that particular event****************/
+    // get the student count that the particular event is associtated with
+    //function call that will return the number of student that is associated with that event
 
     // Send response
     return res.status(200).json({ data: event });
