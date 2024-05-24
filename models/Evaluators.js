@@ -13,19 +13,21 @@ const evaluatorSchema = new Schema(
       unique: true,
       lowercase: true,
     },
-    photo: String,
+    contact:{
+     type:String,
+    },
     accessCode: {
       type: String,
     },
     role: {
       type: [Number],
     },
-    isAssignedDefense: {
+    isAssociated: {
       type: Boolean,
+      default:false,
     },
     evaluatorType: {
       type: String,
-      enum: ["internal", "external"],
     },
     timeStamps: {
       type: Date,

@@ -4,11 +4,13 @@ const ROLES_LIST = require("../../config/roleList");
 const verifyRoles = require("../../middleware/verifyRoles");
 const eventController = require("../../controllers/eventController");
 
-
-
 router
   .route("/create")
   .post(verifyRoles(ROLES_LIST.Admin), eventController.createNewEvent);
+
+router
+  .route("/evaluator/create")
+  .post(verifyRoles(ROLES_LIST.Admin), eventController.createEvaluator);
 
 router
   .route("/events")

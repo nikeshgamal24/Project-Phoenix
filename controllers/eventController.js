@@ -1,5 +1,7 @@
 const Event = require("../models/Events");
 const Student = require("../models/Students");
+const Evaluator = require("../models/Evaluators");
+const roleList = require("../config/roleList");
 const {
   filterSensitiveFields,
 } = require("./utility functions/filterSensitiveDetails");
@@ -7,13 +9,13 @@ const { generateEventId } = require("./utility functions/generateEventId");
 const {
   getBatchYearFromEventType,
 } = require("./utility functions/getBatchYearFromEventType");
+const evaluatorTypeList = require("../config/evaluatorTypeList");
 
 //sensitive fields that will be undefined by the funciton filterSensitiveFields
 const sensitiveFields = ["role", "password", "refreshToken"];
 
 // Create a new event
 const createNewEvent = async (req, res) => {
-  console.log(req.body);
   if (
     !req?.body?.eventName ||
     !req?.body?.eventTarget ||
@@ -202,7 +204,7 @@ const getEvent = async (req, res) => {
 
     // Send response
     return res.status(200).json({
-      eligibleStudentCountForEvent: studentCount ,
+      eligibleStudentCountForEvent: studentCount,
       data: event,
     });
   } catch (error) {
@@ -211,9 +213,51 @@ const getEvent = async (req, res) => {
   }
 };
 
+const createEvaluator = async (req, res) => {
+  try {
+    if (
+      !req?.body?.fullname ||
+      !req?.body?.email ||
+      !req?.body?.contact ||
+      !req?.body?.evaluatorType
+    ) {
+      return res.status(400).json({
+        message: "Credentials are required",
+      });
+    }
+    
+
+    const evaluatorType = req.body.evaluatorType;
+    console.log(evaluatorTypeList[evaluatorType]);
+    //create a new evaluator, with credentials
+    const newEvaluator = await Evaluator.create({
+      fullname: req.body.fullname,
+      email: req.body.email,
+      contact: req.body.contact,
+      role: roleList.Evaluator,
+      evaluatorType: evaluatorTypeList[evaluatorType],
+    });
+
+    //if no evaluator is created
+    if (!newEvaluator) return res.sendStatus(400);
+
+    //if creation is success
+    console.log(newEvaluator);
+
+    //return if everything goes well
+    return res.status(201).json({
+      data: newEvaluator,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
+
 module.exports = {
   createNewEvent,
   getAllEvents,
   getEvent,
   updateEvent,
+  createEvaluator,
 };
