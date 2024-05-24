@@ -4,13 +4,10 @@ const ROLES_LIST = require("../../config/roleList");
 const verifyRoles = require("../../middleware/verifyRoles");
 const eventController = require("../../controllers/eventController");
 
+/******SECTION FOR EVENTS*********/
 router
   .route("/create")
   .post(verifyRoles(ROLES_LIST.Admin), eventController.createNewEvent);
-
-router
-  .route("/evaluator/create")
-  .post(verifyRoles(ROLES_LIST.Admin), eventController.createEvaluator);
 
 router
   .route("/events")
@@ -21,4 +18,12 @@ router
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getEvent)
   .put(verifyRoles(ROLES_LIST.Admin), eventController.updateEvent);
 
+/******SECTION FOR EVALUATOR*********/
+router
+  .route("/evaluator/create")
+  .post(verifyRoles(ROLES_LIST.Admin), eventController.createEvaluator);
+
+router
+  .route("/evaluators")
+  .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllEvaluators);
 module.exports = router;

@@ -1564,3 +1564,6 @@
 20240523	20:21:32	fcb53f39-18de-4dd8-83b6-1ecf418a5824	OPTIONS	http://localhost:5173	/api/refresh
 20240523	20:21:32	a08437ac-8558-4862-97c0-9e260efff1e3	GET	http://localhost:5173	/api/refresh
 20240523	20:21:32	7e434570-6ef2-43a3-b2ba-fbfa9cd12d3f	GET	http://localhost:5173	/api/refresh
+20240524	12:59:30	a1dcdb16-3bba-47e0-8613-c4e0da3d7659	GET	undefined	/api/event/evaluators
+20240524	13:01:50	7cfffed1-ab82-4f78-9298-1e62e1f547c6	POST	undefined	/api/event/evaluator/create
+20240524	13:02:01	92d16bbf-bf56-4aed-9d2c-650586f22e66	GET	undefined	/api/event/evaluators

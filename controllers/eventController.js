@@ -225,7 +225,6 @@ const createEvaluator = async (req, res) => {
         message: "Credentials are required",
       });
     }
-    
 
     const evaluatorType = req.body.evaluatorType;
     console.log(evaluatorTypeList[evaluatorType]);
@@ -254,10 +253,28 @@ const createEvaluator = async (req, res) => {
   }
 };
 
+const getAllEvaluators = async (req, res) => {
+  try {
+    // Find all events and populate the author field
+    const evaluators = await Evaluator.find().sort({ createdAt: -1 }).lean();
+
+    // Check if events are empty
+    if (!evaluators.length) return res.sendStatus(204);
+
+    // Send response
+    res.status(200).json({
+      data: evaluators,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
 module.exports = {
   createNewEvent,
   getAllEvents,
   getEvent,
   updateEvent,
   createEvaluator,
+  getAllEvaluators,
 };

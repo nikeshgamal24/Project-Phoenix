@@ -1,6 +1,6 @@
 const evaluatorType = {
-  88: "INTERNAL", //internal
-  99: "EXTERNAL", //external
+  88: "88", //internal
+  99: "99", //external
 };
 
 module.exports = evaluatorType ;
