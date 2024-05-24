@@ -29,6 +29,12 @@ const evaluatorSchema = new Schema(
     evaluatorType: {
       type: String,
     },
+    designation:{
+      type:String,
+    },
+    institution:{
+      type:String,
+    },
     timeStamps: {
       type: Date,
       timestamps: true,

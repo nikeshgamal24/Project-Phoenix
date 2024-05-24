@@ -1567,3 +1567,6 @@
 20240524	12:59:30	a1dcdb16-3bba-47e0-8613-c4e0da3d7659	GET	undefined	/api/event/evaluators
 20240524	13:01:50	7cfffed1-ab82-4f78-9298-1e62e1f547c6	POST	undefined	/api/event/evaluator/create
 20240524	13:02:01	92d16bbf-bf56-4aed-9d2c-650586f22e66	GET	undefined	/api/event/evaluators
+20240524	17:39:39	17b55fcb-f3b2-4948-8706-f2e5a0cd210c	POST	undefined	/api/auth
+20240524	17:40:04	6a7dce5d-ecac-4d7d-9242-c76012c924ec	POST	undefined	/api/event/evaluator/create
+20240524	17:40:31	5f6fabfa-7119-48d2-818b-c78e621b3706	POST	undefined	/api/event/evaluator/create

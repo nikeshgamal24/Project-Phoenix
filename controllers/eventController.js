@@ -235,6 +235,8 @@ const createEvaluator = async (req, res) => {
       contact: req.body.contact,
       role: roleList.Evaluator,
       evaluatorType: evaluatorTypeList[evaluatorType],
+      designation:req.body.designation,
+      institution:req.body.institution
     });
 
     //if no evaluator is created
