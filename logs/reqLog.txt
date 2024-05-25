@@ -1642,3 +1642,7 @@
 20240525	15:51:38	3e653d6a-dafb-4a67-bde7-dc07ee9aee6e	POST	undefined	/api/student/team/create
 20240525	15:51:51	82bf412f-1618-47ed-b550-148ac8cf3112	POST	undefined	/api/student/team/create
 20240525	15:53:45	2b2145e8-a321-44a8-9736-9333fd3270da	POST	undefined	/api/student/team/create
+20240525	17:52:23	ab732eec-6a4c-40fe-b20e-077376d4ab78	POST	undefined	/api/auth
+20240525	17:52:37	03bc22f4-ba30-421d-a32a-1f24022e48d1	GET	undefined	/api/event/defense/defenses
+20240525	17:52:59	2ae8784c-cc49-4043-884f-d7a1c79bd8ba	GET	undefined	/api/event/defense/defenses
+20240525	17:53:16	a264b092-1479-4c32-87e1-f42027ef58c8	GET	undefined	/api/event/defense/defenses

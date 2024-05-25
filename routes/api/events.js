@@ -26,6 +26,10 @@ router
 router
   .route("/defense/create")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllEventsAndEvaluators);
+  
+router
+  .route("/defense/defenses")
+  .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllDefenses);
 
 router
   .route("/evaluators")

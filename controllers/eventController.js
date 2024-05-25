@@ -1,6 +1,7 @@
 const Event = require("../models/Event");
 const Student = require("../models/Student");
 const Evaluator = require("../models/Evaluator");
+const Defense = require("../models/Defense");
 const roleList = require("../config/roleList");
 const {
   filterSensitiveFields,
@@ -23,9 +24,11 @@ const createNewEvent = async (req, res) => {
   ) {
     return res.status(400).json({ message: "Required Fields are empty" });
   }
-  const eventCode = await generateEventId({eventType:Number(req.body.eventType)});
+  const eventCode = await generateEventId({
+    eventType: Number(req.body.eventType),
+  });
 
-  if(!eventCode) return res.sendStatus(400);
+  if (!eventCode) return res.sendStatus(400);
 
   try {
     const newEvent = await Event.create({
@@ -276,7 +279,9 @@ const getAllEvaluators = async (req, res) => {
 const getAllEventsAndEvaluators = async (req, res) => {
   try {
     //fetch all events details and populate projects
-    let events = await Event.find().sort({ createdAt: -1 }).populate("projects");
+    let events = await Event.find()
+      .sort({ createdAt: -1 })
+      .populate("projects");
 
     //if no events
     if (!events) return res.sendStatus(204);
@@ -287,11 +292,10 @@ const getAllEventsAndEvaluators = async (req, res) => {
         // Populate team members for each project within the current event
         event.projects = await Promise.all(
           event.projects.map(async (project) => {
-            await project
-              .populate({
-                path: "teamMembers",
-                select: "-password -OTP -refreshToken",
-              });
+            await project.populate({
+              path: "teamMembers",
+              select: "-password -OTP -refreshToken",
+            });
             return project;
           })
         );
@@ -299,19 +303,20 @@ const getAllEventsAndEvaluators = async (req, res) => {
       })
     );
 
-     // Find all events and populate the author field
-     const evaluators = await Evaluator.find({
-      isAssociated:false
-     }).sort({ createdAt: -1 }).lean();
+    // Find all events and populate the author field
+    const evaluators = await Evaluator.find({
+      isAssociated: false,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
-     // Check if events are empty
-     if (!evaluators.length) return res.sendStatus(204);
-
+    // Check if events are empty
+    if (!evaluators.length) return res.sendStatus(204);
 
     return res.status(200).json({
       data: {
         events: events,
-        evaluators:evaluators,
+        evaluators: evaluators,
       },
     });
   } catch (err) {
@@ -320,6 +325,25 @@ const getAllEventsAndEvaluators = async (req, res) => {
   }
 };
 
+const getAllDefenses = async (req,res) => {
+  try {
+    // Find all events and populate the author field
+    const defenses = await Defense.find().sort({ createdAt: -1 });
+    // Check if events are empty
+    if (!defenses.length) return res.sendStatus(204);
+
+    // Send response
+    return res.status(200).json({
+      data: {
+        results: defenses.length,
+        defenses: defenses,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
 module.exports = {
   createNewEvent,
   getAllEvents,
@@ -328,4 +352,5 @@ module.exports = {
   createEvaluator,
   getAllEvaluators,
   getAllEventsAndEvaluators,
+  getAllDefenses,
 };
