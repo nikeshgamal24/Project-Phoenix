@@ -35,6 +35,7 @@ const projectSchema = new Schema(
       },
       hasGraduated: {
         type: Boolean,
+        default: false,
       },
       report: {
         filePath: {
@@ -61,6 +62,7 @@ const projectSchema = new Schema(
       },
       hasGraduated: {
         type: Boolean,
+        default: false,
       },
       report: {
         filePath: {
@@ -87,6 +89,7 @@ const projectSchema = new Schema(
       },
       hasGraduated: {
         type: Boolean,
+        default: false,
       },
       report: {
         filePath: {
