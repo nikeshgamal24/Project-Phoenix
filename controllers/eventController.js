@@ -235,8 +235,8 @@ const createEvaluator = async (req, res) => {
       contact: req.body.contact,
       role: roleList.Evaluator,
       evaluatorType: evaluatorTypeList[evaluatorType],
-      designation:req.body.designation,
-      institution:req.body.institution
+      designation: req.body.designation,
+      institution: req.body.institution,
     });
 
     //if no evaluator is created
@@ -272,6 +272,54 @@ const getAllEvaluators = async (req, res) => {
     res.status(500).json({ message: "Server error." });
   }
 };
+
+const getAllEventsAndEvaluators = async (req, res) => {
+  try {
+    //fetch all events details and populate projects
+    let events = await Event.find().sort({ createdAt: -1 }).populate("projects");
+
+    //if no events
+    if (!events) return res.sendStatus(204);
+
+    // Map over each event and process its projects
+    events = await Promise.all(
+      events.map(async (event) => {
+        // Populate team members for each project within the current event
+        event.projects = await Promise.all(
+          event.projects.map(async (project) => {
+            await project
+              .populate({
+                path: "teamMembers",
+                select: "-password -OTP -refreshToken",
+              });
+            return project;
+          })
+        );
+        return event;
+      })
+    );
+
+     // Find all events and populate the author field
+     const evaluators = await Evaluator.find({
+      isAssociated:false
+     }).sort({ createdAt: -1 }).lean();
+
+     // Check if events are empty
+     if (!evaluators.length) return res.sendStatus(204);
+
+
+    return res.status(200).json({
+      data: {
+        events: events,
+        evaluators:evaluators,
+      },
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
+
 module.exports = {
   createNewEvent,
   getAllEvents,
@@ -279,4 +327,5 @@ module.exports = {
   updateEvent,
   createEvaluator,
   getAllEvaluators,
+  getAllEventsAndEvaluators,
 };
