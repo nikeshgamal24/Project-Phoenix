@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const roleList = require("../config/roleList");
-const Student = require("../models/Students");
-const Admin = require("../models/Admins");
-const Supervisor = require("../models/Supervisors");
+const Student = require("../models/Student");
+const Admin = require("../models/Admin");
+const Supervisor = require("../models/Supervisor");
 require("dotenv").config();
 const { createAccessToken } = require("./createSetTokens/createAccessToken");
 
@@ -25,15 +25,12 @@ const passwordReset = async (req, res) => {
     accessToken,
     process.env.ACCESS_TOKEN_SECRET,
     async (err, decoded) => {
-      console.log("decoded");
-      console.log(decoded);
 
       if (err || !decoded.UserInfo.email)
         return res.sendStatus(403).send("Forbidden");
 
       const currentUserEmail = decoded.UserInfo.email;
       const role = decoded.UserInfo.role;
-      console.log(currentUserEmail, role);
 
       try {
         // check for user found or not

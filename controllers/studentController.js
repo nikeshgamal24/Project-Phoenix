@@ -1,6 +1,6 @@
-const Student = require("../models/Students");
-const Event = require("../models/Events");
-const Project = require("../models/Projects");
+const Student = require("../models/Student");
+const Event = require("../models/Event");
+const Project = require("../models/Project");
 const jwt = require("jsonwebtoken");
 const {
   filterSensitiveFields,

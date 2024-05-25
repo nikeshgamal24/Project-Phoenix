@@ -1,4 +1,4 @@
-const Student = require('../../models/Students');
+const Student = require('../../models/Student');
 const updateRollBatchAndStatus = async (res,email,rollNumber,batchNumber,progressStatus)=>{
     try{
         if(!email) return res.sendStatus(401);

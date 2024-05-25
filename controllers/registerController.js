@@ -1,10 +1,14 @@
-const Student = require("../models/Students");
-const Supervisor = require("../models/Supervisors");
-const Admin = require("../models/Admins");
+const Student = require("../models/Student");
+const Supervisor = require("../models/Supervisor");
+const Admin = require("../models/Admin");
 const bcrypt = require("bcrypt");
 const roleList = require("../config/roleList");
-const {extractRollAndBatch} = require('./utility functions/extractRollAndBatch');
-const {initializeProgressStatus} = require('./utility functions/initializeProgressStatus');
+const {
+  extractRollAndBatch,
+} = require("./utility functions/extractRollAndBatch");
+const {
+  initializeProgressStatus,
+} = require("./utility functions/initializeProgressStatus");
 const handleNewUser = async (req, res) => {
   const { fullname, email, photo, password, phoneNumber, program, role } =
     req.body;
@@ -21,7 +25,7 @@ const handleNewUser = async (req, res) => {
     duplicate = await Student.findOne({ email: email }).exec();
   } else if (role === roleList.Supervisor) {
     duplicate = await Supervisor.findOne({ email: email }).exec();
-  }else if (role === roleList.Admin) {
+  } else if (role === roleList.Admin) {
     duplicate = await Admin.findOne({ email: email }).exec();
   } else {
     return res.sendStatus(400);
@@ -58,10 +62,9 @@ const handleNewUser = async (req, res) => {
         rollNumber,
         batchNumber,
         progressStatus,
-        isAssociated:false,
+        isAssociated: false,
       });
     } else if (role === roleList.Supervisor) {
-
       result = await Supervisor.create({
         fullname: fullname,
         email: email,
@@ -84,7 +87,7 @@ const handleNewUser = async (req, res) => {
     //201--> successfully created
     res.status(201).json({
       message: `New User ${fullname} has been created!`,
-      data:result,
+      data: result,
     });
   } catch (err) {
     res.status(500).json({

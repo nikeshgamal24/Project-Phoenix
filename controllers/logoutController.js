@@ -1,6 +1,6 @@
-const Student = require("../models/Students");
-const Admin = require("../models/Admins");
-const Supervisor = require("../models/Supervisors");
+const Student = require("../models/Student");
+const Admin = require("../models/Admin");
+const Supervisor = require("../models/Supervisor");
 
 const handleLogout = async (req, res) => {
   //On client, also delete the access token
@@ -28,7 +28,6 @@ const handleLogout = async (req, res) => {
   //Delete  refreshToken from db
   foundUser.refreshToken = "";
   const result = await foundUser.save();
-  console.log(result);
 
   res.clearCookie("jwt", {
     httpOnly: true,

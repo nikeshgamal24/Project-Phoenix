@@ -1,4 +1,4 @@
-const Event = require("../../models/Events");
+const Event = require("../../models/Event");
 const getNextSerialNumberForEvent = async (eventType) => {
   const lastEvent = await Event.findOne({ eventType })
     .sort({ createdAt: -1 }) // Sort by creation date in descending order

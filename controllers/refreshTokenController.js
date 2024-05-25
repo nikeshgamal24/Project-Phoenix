@@ -1,6 +1,6 @@
-const Student = require("../models/Students");
-const Admin = require("../models/Admins");
-const Supervisor = require("../models/Supervisors");
+const Student = require("../models/Student");
+const Admin = require("../models/Admin");
+const Supervisor = require("../models/Supervisor");
 
 const jwt = require("jsonwebtoken");
 const { createAccessToken } = require("./createSetTokens/createAccessToken");

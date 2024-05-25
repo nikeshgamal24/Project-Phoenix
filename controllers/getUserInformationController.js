@@ -1,7 +1,7 @@
 const {
     getUserInfoFromAccessToken,
   } = require("../controllers/utility functions/getUserInfoFromAccessToken");
-  const Student = require("../models/Students");
+  const Student = require("../models/Student");
   
   const getUserInformation = async (req, res) => {
     try {

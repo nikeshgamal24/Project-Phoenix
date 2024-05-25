@@ -1,6 +1,6 @@
-const Event = require("../models/Events");
-const Student = require("../models/Students");
-const Evaluator = require("../models/Evaluators");
+const Event = require("../models/Event");
+const Student = require("../models/Student");
+const Evaluator = require("../models/Evaluator");
 const roleList = require("../config/roleList");
 const {
   filterSensitiveFields,

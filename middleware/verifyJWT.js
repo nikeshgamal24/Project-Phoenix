@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const roleList = require("../config/roleList");
-const Student = require("../models/Students");
-const Supervisor = require("../models/Supervisors");
-const Admin = require("../models/Admins");
+const Student = require("../models/Student");
+const Supervisor = require("../models/Supervisor");
+const Admin = require("../models/Admin");
 
 const verifyJWT = (req, res, next) => {
   // const authHeader = req.headers["authorization"];

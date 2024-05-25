@@ -1,4 +1,4 @@
-const Project = require("../../models/Projects");
+const Project = require("../../models/Project");
 
 const uploadProjectReport = async ({
   id,

@@ -1,6 +1,6 @@
-const Admin = require("../models/Admins");
-const Student = require("../models/Students");
-const Supervisor = require("../models/Supervisors");
+const Admin = require("../models/Admin");
+const Student = require("../models/Student");
+const Supervisor = require("../models/Supervisor");
 const roleList = require("../config/roleList");
 require("dotenv").config();
 const { getGoogleOAuthTokens } = require("./getGoogleOAuthTokens");
@@ -106,7 +106,6 @@ const googleOauthHandler = async (req, res) => {
       process.env.ACCESS_TOKEN_EXPIRATION_TIME
     );
 
-    console.log(accessToken);
     if (!accessToken) return res.status(400).send("Access Token creation fail");
     //creating refresh token
     const refreshToken = createRefreshToken(

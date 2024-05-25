@@ -1,5 +1,5 @@
 const eventTargetCodeList = require("../../config/eventTargetCodeList");
-const Project = require("../../models/Projects");
+const Project = require("../../models/Project");
 const { getBatchYearFromEventType } = require("./getBatchYearFromEventType");
 const generateCustomProjectId = async ({ eventType, program }) => {
   try {
