@@ -334,10 +334,7 @@ const getAllDefenses = async (req,res) => {
 
     // Send response
     return res.status(200).json({
-      data: {
-        results: defenses.length,
-        defenses: defenses,
-      },
+      data:defenses
     });
   } catch (error) {
     console.error(error);
