@@ -29,9 +29,12 @@ const projectSchema = new Schema(
       default: "101",
     },
     proposal: {
-      phase: {
-        type: String,
-        default: "1",
+      defenseId: {
+        type: Schema.Types.ObjectId,
+        ref: "Defense",
+      },
+      hasGraduated: {
+        type: Boolean,
       },
       report: {
         filePath: {
@@ -44,11 +47,20 @@ const projectSchema = new Schema(
           type: String,
         },
       },
+      evaluations: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Evaluation",
+        },
+      ],
     },
     mid: {
-      phase: {
-        type: String,
-        default: "1",
+      defenseId: {
+        type: Schema.Types.ObjectId,
+        ref: "Defense",
+      },
+      hasGraduated: {
+        type: Boolean,
       },
       report: {
         filePath: {
@@ -61,11 +73,20 @@ const projectSchema = new Schema(
           type: String,
         },
       },
+      evaluations: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Evaluation",
+        },
+      ],
     },
     final: {
-      phase: {
-        type: String,
-        default: "1",
+      defenseId: {
+        type: Schema.Types.ObjectId,
+        ref: "Defense",
+      },
+      hasGraduated: {
+        type: Boolean,
       },
       report: {
         filePath: {
@@ -78,6 +99,12 @@ const projectSchema = new Schema(
           type: String,
         },
       },
+      evaluations: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Evaluation",
+        },
+      ],
     },
     timeStamps: {
       type: Date,
