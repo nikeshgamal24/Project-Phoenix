@@ -1,11 +1,10 @@
-
- const eventTargetCodeList = {
-  BESE: 700,
-  BECE: 200,
-  BEIT: 300,
-  BEELX: 500,
-  BCA: 400,
-  ALL: 72354,
+const eventTargetCodeList = {
+  700: "SE",
+  200: "CE",
+  300: "IT",
+  500: "ELX",
+  400: "BCA",
+  72354: "ALL",
 };
 
 module.exports = eventTargetCodeList;

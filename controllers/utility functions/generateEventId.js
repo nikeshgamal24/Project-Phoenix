@@ -1,20 +1,44 @@
 const eventTypeList = require("../../config/eventTypeList");
+const { getBatchYearFromEventType } = require("./getBatchYearFromEventType");
 const { getNextSerialNumberForEvent } = require("./getNextSerialNumber");
 const { getRandomUppercaseLetter } = require("./getRandomUppercaseLetter");
 
-const generateEventId = async (eventType) => {
-  const year = new Date().getFullYear().toString().slice(-2);
-  const eventTypeCode = eventTypeList[eventType];
+const generateEventId = async ({ eventType }) => {
+  try {
+    const year = new Date().getFullYear().toString().slice(-2);
+    const eventTypeCode = eventTypeList[eventType];
+    const batch = getBatchYearFromEventType(eventType).toString().slice(2);
+    const eventTypeInitial =
+      eventTypeCode === eventTypeList["2"]
+        ? "M"
+        : eventTypeCode === eventTypeList["1"]
+        ? "N"
+        : eventTypeCode === eventTypeList["0"]
+        ? "F"
+        : null;
 
-  if (!eventTypeCode) {
-    throw new Error(`Invalid event type: ${eventType}`);
+    if (!eventTypeCode) {
+      console.error(`Invalid event type: ${eventType}`);
+      return null;
+    }
+    if (!eventTypeInitial) {
+      console.error(`Invalid event type code: ${eventType}`);
+      return null;
+    }
+    if (!batch) {
+      console.error(`Invalid batch: ${batch}`);
+      return null;
+    }
+    const serialNumber = await getNextSerialNumberForEvent(
+      eventType.toString()
+    );
+
+    const randomLetter = getRandomUppercaseLetter();
+
+    return `${eventTypeInitial}-${batch}-${eventTypeCode}${serialNumber}${randomLetter}`;
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
   }
-
-  const serialNumber = await getNextSerialNumberForEvent(eventType.toString());
-
-  const randomLetter = getRandomUppercaseLetter();
-
-  return `ET-${year}${eventTypeCode}${serialNumber}${randomLetter}`;
 };
 
 module.exports = { generateEventId };

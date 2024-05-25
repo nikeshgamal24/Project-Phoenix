@@ -23,7 +23,9 @@ const createNewEvent = async (req, res) => {
   ) {
     return res.status(400).json({ message: "Required Fields are empty" });
   }
-  const eventCode = await generateEventId(Number(req.body.eventType));
+  const eventCode = await generateEventId({eventType:Number(req.body.eventType)});
+
+  if(!eventCode) return res.sendStatus(400);
 
   try {
     const newEvent = await Event.create({
@@ -50,8 +52,6 @@ const createNewEvent = async (req, res) => {
       year: req.body.year,
       author: req.userId,
     });
-    console.log("after creation");
-    console.log(newEvent);
     // // // Populate the author field
     await newEvent.populate("author");
 
