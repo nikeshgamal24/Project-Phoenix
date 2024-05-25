@@ -193,10 +193,9 @@ const createProjectTeam = async (req, res) => {
 
     //destructing the req.body to get the necessary values from the object
     const { projectName, projectDescription, teamMembers, eventId } = req.body;
-    const { batchNumber } = await Student.findOne({
+    const { batchNumber, program } = await Student.findOne({
       _id: req.userId,
     });
-
     //first check whether the teamMembers selected are associated with other projects or not
     //1. check the isAssociated field and even one of the teamMember is already associated with other existing project then return with 409 conflicting status
     let alreadyAssociated = false;
@@ -217,7 +216,12 @@ const createProjectTeam = async (req, res) => {
 
     //create custom project code
     const eventType = initializeEventTypeBasedOnBatch(batchNumber);
-    const projectCode = await generateCustomProjectId(eventType);
+    const projectCode = await generateCustomProjectId({
+      eventType: eventType,
+      program: program,
+    });
+
+    if (!projectCode) return res.sendStatus(400);
 
     const newProject = await Project.create({
       projectCode: projectCode,

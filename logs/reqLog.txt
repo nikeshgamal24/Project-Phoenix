@@ -1632,3 +1632,13 @@
 20240525	15:28:27	70d98e35-2700-4936-97d5-4f4c0ddb1e7f	POST	undefined	/api/event/create
 20240525	15:28:31	31483fc9-451c-4fa4-88a5-762253761b7e	POST	undefined	/api/event/create
 20240525	15:31:27	abe81040-356c-4f8c-87cb-d5684d92fc85	POST	undefined	/api/event/create
+20240525	15:40:01	f9919dd3-2e86-4068-8e15-a4fff3f805d1	POST	undefined	/api/auth
+20240525	15:41:33	3769bedc-8ef0-453a-bae6-ec49fa1f2e93	POST	undefined	/api/auth
+20240525	15:43:07	daa13e4d-6b87-4314-b2e3-8fe9a3595199	POST	undefined	/api/student/team/create
+20240525	15:44:15	a0ed5ccd-67b8-45c8-b49d-7745f2d81750	POST	undefined	/api/student/team/create
+20240525	15:48:47	4b63b50d-14f6-4bcf-881b-48af5eed8e91	POST	undefined	/api/student/team/create
+20240525	15:49:34	5b10f39c-9f89-4701-96f9-cffd362958ee	POST	undefined	/api/student/team/create
+20240525	15:51:17	b7ee9737-e2d2-4979-bd1c-a32db0e50a1b	POST	undefined	/api/student/team/create
+20240525	15:51:38	3e653d6a-dafb-4a67-bde7-dc07ee9aee6e	POST	undefined	/api/student/team/create
+20240525	15:51:51	82bf412f-1618-47ed-b550-148ac8cf3112	POST	undefined	/api/student/team/create
+20240525	15:53:45	2b2145e8-a321-44a8-9736-9333fd3270da	POST	undefined	/api/student/team/create

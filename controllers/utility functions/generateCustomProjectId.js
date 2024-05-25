@@ -1,9 +1,13 @@
+const eventTargetCodeList = require("../../config/eventTargetCodeList");
 const Project = require("../../models/Projects");
-const generateCustomProjectId = async (eventType) => {
+const { getBatchYearFromEventType } = require("./getBatchYearFromEventType");
+const generateCustomProjectId = async ({ eventType, program }) => {
   try {
-    // Get the current year
-    const year = new Date().getFullYear().toString().slice(-2);
-    // Get last two digits of the year
+    //get batch last two digit from event type
+    const batch = getBatchYearFromEventType(eventType).toString().slice(2);
+    const faculty = eventTargetCodeList[program];
+    //check for only valid event type and faculty
+    if (!faculty) return null;
 
     // Find the latest project in the database for the given event type
     const latestProject = await Project.findOne({
@@ -32,7 +36,7 @@ const generateCustomProjectId = async (eventType) => {
     // Pad serial number with leading zeros to ensure it's two digits
     const paddedSerialNumber = String(serialNumber).padStart(2, "0");
     // Concatenate components to form the custom project ID
-    return `P${eventType}-${year}-${paddedSerialNumber}${randomChar1}${randomChar2}`;
+    return `P${eventType}-${batch}-${paddedSerialNumber}${faculty}`;
   } catch (error) {
     console.error("Error generating custom project ID:", error.message);
     throw error;
