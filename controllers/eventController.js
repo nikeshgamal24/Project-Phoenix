@@ -2,6 +2,8 @@ const Event = require("../models/Event");
 const Student = require("../models/Student");
 const Evaluator = require("../models/Evaluator");
 const Defense = require("../models/Defense");
+const Room = require("../models/Room");
+const Project = require("../models/Project");
 const roleList = require("../config/roleList");
 const {
   filterSensitiveFields,
@@ -11,6 +13,10 @@ const {
   getBatchYearFromEventType,
 } = require("./utility functions/getBatchYearFromEventType");
 const evaluatorTypeList = require("../config/evaluatorTypeList");
+const eventStatusList = require("../config/eventStatusList");
+const {
+  generateAccesscode,
+} = require("./utility functions/generateAccessCode");
 
 //sensitive fields that will be undefined by the funciton filterSensitiveFields
 const sensitiveFields = ["role", "password", "refreshToken"];
@@ -230,7 +236,6 @@ const createEvaluator = async (req, res) => {
     }
 
     const evaluatorType = req.body.evaluatorType;
-    console.log(evaluatorTypeList[evaluatorType]);
     //create a new evaluator, with credentials
     const newEvaluator = await Evaluator.create({
       fullname: req.body.fullname,
@@ -325,20 +330,101 @@ const getAllEventsAndEvaluators = async (req, res) => {
   }
 };
 
-const getAllDefenses = async (req,res) => {
+const getAllDefenses = async (req, res) => {
   try {
     // Find all events and populate the author field
-    const defenses = await Defense.find().sort({ createdAt: -1 });
+    const defenses = await Defense.find()
+      .sort({ createdAt: -1 })
+      .populate("rooms")
+      .populate("event");
     // Check if events are empty
     if (!defenses.length) return res.sendStatus(204);
 
     // Send response
     return res.status(200).json({
-      data:defenses
+      data: defenses,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error." });
+  }
+};
+
+const createNewDefense = async (req, res) => {
+  try {
+    if (
+      !req?.body?.eventId ||
+      !req?.body?.defenseTime ||
+      !req?.body?.defenseDate ||
+      !req?.body?.rooms.length
+    )
+      return res.status(400).json({
+        message: "Required redentials are missing",
+      });
+
+    // //get room list
+    const roomList = req.body.rooms;
+    // console.log(req.body);
+    //create room collection in db and return id
+    let defenseRoomIdList = roomList.map(async (room) => {
+      const newRoom = await Room.create({
+        room: room.room,
+        evaluators: room.evaluators.map((evaluator) => {
+          return evaluator._id;
+        }),
+        projects: room.projects.map((project) => {
+          return project._id;
+        }),
+      });
+      return newRoom._id;
+    });
+
+    //get the value of the promises and returns the array
+    defenseRoomIdList = await Promise.all(defenseRoomIdList);
+
+    //create new collection of defense in defense document
+    const newDefense = await Defense.create({
+      eventId: req.body.eventId,
+      defenseType: req.body.defenseType,
+      defenseTime: req.body.defenseTime,
+      defenseDate: req.body.defenseDate,
+      rooms: defenseRoomIdList.map((id) => {
+        return id;
+      }),
+      status: eventStatusList.active,
+    });
+
+    if (!newDefense) return res.sendStatus(400);
+
+    //generate unique access code for each evaluators and save the access code to the evaluator's accessCode field
+    // roomList.forEach((room) => {
+    //   room.evaluators.forEach((async evaluator) => {
+    //     let evaluatorDetails = await Evaluator
+    //     const accessCode = generateAccesscode({evaluatorEmail:evaluat});
+    //     console.log(accessCode);
+    //   });
+    // });
+
+    //iterate through project and update the defenseId field in project model
+    const defenseType = req.body.defenseType;
+    req.body.rooms.forEach((room) => {
+      room.projects.forEach(async (project) => {
+        const updatedField = `${defenseType}.defenseId`;
+        // Create the update object dynamically
+        const updateObject = { $set: {} };
+        updateObject.$set[updatedField] = newDefense._id;
+        await Project.findOneAndUpdate({ _id: project._id }, updateObject, {
+          new: true,
+        });
+      });
+    });
+
+    return res.status(201).json({
+      data: newDefense,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
   }
 };
 module.exports = {
@@ -350,4 +436,5 @@ module.exports = {
   getAllEvaluators,
   getAllEventsAndEvaluators,
   getAllDefenses,
+  createNewDefense,
 };

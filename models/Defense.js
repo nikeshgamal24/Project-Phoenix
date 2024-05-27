@@ -3,13 +3,12 @@ const Schema = mongoose.Schema;
 
 const defenseSchema = new Schema(
   {
-    eventId: {
+    event: {
       type: Schema.Types.ObjectId,
       ref: "Event",
     },
     defenseType: {
       type: String,
-      enum: ["PROPOSAL", "MID", "FINAL"],
     },
     defenseTime: {
       type: String,
@@ -19,7 +18,6 @@ const defenseSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["ACTIVE", "COMPLETE", "ARCHIVE"],
     },
     rooms: [
       {

@@ -24,14 +24,23 @@ router
   .post(verifyRoles(ROLES_LIST.Admin), eventController.createEvaluator);
 
 router
+  .route("/evaluators")
+  .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllEvaluators);
+
+/******SECTION FOR DEFENSE*********/
+router
   .route("/defense/create")
-  .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllEventsAndEvaluators);
-  
+  .get(
+    verifyRoles(ROLES_LIST.Admin),
+    eventController.getAllEventsAndEvaluators
+  );
+
+router
+  .route("/defense/create")
+  .post(verifyRoles(ROLES_LIST.Admin), eventController.createNewDefense);
+
 router
   .route("/defense/defenses")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllDefenses);
 
-router
-  .route("/evaluators")
-  .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllEvaluators);
 module.exports = router;
