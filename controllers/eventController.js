@@ -17,6 +17,8 @@ const eventStatusList = require("../config/eventStatusList");
 const {
   generateAccesscode,
 } = require("./utility functions/generateAccessCode");
+const bcrypt = require("bcrypt");
+const { sendMailToUser } = require("./utility functions/sendMailToUser");
 
 //sensitive fields that will be undefined by the funciton filterSensitiveFields
 const sensitiveFields = ["role", "password", "refreshToken"];
@@ -364,7 +366,6 @@ const createNewDefense = async (req, res) => {
 
     // //get room list
     const roomList = req.body.rooms;
-    // console.log(req.body);
     //create room collection in db and return id
     let defenseRoomIdList = roomList.map(async (room) => {
       const newRoom = await Room.create({
@@ -397,13 +398,37 @@ const createNewDefense = async (req, res) => {
     if (!newDefense) return res.sendStatus(400);
 
     //generate unique access code for each evaluators and save the access code to the evaluator's accessCode field
-    // roomList.forEach((room) => {
-    //   room.evaluators.forEach((async evaluator) => {
-    //     let evaluatorDetails = await Evaluator
-    //     const accessCode = generateAccesscode({evaluatorEmail:evaluat});
-    //     console.log(accessCode);
-    //   });
-    // });
+    roomList.forEach((room) => {
+      room.evaluators.forEach(async (evaluator) => {
+        const evaluatorDetails = await Evaluator.findOne({
+          _id: evaluator._id,
+        });
+        const accessCode = generateAccesscode({
+          evaluatorEmail: evaluatorDetails.email,
+        });
+        console.log(accessCode);
+
+        //if something went wrong while creating access code
+        if (!accessCode) return res.sendStatus(400);
+
+        //mail the acccess code to the evaluator
+        const status =   sendMailToUser({
+          evaluatorEmail: evaluatorDetails.email,
+          accessCode: accessCode,
+          room:room.room,
+          defenseDate :req.body.defenseDate,
+          defenseTime :req.body.defenseTime,
+          evaluatorName:evaluatorDetails.fullname
+        });
+
+        //encrypt the accessCode
+        const hashedAccessCode = await bcrypt.hash(accessCode, 10);
+        console.log(hashedAccessCode);
+
+        evaluatorDetails.accessCode = hashedAccessCode;
+        await evaluatorDetails.save();
+      });
+    });
 
     //iterate through project and update the defenseId field in project model
     const defenseType = req.body.defenseType;
