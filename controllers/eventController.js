@@ -212,11 +212,17 @@ const getEvent = async (req, res) => {
 
     // 2. based on event target get the student number who can participant in that event
     const studentCount = await Student.find(query).countDocuments();
-
+    
+    //search for the defense that has given event id
+    const defenses = await Defense.find({
+      event:req.params.id
+    })
+    
     // Send response
     return res.status(200).json({
       eligibleStudentCountForEvent: studentCount,
       data: event,
+      defenses:defenses
     });
   } catch (error) {
     console.error(error);
@@ -385,7 +391,7 @@ const createNewDefense = async (req, res) => {
 
     //create new collection of defense in defense document
     const newDefense = await Defense.create({
-      eventId: req.body.eventId,
+      event: req.body.eventId,
       defenseType: req.body.defenseType,
       defenseTime: req.body.defenseTime,
       defenseDate: req.body.defenseDate,
@@ -418,7 +424,7 @@ const createNewDefense = async (req, res) => {
           room:room.room,
           defenseDate :req.body.defenseDate,
           defenseTime :req.body.defenseTime,
-          evaluatorName:evaluatorDetails.fullname
+          evaluatorName:evaluatorDetails.fullname,
         });
 
         //encrypt the accessCode
@@ -426,6 +432,7 @@ const createNewDefense = async (req, res) => {
         console.log(hashedAccessCode);
 
         evaluatorDetails.accessCode = hashedAccessCode;
+        evaluatorDetails.isAssociated=true;
         await evaluatorDetails.save();
       });
     });
