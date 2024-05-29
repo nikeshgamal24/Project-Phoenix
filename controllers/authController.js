@@ -86,60 +86,61 @@ const handleLogin = async (req, res) => {
   }
 };
 
-// const handleEvaluatorLogin = async (req, res) => {
-//   try {
-//     const { accessCode, role } = req.body;
-//     if (!accessCode || !role)
-//       return res.status(400).json({
-//         message: "Rrequired credentials are missing",
-//       });
-//     // Query the database to retrieve the evaluator's data based on the role
-//     const evaluators = await Evaluator.find({ role });
+const handleEvaluatorLogin = async (req, res) => {
+  try {
+    const { accessCode, role } = req.body;
+    if (!accessCode || !role)
+      return res.status(400).json({
+        message: "Rrequired credentials are missing",
+      });
+    // Query the database to retrieve the evaluator's data based on the role
+    const evaluators = await Evaluator.find({ role });
 
-//     if (!evaluators) {
-//       return res.status(404).json({ message: "Evaluator not found" });
-//     }
-//     //search for the evaluator with the access code after hashing
-//     let accessCodeMatched = false;
-//     let accessToken;
-//     let foundUser;
+    if (!evaluators) {
+      return res.status(404).json({ message: "Evaluator not found" });
+    }
+    //search for the evaluator with the access code after hashing
+    let accessCodeMatched = false;
+    let accessToken;
+    let foundUser;
 
-//     accessCodeMatched = evaluators.forEach(async (evaluator) => {
-//       console.log("before accessCodestatus");
-//       console.log(accessCode,evaluator.accessCode);
-//       const accessCodeStatus = await bcrypt.compare(accessCode, evaluator.accessCode);
-//       // const accessCodeStatus = await bcrypt.compare(
-//       //   accessCode,
-//       //   evaluator.accessCode
-//       // );
-//       console.log(accessCodeStatus);
-//       if (accessCodeStatus) {
-//         //create JWTs for authorization
-//         //creating access token
-//         accessToken = createAccessToken(
-//           evaluator,
-//           role,
-//           process.env.ACCESS_TOKEN_EXPIRATION_TIME
-//         );
-//         foundUser = evaluator;
-//         return true;
-//       }
-//     });
+    for (const evaluator of evaluators) {
+      console.log("before accessCodestatus");
+      console.log(accessCode, evaluator.accessCode);
+      if (evaluator.accessCode) {
+        const accessCodeStatus = await bcrypt.compare(accessCode, evaluator.accessCode);
+        console.log(accessCodeStatus);
+        if (accessCodeStatus) {
+          //create JWTs for authorization
+          //creating access token
+          accessToken = createAccessToken(
+            evaluator,
+            role,
+            process.env.ACCESS_TOKEN_EXPIRATION_TIME
+          );
+          foundUser = evaluator;
+          accessCodeMatched = true;
+          break;  // Exit the loop as we've found a match
+        }
+      }
+    }
+    
 
-//     //if accessCode is not matched
-//     if (!accessCodeMatched) return res.sendStatus(401);
+    //if accessCode is not matched
+    if (!accessCodeMatched) return res.sendStatus(401);
 
-//     //if something went wrong while creating access token
-//     if (!accessToken) return res.status(400).send("Access Token creation fail");
-
-//     //sending accessToken as an response
-//     return res.status(200).json({
-//       accessToken,
-//       user: foundUser,
-//     });
-//   } catch (err) {
-//     console.error(`error-message:${err.message}`);
-//     return res.sendStatus(400);
-//   }
-// };
-module.exports = { handleLogin };
+    //if something went wrong while creating access token
+    if (!accessToken) return res.status(400).send("Access Token creation fail");
+    //removing access code while sending resposne 
+    foundUser.accessCode = undefined;
+    //sending accessToken as an response
+    return res.status(200).json({
+      accessToken,
+      user: foundUser,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
+module.exports = { handleLogin ,handleEvaluatorLogin};

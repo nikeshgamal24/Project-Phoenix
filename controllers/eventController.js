@@ -434,6 +434,7 @@ const createNewDefense = async (req, res) => {
         evaluatorDetails.accessCode = hashedAccessCode;
         evaluatorDetails.isAssociated=true;
         await evaluatorDetails.save();
+        console.log(evaluatorDetails);
       });
     });
 
