@@ -89,6 +89,7 @@ const getAllEvents = async (req, res) => {
       .sort({ createdAt: -1 })
       .select()
       .populate("author")
+      .populate("projects")
       .lean();
 
     // Check if events are empty
@@ -173,8 +174,7 @@ const getEvent = async (req, res) => {
 
     // Check if event exists
     if (!event) {
-      return res
-        .sendStatus(204);
+      return res.sendStatus(204);
     }
 
     // Filter sensitive fields from the author
@@ -211,17 +211,17 @@ const getEvent = async (req, res) => {
 
     // 2. based on event target get the student number who can participant in that event
     const studentCount = await Student.find(query).countDocuments();
-    
+
     //search for the defense that has given event id
     const defenses = await Defense.find({
-      event:req.params.id
-    })
-    
+      event: req.params.id,
+    });
+
     // Send response
     return res.status(200).json({
       eligibleStudentCountForEvent: studentCount,
       data: event,
-      defenses:defenses
+      defenses: defenses,
     });
   } catch (error) {
     console.error(error);
@@ -316,14 +316,7 @@ const getAllEventsAndEvaluators = async (req, res) => {
     );
 
     // Find all events and populate the author field
-    const evaluators = await Evaluator.find({
-      isAssociated: false,
-    })
-      .sort({ createdAt: -1 })
-      .lean();
-
-    // Check if events are empty
-    if (!evaluators.length) return res.sendStatus(204);
+    const evaluators = await Evaluator.find().sort({ createdAt: -1 }).lean();
 
     return res.status(200).json({
       data: {
@@ -359,6 +352,8 @@ const getAllDefenses = async (req, res) => {
 
 const createNewDefense = async (req, res) => {
   try {
+    console.log(req.body);
+
     if (
       !req?.body?.eventId ||
       !req?.body?.defenseTime ||
@@ -411,45 +406,87 @@ const createNewDefense = async (req, res) => {
         const accessCode = generateAccesscode({
           evaluatorEmail: evaluatorDetails.email,
         });
-        console.log(accessCode);
 
         //if something went wrong while creating access code
         if (!accessCode) return res.sendStatus(400);
 
         //mail the acccess code to the evaluator
-        const status =   sendMailToUser({
+        const status = sendMailToUser({
           evaluatorEmail: evaluatorDetails.email,
           accessCode: accessCode,
-          room:room.room,
-          defenseDate :req.body.defenseDate,
-          defenseTime :req.body.defenseTime,
-          evaluatorName:evaluatorDetails.fullname,
+          room: room.room,
+          defenseDate: req.body.defenseDate,
+          defenseTime: req.body.defenseTime,
+          evaluatorName: evaluatorDetails.fullname,
         });
 
         //encrypt the accessCode
         const hashedAccessCode = await bcrypt.hash(accessCode, 10);
-        console.log(hashedAccessCode);
 
-        evaluatorDetails.accessCode = hashedAccessCode;
-        evaluatorDetails.isAssociated=true;
+        const newDefenseObject = {
+          defenseId: newDefense._id,
+          accessCode: hashedAccessCode,
+        };
+
+        //save access code along with the particular defense id--> push the both in evalueators defense field
+        evaluatorDetails.defense.push(newDefenseObject);
         await evaluatorDetails.save();
-        console.log(evaluatorDetails);
       });
     });
+
+    const defenseType = req.body.defenseType;
+    //save to newdefense id to event
+    const eventDoc = await Event.findOne({
+      _id: req.body.eventId,
+    });
+    const eventDefenseField = eventDoc[defenseType];
+    eventDefenseField.defenseId.push(newDefense._id);
+    console.log(eventDefenseField.defenseId);
+    // Save the updated project
+    await eventDoc.save();
 
     //iterate through project and update the defenseId field in project model
-    const defenseType = req.body.defenseType;
-    req.body.rooms.forEach((room) => {
-      room.projects.forEach(async (project) => {
-        const updatedField = `${defenseType}.defenseId`;
-        // Create the update object dynamically
-        const updateObject = { $set: {} };
-        updateObject.$set[updatedField] = newDefense._id;
-        await Project.findOneAndUpdate({ _id: project._id }, updateObject, {
-          new: true,
-        });
-      });
-    });
+    for (const room of req.body.rooms) {
+      for (const project of room.projects) {
+        try {
+          const projectDoc = await Project.findOne({
+            _id: project._id,
+          });
+
+          const defenseField = projectDoc[defenseType];
+
+          // Ensure the defense field exists and is an object with a defenseId array
+          if (!defenseField) {
+            project[defenseType] = { defenseId: [] };
+          } else if (!Array.isArray(defenseField.defenseId)) {
+            project[defenseType].defenseId = [];
+          }
+
+          console.log(
+            "Trying to project defense array section before pushing new defense id"
+          );
+          console.log("defenseField");
+          console.log(defenseField);
+          console.log(newDefense._id);
+          console.log(
+            "Trying to update project defense array section after pushing new defense id"
+          );
+
+          // Add new defense ID to the array
+          defenseField.defenseId.push(newDefense._id);
+          console.log(defenseField.defenseId);
+          // Save the updated project
+          await projectDoc.save();
+
+          console.log("Project after saving:");
+          console.log(projectDoc);
+          console.log("---------after project Doc save()-------");
+        } catch (error) {
+          console.error(`Error updating project ${project._id}:`, error);
+          return res.sendStatus(400);
+        }
+      }
+    }
 
     return res.status(201).json({
       data: newDefense,

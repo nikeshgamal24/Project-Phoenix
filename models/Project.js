@@ -29,10 +29,12 @@ const projectSchema = new Schema(
       default: "101",
     },
     proposal: {
-      defenseId: {
-        type: Schema.Types.ObjectId,
-        ref: "Defense",
-      },
+      defenseId: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Defense",
+        },
+      ],
       hasGraduated: {
         type: Boolean,
         default: false,
@@ -56,10 +58,12 @@ const projectSchema = new Schema(
       ],
     },
     mid: {
-      defenseId: {
-        type: Schema.Types.ObjectId,
-        ref: "Defense",
-      },
+      defenseId: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Defense",
+        },
+      ],
       hasGraduated: {
         type: Boolean,
         default: false,
@@ -83,10 +87,12 @@ const projectSchema = new Schema(
       ],
     },
     final: {
-      defenseId: {
-        type: Schema.Types.ObjectId,
-        ref: "Defense",
-      },
+      defenseId: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Defense",
+        },
+      ],
       hasGraduated: {
         type: Boolean,
         default: false,

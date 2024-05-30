@@ -26,6 +26,12 @@ const eventSchema = new Schema(
       default: "101",
     },
     proposal: {
+      defenseId: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Defense",
+        },
+      ],
       phase: {
         type: String,
         default: "1",
@@ -43,6 +49,12 @@ const eventSchema = new Schema(
       },
     },
     mid: {
+      defenseId: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Defense",
+        },
+      ],
       phase: {
         type: String,
         default: "1",
@@ -60,6 +72,12 @@ const eventSchema = new Schema(
       },
     },
     final: {
+      defenseId: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Defense",
+        },
+      ],
       phase: {
         type: String,
         default: "1",

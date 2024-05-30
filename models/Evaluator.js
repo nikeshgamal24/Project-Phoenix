@@ -16,15 +16,22 @@ const evaluatorSchema = new Schema(
     contact:{
      type:String,
     },
-    accessCode: {
+    defense: [
+      {
+        defenseId: {
+          type: Schema.Types.ObjectId,
+          ref: "Defense",
+        },
+        accessCode: {
+          type: String,
+        },
+      },
+    ],
+    refreshToken: {
       type: String,
     },
     role: {
       type: [Number],
-    },
-    isAssociated: {
-      type: Boolean,
-      default:false,
     },
     evaluatorType: {
       type: String,

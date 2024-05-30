@@ -99,6 +99,7 @@ const handleEvaluatorLogin = async (req, res) => {
       return res.status(400).json({
         message: "Rrequired credentials are missing",
       });
+      
     // Query the database to retrieve the evaluator's data based on the role
     const evaluators = await Evaluator.find({ role });
 
@@ -141,7 +142,19 @@ const handleEvaluatorLogin = async (req, res) => {
     //if something went wrong while creating access token
     if (!accessToken) return res.status(400).send("Access Token creation fail");
     //removing access code while sending resposne
-    foundUser.accessCode = undefined;
+     //creating refresh token
+     const refreshToken = createRefreshToken(
+      foundUser,
+      process.env.REFRESH_TOKEN_EXPIRATION_TIME
+    );
+    if (!refreshToken)
+      return res.status(400).send("Refresh Token creation fail");
+
+    // sving refreshToken with currrent user
+    foundUser.refreshToken = refreshToken;
+    const result = await foundUser.save();
+    // saving refreshToken to the cookie
+    setCookie(res, refreshToken);
     //sending accessToken as an response
     return res.status(200).json({
       accessToken,
