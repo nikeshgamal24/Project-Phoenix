@@ -2,7 +2,7 @@
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3500",
-  "https://ncitprojectphoenix.netlify.app",
+  "https://project-phoenix-omega.vercel.app",
 ];
 
 module.exports = allowedOrigins;
