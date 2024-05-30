@@ -1,39 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const validator = require("validator");
-/**
- * @openapi
- * components:
- *   schemas:
- *     Student:
- *       type: object
- *       required:
- *         - fullname
- *         - email
- *         - phoneNumber
- *         - program
- *         - password
- *         - confirmPassword
- *       properties:
- *         fullname:
- *           type: string
- *           default: "Ram Kumar"
- *         email:
- *           type: string
- *           default: "example.123454@ncit.edu.np"
- *         phoneNumber:
- *           type: string
- *           default: "9874451256"
- *         program:
- *           type: string
- *           default: "700"
- *         password:
- *           type: string
- *           default: "Password@123"
- *         confirmPassword:
- *           type: string
- *           default: "Password@123"
- */
 
 const studentSchema = new Schema(
   {

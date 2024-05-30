@@ -4,13 +4,13 @@ const { version } = require("../package.json");
 
 const options = {
   definition: {
-    openai: "3.0.0",
+    openapi: "3.0.0",
     info: {
       title: "Project Phoenix Rest API Docs",
       version,
     },
-    components: {
-      securitySchema: {
+    components: { 
+      securitySchemas: {
         bearerAuth: {
           type: "http",
           schema: "bearer",
@@ -28,12 +28,14 @@ const options = {
 };
 
 const swaggerSpec = swaggerJsdoc(options);
+
+//function to expose the endpoint 
 function swaggerDocs(app, port) {
   //swagger page
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   //Docs in JSON format
-  app.use("/docs.json", (req, res) => {
+  app.use("docs.json", (req, res) => {
     res.header("Content-Type", "application/json");
     res.send(swaggerSpec);
   });

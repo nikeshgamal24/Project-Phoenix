@@ -8,14 +8,40 @@ const registerController = require("../controllers/registerController");
  * '/api/register':
  *   post:
  *     tags:
- *       - Register Users
+ *       - Register Students
  *     summary: Register a user
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref:'#/components/schemas/Student'
+ *             type: object
+ *             required:
+ *               - fullname
+ *               - email
+ *               - phoneNumber
+ *               - program
+ *               - password
+ *               - confirmPassword
+ *             properties:
+ *               fullname:
+ *                 type: string
+ *                 default: "Ram Kumar"
+ *               email:
+ *                 type: string
+ *                 default: "example.123454@ncit.edu.np"
+ *               phoneNumber:
+ *                 type: string
+ *                 default: "9874451256"
+ *               program:
+ *                 type: string
+ *                 default: "700"
+ *               password:
+ *                 type: string
+ *                 default: "Password@123"
+ *               confirmPassword:
+ *                 type: string
+ *                 default: "Password@123"
  *     responses:
  *       201:
  *         description: New User Created successfully

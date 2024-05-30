@@ -97,8 +97,9 @@ const handleEvaluatorLogin = async (req, res) => {
     const evaluators = await Evaluator.find({ role });
 
     if (!evaluators) {
-      return res.status(404).json({ message: "Evaluator not found" });
+      return res.sendStatus(204);
     }
+   
     //search for the evaluator with the access code after hashing
     let accessCodeMatched = false;
     let accessToken;
