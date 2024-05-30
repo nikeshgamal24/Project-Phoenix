@@ -174,8 +174,7 @@ const getEvent = async (req, res) => {
     // Check if event exists
     if (!event) {
       return res
-        .status(204)
-        .json({ message: `No event matches ID ${req.params.id}.` });
+        .sendStatus(204);
     }
 
     // Filter sensitive fields from the author
