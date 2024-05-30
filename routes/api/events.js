@@ -341,7 +341,7 @@ router
 /**
  * @openapi
  * '/api/event/events/{id}':
- *   post:
+ *   get:
  *     tags:
  *       - Events API
  *     summary: Get All Events
