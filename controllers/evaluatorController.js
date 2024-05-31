@@ -18,6 +18,18 @@ const getDefenseBydId = async (req, res) => {
       return res.sendStatus(204);
     }
 
+    //populate evalutator and projects inside defense
+    // Map over each defense room  and populate evaluator and projects
+    const populatedRooms = await Promise.all(
+      defense.rooms.map(async (room) => {
+        // Populate projects for the current defense
+        const populatedProjecs = await room.populate("projects");
+        // populate evaluators
+        const populatedEvaluator = await room.populate("evaluators");
+        return {populatedProjecs,populatedEvaluator};
+      })
+    );
+
     // Send response
     return res.status(200).json({
       data: defense,
