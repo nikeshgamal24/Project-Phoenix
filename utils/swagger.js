@@ -9,7 +9,13 @@ const options = {
       title: "Project Phoenix Rest API Docs",
       version,
     },
-    components: { 
+    servers: [
+      {
+        url: "https://project-phoenix-clz.vercel.app",
+        description: "Vercel Hosted Backend",
+      },
+    ],
+    components: {
       securitySchemas: {
         bearerAuth: {
           type: "http",
@@ -24,12 +30,12 @@ const options = {
       },
     ],
   },
-  apis: ["./routes/*.js", "./routes/api/*.js","./models/*.js"],
+  apis: ["./routes/*.js", "./routes/api/*.js", "./models/*.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
-//function to expose the endpoint 
+//function to expose the endpoint
 function swaggerDocs(app, port) {
   //swagger page
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -42,4 +48,4 @@ function swaggerDocs(app, port) {
 
   console.log(`Docs available at http://localhost:${port}/docs`);
 }
-module.exports = {swaggerDocs};
+module.exports = { swaggerDocs };
