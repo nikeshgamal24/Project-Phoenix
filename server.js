@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3500;
 connectDB();
 
 //custom middle-ware logger
-app.use(logger);
+// app.use(logger);
 //code becomes more cleaner
 
 //middleware for access-control-allow credentials
@@ -76,7 +76,7 @@ app.all("*", (req, res) => {
 });
 
 //middleware for error handling
-app.use(errorHandler);
+// app.use(errorHandler);
 
 mongoose.connection.once("open", () => {
   console.log("Connected to MongoDB");
