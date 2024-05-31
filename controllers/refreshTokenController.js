@@ -4,6 +4,7 @@ const Supervisor = require("../models/Supervisor");
 
 const jwt = require("jsonwebtoken");
 const { createAccessToken } = require("./createSetTokens/createAccessToken");
+const Evaluator = require("../models/Evaluator");
 
 const handleRefreshToken = async (req, res) => {
   try {
@@ -16,7 +17,8 @@ const handleRefreshToken = async (req, res) => {
     const foundUser =
       (await Admin.findOne({ refreshToken }).exec()) ??
       (await Student.findOne({ refreshToken }).exec()) ??
-      (await Supervisor.findOne({ refreshToken }).exec());
+      (await Supervisor.findOne({ refreshToken }).exec()) ??
+      (await Evaluator.findOne({ refreshToken }).exec());
 
     if (!foundUser) return res.sendStatus(403);
     // console.log(foundUser);

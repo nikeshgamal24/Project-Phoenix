@@ -99,7 +99,7 @@ const handleEvaluatorLogin = async (req, res) => {
       return res.status(400).json({
         message: "Rrequired credentials are missing",
       });
-      
+
     // Query the database to retrieve the evaluator's data based on the role
     const evaluators = await Evaluator.find({ role });
 
@@ -109,53 +109,62 @@ const handleEvaluatorLogin = async (req, res) => {
 
     //search for the evaluator with the access code after hashing
     let accessCodeMatched = false;
-    let accessToken;
-    let foundUser;
+    let matchFoundFlag = 0;
+    let accessToken, foundUser;
 
     for (const evaluator of evaluators) {
-      console.log("before accessCodestatus");
-      console.log(accessCode, evaluator.accessCode);
-      if (evaluator.accessCode) {
-        const accessCodeStatus = await bcrypt.compare(
-          accessCode,
-          evaluator.accessCode
-        );
-        console.log(accessCodeStatus);
-        if (accessCodeStatus) {
-          //create JWTs for authorization
-          //creating access token
-          accessToken = createAccessToken(
-            evaluator,
-            role,
-            process.env.ACCESS_TOKEN_EXPIRATION_TIME
+      for (const defenseObj of evaluator.defense) {
+        //if accesscode is there only procceed for compare
+        if (defenseObj.accessCode) {
+          //check for the access code match
+          accessCodeMatched = await bcrypt.compare(
+            accessCode,
+            defenseObj.accessCode
           );
-          foundUser = evaluator;
-          accessCodeMatched = true;
-          break; // Exit the loop as we've found a match
+
+          //if accessCode is not matched
+          if (!accessCodeMatched) return res.sendStatus(401);
+
+          //if accessCode match
+          if (accessCodeMatched) {
+            //if match then create accessToken and break
+            accessToken = createAccessToken(
+              evaluator,
+              role,
+              process.env.ACCESS_TOKEN_EXPIRATION_TIME
+            );
+
+            if (!accessToken)
+              return res.status(400).send("Access Token creation fail");
+            foundUser = evaluator;
+            foundUser.currentDefense = defenseObj.defenseId;
+            matchFoundFlag = 1;
+            break;
+          } //unauthorized
         }
       }
+      if (matchFoundFlag) break;
     }
 
-    //if accessCode is not matched
-    if (!accessCodeMatched) return res.sendStatus(401);
+    //not an authorized user
+    if (!foundUser) return res.sendStatus(401);
 
-    //if something went wrong while creating access token
-    if (!accessToken) return res.status(400).send("Access Token creation fail");
-    //removing access code while sending resposne
-     //creating refresh token
-     const refreshToken = createRefreshToken(
+    //creating refresh token
+    const refreshToken = createRefreshToken(
       foundUser,
       process.env.REFRESH_TOKEN_EXPIRATION_TIME
     );
+
+    //if something went wrong on creating refresh token
     if (!refreshToken)
       return res.status(400).send("Refresh Token creation fail");
 
-    // sving refreshToken with currrent user
     foundUser.refreshToken = refreshToken;
     const result = await foundUser.save();
     // saving refreshToken to the cookie
     setCookie(res, refreshToken);
     //sending accessToken as an response
+    foundUser.refreshToken = undefined;
     return res.status(200).json({
       accessToken,
       user: foundUser,

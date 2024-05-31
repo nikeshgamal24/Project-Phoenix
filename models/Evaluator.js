@@ -16,6 +16,10 @@ const evaluatorSchema = new Schema(
     contact:{
      type:String,
     },
+    currentDefense:{
+      type:Schema.Types.ObjectId,
+      refer:"Defense"
+    },
     defense: [
       {
         defenseId: {
