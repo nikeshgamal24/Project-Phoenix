@@ -11,6 +11,10 @@ const options = {
     },
     servers: [
       {
+        url: "http://localhost:3500",
+        description: "Localhost",
+      },
+      {
         url: "https://project-phoenix-clz.vercel.app",
         description: "Vercel Hosted Backend",
       },
@@ -41,7 +45,7 @@ function swaggerDocs(app, port) {
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   //Docs in JSON format
-  app.use("docs.json", (req, res) => {
+  app.use("/docs.json", (req, res) => {
     res.header("Content-Type", "application/json");
     res.send(swaggerSpec);
   });

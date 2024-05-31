@@ -1918,3 +1918,15 @@
 20240530	21:55:12	eddd38c9-4f43-480f-b185-045364824072	POST	http://localhost:5173	/api/event/defense/create
 20240530	21:55:13	9c32ee41-d3ad-4ed9-ae1d-150c7a29c4f0	OPTIONS	http://localhost:5173	/api/event/defense/defenses
 20240530	21:55:13	ae7f3d20-ed09-47bc-a60a-50bf8d9a4430	GET	http://localhost:5173	/api/event/defense/defenses
+20240531	19:38:47	a4447303-bd1a-4ba3-96a7-040bfeb6e4df	GET	undefined	/docs/
+20240531	19:38:47	9ae30e81-7890-4fe1-a23b-c4be1552512b	GET	undefined	/docs/swagger-ui.css
+20240531	19:38:47	a8900936-1fda-48a5-9314-f2584574b075	GET	undefined	/docs/swagger-ui-bundle.js
+20240531	19:38:47	5cf46932-3ee5-40aa-a910-7cfa0366ff60	GET	undefined	/docs/swagger-ui-standalone-preset.js
+20240531	19:38:47	af54c18e-0d8c-46e4-bb0e-f5ac17d38802	GET	undefined	/docs/swagger-ui-init.js
+20240531	19:55:42	c48a90cf-64c1-448e-a97d-8b25a9b329a4	GET	undefined	/docs/
+20240531	19:55:42	92e75f2f-5e7f-44bc-ae6e-b04486bf46d8	GET	undefined	/docs/swagger-ui.css
+20240531	19:55:42	fcec2026-0913-4f79-924b-3d7365ac2bb7	GET	undefined	/docs/swagger-ui-bundle.js
+20240531	19:55:42	45274d4a-f989-443e-afcd-bc2966f0e95a	GET	undefined	/docs/swagger-ui-standalone-preset.js
+20240531	19:55:42	ba749c8a-0480-46a9-b726-75218adc4f5e	GET	undefined	/docs/swagger-ui-init.js
+20240531	19:55:43	b8bfc668-52c2-40bb-a3d2-cd09a3789153	GET	undefined	/docs/favicon-32x32.png
+20240531	19:56:09	0cc6519e-a374-49d2-b42c-8168e56e1315	POST	http://localhost:3500	/api/auth
