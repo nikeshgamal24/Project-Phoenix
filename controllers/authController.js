@@ -124,6 +124,7 @@ const handleEvaluatorLogin = async (req, res) => {
 
           //if accessCode is not matched
           if (!accessCodeMatched) return res.sendStatus(401);
+          const role = Object.values(evaluator.role);
 
           //if accessCode match
           if (accessCodeMatched) {

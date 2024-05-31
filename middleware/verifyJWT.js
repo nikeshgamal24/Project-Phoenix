@@ -16,7 +16,11 @@ const verifyJWT = (req, res, next) => {
   //verify the token
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if (err) return res.sendStatus(403); //403--> invalid token
-
+    console.log("jwt verify");
+    console.log(typeof(decoded.UserInfo.role));
+    console.log(decoded.UserInfo.role);
+    console.log(typeof(roleList.Student));
+    console.log(roleList.Student);
     let freshUser;
     if (decoded.UserInfo.role.includes(roleList.Student)) {
       freshUser = await Student.findOne({
@@ -29,7 +33,9 @@ const verifyJWT = (req, res, next) => {
     } else if (decoded.UserInfo.role.includes(roleList.Admin)) {
       freshUser = await Admin.findOne({ email: decoded.UserInfo.email }).exec();
     } else if (decoded.UserInfo.role.includes(roleList.Evaluator)) {
-      freshUser = await Evaluator.findOne({ email: decoded.UserInfo.email }).exec();
+      freshUser = await Evaluator.findOne({
+        email: decoded.UserInfo.email,
+      }).exec();
     } else {
       return res.sendStatus(400);
     }
