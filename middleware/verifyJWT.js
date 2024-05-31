@@ -4,6 +4,7 @@ const roleList = require("../config/roleList");
 const Student = require("../models/Student");
 const Supervisor = require("../models/Supervisor");
 const Admin = require("../models/Admin");
+const Evaluator = require("../models/Admin");
 
 const verifyJWT = (req, res, next) => {
   // const authHeader = req.headers["authorization"];
@@ -27,6 +28,8 @@ const verifyJWT = (req, res, next) => {
       }).exec();
     } else if (decoded.UserInfo.role.includes(roleList.Admin)) {
       freshUser = await Admin.findOne({ email: decoded.UserInfo.email }).exec();
+    } else if (decoded.UserInfo.role.includes(roleList.Evaluator)) {
+      freshUser = await Evaluator.findOne({ email: decoded.UserInfo.email }).exec();
     } else {
       return res.sendStatus(400);
     }

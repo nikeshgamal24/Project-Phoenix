@@ -496,6 +496,7 @@ const createNewDefense = async (req, res) => {
     return res.sendStatus(400);
   }
 };
+
 module.exports = {
   createNewEvent,
   getAllEvents,
@@ -505,5 +506,5 @@ module.exports = {
   getAllEvaluators,
   getAllEventsAndEvaluators,
   getAllDefenses,
-  createNewDefense,
+  createNewDefense
 };

@@ -58,6 +58,7 @@ swaggerDocs(app, PORT);
 app.use(verifyJWT);
 app.use("/api/user", require("./routes/getUserInformation"));
 app.use("/api/event", require("./routes/api/events"));
+app.use("/api/evaluator", require("./routes/api/evaluators"));
 app.use("/api/student", require("./routes/api/students"));
 // app.use("/employee", require("./routes/api/employees"));
 
