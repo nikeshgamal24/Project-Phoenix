@@ -95,6 +95,7 @@ const handleLogin = async (req, res) => {
 const handleEvaluatorLogin = async (req, res) => {
   try {
     const { accessCode, role } = req.body;
+    console.log(accessCode,role);
     if (!accessCode || !role)
       return res.status(400).json({
         message: "Rrequired credentials are missing",
@@ -122,8 +123,6 @@ const handleEvaluatorLogin = async (req, res) => {
             defenseObj.accessCode
           );
 
-          //if accessCode is not matched
-          if (!accessCodeMatched) return res.sendStatus(401);
           const role = Object.values(evaluator.role);
 
           //if accessCode match
