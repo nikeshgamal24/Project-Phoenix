@@ -352,8 +352,6 @@ const getAllDefenses = async (req, res) => {
 
 const createNewDefense = async (req, res) => {
   try {
-    console.log(req.body);
-
     if (
       !req?.body?.eventId ||
       !req?.body?.defenseTime ||
@@ -363,6 +361,15 @@ const createNewDefense = async (req, res) => {
       return res.status(400).json({
         message: "Required redentials are missing",
       });
+
+    for (const room of req.body.rooms) {
+      console.log(room);
+      console.log(room.evaluators.length);
+      if (room.evaluators.length === 0)
+        return res.status(400).json({
+          message: "Evaluators redentials are missing",
+        });
+    }
 
     // //get room list
     const roomList = req.body.rooms;
@@ -506,5 +513,5 @@ module.exports = {
   getAllEvaluators,
   getAllEventsAndEvaluators,
   getAllDefenses,
-  createNewDefense
+  createNewDefense,
 };
