@@ -6,7 +6,7 @@ const authController = require("../controllers/authController");
  * '/api/auth':
  *   post:
  *     tags:
- *       - User Login
+ *       - Login API
  *     summary: Login User
  *     requestBody:
  *       required: true
@@ -72,7 +72,7 @@ router.post("/", authController.handleLogin);
  * '/api/auth/evaluator':
  *   post:
  *     tags:
- *       - Evaluator Login
+ *       - Login API
  *     summary: Evaluator Login
  *     requestBody:
  *       required: true

@@ -95,7 +95,7 @@ const handleLogin = async (req, res) => {
 const handleEvaluatorLogin = async (req, res) => {
   try {
     const { accessCode, role } = req.body;
-    console.log(accessCode,role);
+    console.log(accessCode, role);
     if (!accessCode || !role)
       return res.status(400).json({
         message: "Rrequired credentials are missing",
@@ -165,6 +165,11 @@ const handleEvaluatorLogin = async (req, res) => {
     setCookie(res, refreshToken);
     //sending accessToken as an response
     foundUser.refreshToken = undefined;
+    for (const evaluator of evaluators) {
+      for (const defenseObj of evaluator.defense) {
+        defenseObj.accessCode = undefined;
+      }
+    }
     return res.status(200).json({
       accessToken,
       user: foundUser,
