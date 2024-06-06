@@ -11,7 +11,7 @@ const eventController = require("../../controllers/eventController");
  * '/api/event/create':
  *   post:
  *     tags:
- *       - Events API
+ *       - Admin API
  *     summary: Create Event
  *     requestBody:
  *       required: true
@@ -190,7 +190,7 @@ router
  * '/api/event/events':
  *   get:
  *     tags:
- *       - Events API
+ *       - Admin API
  *     summary: Get All Events
  *     responses:
  *       200:
@@ -405,7 +405,7 @@ router
  * '/api/event/events/{id}':
  *   get:
  *     tags:
- *       - Events API
+ *       - Admin API
  *     summary: Get All Events
  *     parameters:
  *       - name: id
@@ -685,15 +685,427 @@ router
   .put(verifyRoles(ROLES_LIST.Admin), eventController.updateEvent);
 
 /******SECTION FOR EVALUATOR*********/
+/**
+ * @openapi
+ * '/api/event/evaluator/create':
+ *   post:
+ *     tags:
+ *       - Admin API
+ *     summary: Add Evaluator
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fullname
+ *               - email
+ *               - contact
+ *               - evaluatorType
+ *               - designation
+ *               - institution
+ *             properties:
+ *               fullname:
+ *                 type: string
+ *                 example: "Geeta Kumari"
+ *               email:
+ *                 type: string
+ *                 example: "geeta.kumari@gces.edu.np"
+ *               contact:
+ *                 type: string
+ *                 example: "9841125632"
+ *               evaluatorType:
+ *                 type: string
+ *                 example: "99"
+ *               designation:
+ *                 type: string
+ *                 example: "professor"
+ *               institution:
+ *                 type: string
+ *                 example: "GCES"
+ *     responses:
+ *       201:
+ *         description: Successfully Created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     fullname:
+ *                       type: string
+ *                       example: "Geeta Kumari"
+ *                     email:
+ *                       type: string
+ *                       example: "geeta.kumari@gces.edu.np"
+ *                     contact:
+ *                       type: string
+ *                       example: "9841125632"
+ *                     role:
+ *                       type: array
+ *                       items:
+ *                         type: integer
+ *                       example: [4334]
+ *                     evaluatorType:
+ *                       type: string
+ *                       example: "99"
+ *                     designation:
+ *                       type: string
+ *                       example: "professor"
+ *                     institution:
+ *                       type: string
+ *                       example: "GCES"
+ *                     _id:
+ *                       type: string
+ *                       example: "6661636cca5c59337bcdeff1"
+ *                     defense:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: []
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-06-06T07:21:16.126Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-06-06T07:21:16.126Z"
+ *                     __v:
+ *                       type: integer
+ *                       example: 0
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
+
 router
   .route("/evaluator/create")
   .post(verifyRoles(ROLES_LIST.Admin), eventController.createEvaluator);
+
+/**
+ * @openapi
+ * '/api/event/evaluators':
+ *   get:
+ *     tags:
+ *       - Admin API
+ *     summary: Get All Evaluators
+ *     responses:
+ *       200:
+ *         description: Ok
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "66589161f724c54d4766a4a6"
+ *                       fullname:
+ *                         type: string
+ *                         example: "Bhide Master"
+ *                       email:
+ *                         type: string
+ *                         example: "adarsh.191605@ncit.edu.np"
+ *                       contact:
+ *                         type: string
+ *                         example: "9818576955"
+ *                       role:
+ *                         type: array
+ *                         items:
+ *                           type: integer
+ *                         example: [4334]
+ *                       isAssociated:
+ *                         type: boolean
+ *                         example: false
+ *                       evaluatorType:
+ *                         type: string
+ *                         example: "88"
+ *                       designation:
+ *                         type: string
+ *                         example: "Asst. Professor"
+ *                       institution:
+ *                         type: string
+ *                         example: "NCIT"
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2024-05-30T14:46:57.003Z"
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2024-06-04T12:32:46.977Z"
+ *                       __v:
+ *                         type: integer
+ *                         example: 26
+ *                       defense:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             defenseId:
+ *                               type: string
+ *                               example: "665f0913607414761fff0e30"
+ *                             accessCode:
+ *                               type: string
+ *                               example: "$2b$10$bdLguuH9Q2vxc///IWFZeu.FdVm95Zo2qDQghs8/F9e/fLU/nfuVS"
+ *                             _id:
+ *                               type: string
+ *                               example: "665f0914607414761fff0e35"
+ *                       currentDefense:
+ *                         type: string
+ *                         example: "665f0913607414761fff0e30"
+ *                       refreshToken:
+ *                         type: string
+ *                         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkYXJzaC4xOTE2MDVAbmNpdC5lZHUubnAiLCJpYXQiOjE3MTc1MDQzNjYsImV4cCI6MTcxNzU5MDc2Nn0.H_84z8aiT5kM6q3yAWiUaMeFOSbLSVV4iIFlImn0CZU"
+ *                   example:
+ *                     - _id: "66589161f724c54d4766a4a6"
+ *                       fullname: "Bhide Master"
+ *                       email: "adarsh.191605@ncit.edu.np"
+ *                       contact: "9818576955"
+ *                       role: [4334]
+ *                       isAssociated: false
+ *                       evaluatorType: "88"
+ *                       designation: "Asst. Professor"
+ *                       institution: "NCIT"
+ *                       createdAt: "2024-05-30T14:46:57.003Z"
+ *                       updatedAt: "2024-06-04T12:32:46.977Z"
+ *                       __v: 26
+ *                       defense:
+ *                         - defenseId: "665f0913607414761fff0e30"
+ *                           accessCode: "$2b$10$bdLguuH9Q2vxc///IWFZeu.FdVm95Zo2qDQghs8/F9e/fLU/nfuVS"
+ *                           _id: "665f0914607414761fff0e35"
+ *                       currentDefense: "665f0913607414761fff0e30"
+ *                       refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkYXJzaC4xOTE2MDVAbmNpdC5lZHUubnAiLCJpYXQiOjE3MTc1MDQzNjYsImV4cCI6MTcxNzU5MDc2Nn0.H_84z8aiT5kM6q3yAWiUaMeFOSbLSVV4iIFlImn0CZU"
+ *                     - _id: "66589150f724c54d4766a4a1"
+ *                       fullname: "Jetha Lal"
+ *                       email: "nikesh.191624@ncit.edu.np"
+ *                       contact: "9818576955"
+ *                       role: [4334]
+ *                       isAssociated: false
+ *                       evaluatorType: "99"
+ *                       designation: "Asst. Professor"
+ *                       institution: "KMC"
+ *                       createdAt: "2024-05-30T14:46:40.402Z"
+ *                       updatedAt: "2024-06-06T06:48:23.860Z"
+ *                       __v: 32
+ *                       refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5pa2VzaC4xOTE2MjRAbmNpdC5lZHUubnAiLCJpYXQiOjE3MTc2NTY1MDMsImV4cCI6MTcxNzc0MjkwM30.SFpOzv0vTrafX0njpFaWG7gW4bQp6JtFGBMD_J_Js-M"
+ *                       currentDefense: "665c5058f0f97e39c0c99f1b"
+ *                       defense:
+ *                         - defenseId: "665c4dd2e42c7954a56e4ec8"
+ *                           accessCode: "$2b$10$sM3dNRrWymRTMuXJ55GMTeNy8A9qV.FpChVUtKqeZgjFllrFShbOW"
+ *                           _id: "665c4dd3e42c7954a56e4ecf"
+ *                         - defenseId: "665c5058f0f97e39c0c99f1b"
+ *                           accessCode: "$2b$10$ZH.5FkvOBpUzFciwTxJCcuztAbRSyyqut5dPWk54zXcc.WaIYkevy"
+ *                           _id: "665c5058f0f97e39c0c99f23"
+ *       204:
+ *         description: No Content
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
 
 router
   .route("/evaluators")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllEvaluators);
 
 /******SECTION FOR DEFENSE*********/
+/**
+ * @openapi
+ * '/api/event/defense/create':
+ *   get:
+ *     tags:
+ *       - Admin API
+ *     summary: Create Defense --> Get All Events and Evaluators Details
+ *     responses:
+ *       200:
+ *         description: Ok
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     events:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           proposal:
+ *                             type: object
+ *                           mid:
+ *                             type: object
+ *                           final:
+ *                             type: object
+ *                           _id:
+ *                             type: string
+ *                             example: "665f074df46f0f443394e6eb"
+ *                           eventCode:
+ *                             type: string
+ *                             example: "M-19-0201W"
+ *                           eventName:
+ *                             type: string
+ *                             example: "Spring-3 2024"
+ *                           description:
+ *                             type: string
+ *                             example: "Major project for all students"
+ *                           eventTarget:
+ *                             type: string
+ *                             example: "72354"
+ *                           eventType:
+ *                             type: string
+ *                             example: "2"
+ *                           eventStatus:
+ *                             type: string
+ *                             example: "101"
+ *                           year:
+ *                             type: integer
+ *                             example: 2024
+ *                           author:
+ *                             type: string
+ *                             example: "663cd63f6e8a9c42c5677775"
+ *                           projects:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 proposal:
+ *                                   type: object
+ *                                 mid:
+ *                                   type: object
+ *                                 final:
+ *                                   type: object
+ *                                 _id:
+ *                                   type: string
+ *                                   example: "665f07b2a87ff6facc1d9713"
+ *                                 projectCode:
+ *                                   type: string
+ *                                   example: "P2-19-01SE"
+ *                                 projectName:
+ *                                   type: string
+ *                                   example: "Project Phoenix"
+ *                                 projectType:
+ *                                   type: string
+ *                                   example: "2"
+ *                                 projectDescription:
+ *                                   type: string
+ *                                   example: "LMS killer"
+ *                                 teamMembers:
+ *                                   type: array
+ *                                   items:
+ *                                     type: object
+ *                                 event:
+ *                                   type: string
+ *                                   example: "665f074df46f0f443394e6eb"
+ *                                 status:
+ *                                   type: string
+ *                                   example: "101"
+ *                                 createdAt:
+ *                                   type: string
+ *                                   format: date-time 📅
+ *                                 updatedAt:
+ *                                   type: string
+ *                                   format: date-time 📅
+ *                                 __v:
+ *                                   type: integer
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time 📅
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time 📅
+ *                           __v:
+ *                             type: integer
+ *                             example: 2
+ *                     evaluators:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                             example: "66589150f724c54d4766a4a1"
+ *                           fullname:
+ *                             type: string
+ *                             example: "Jetha Lal"
+ *                           email:
+ *                             type: string
+ *                             example: "nikesh.191624@ncit.edu.np"
+ *                           contact:
+ *                             type: string
+ *                             example: "9818576955"
+ *                           role:
+ *                             type: array
+ *                             items:
+ *                               type: integer
+ *                             example: [4334]
+ *                           isAssociated:
+ *                             type: boolean
+ *                             example: false
+ *                           evaluatorType:
+ *                             type: string
+ *                             example: "99"
+ *                           designation:
+ *                             type: string
+ *                             example: "Asst. Professor"
+ *                           institution:
+ *                             type: string
+ *                             example: "KMC"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time 📅
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time 📅
+ *                           __v:
+ *                             type: integer
+ *                             example: 32
+ *                           refreshToken:
+ *                             type: string
+ *                             example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5pa2VzaC4xOTE2MjRAbmNpdC5lZHUubnAiLCJpYXQiOjE3MTc2NTY1MDMsImV4cCI6MTcxNzc0MjkwM30.SFpOzv0vTrafX0njpFaWG7gW4bQp6JtFGBMD_J_Js-M"
+ *                           currentDefense:
+ *                             type: string
+ *                             example: "665c5058f0f97e39c0c99f1b"
+ *                           defense:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 defenseId:
+ *                                   type: string
+ *                                 accessCode:
+ *                                   type: string
+ *                                 _id:
+ *                                   type: string
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time 📅
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time 📅
+ *                     __v:
+ *                       type: integer
+ *                       example: 32
+ *       204:
+ *         description: No Content
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
+
 router
   .route("/defense/create")
   .get(
@@ -704,6 +1116,174 @@ router
 router
   .route("/defense/create")
   .post(verifyRoles(ROLES_LIST.Admin), eventController.createNewDefense);
+
+/**
+ * @openapi
+ * '/api/event/defense/defenses':
+ *   get:
+ *     tags:
+ *       - Admin API
+ *     summary: Get All Defenses
+ *     responses:
+ *       '200':
+ *         description: Ok
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: '665f0913607414761fff0e30'
+ *                       event:
+ *                         type: object
+ *                         properties:
+ *                           proposal:
+ *                             type: object
+ *                             properties:
+ *                               defense:
+ *                                 type: boolean
+ *                               defenseDate:
+ *                                 type: string
+ *                                 format: date-time
+ *                               reportDeadline:
+ *                                 type: string
+ *                                 format: date-time
+ *                               defenseId:
+ *                                 type: array
+ *                                 items:
+ *                                   type: string
+ *                               phase:
+ *                                 type: string
+ *                           mid:
+ *                             type: object
+ *                             properties:
+ *                               defense:
+ *                                 type: boolean
+ *                               defenseDate:
+ *                                 type: string
+ *                                 format: date-time
+ *                               reportDeadline:
+ *                                 type: string
+ *                                 format: date-time
+ *                               defenseId:
+ *                                 type: array
+ *                                 items:
+ *                                   type: string
+ *                               phase:
+ *                                 type: string
+ *                           final:
+ *                             type: object
+ *                             properties:
+ *                               defense:
+ *                                 type: boolean
+ *                               defenseDate:
+ *                                 type: string
+ *                                 format: date-time
+ *                               reportDeadline:
+ *                                 type: string
+ *                                 format: date-time
+ *                               defenseId:
+ *                                 type: array
+ *                                 items:
+ *                                   type: string
+ *                               phase:
+ *                                 type: string
+ *                           eventCode:
+ *                             type: string
+ *                             example: 'M-19-0201W'
+ *                           eventName:
+ *                             type: string
+ *                             example: 'Spring-3 2024'
+ *                           description:
+ *                             type: string
+ *                             example: 'Major project for all students'
+ *                           eventTarget:
+ *                             type: string
+ *                             example: '72354'
+ *                           eventType:
+ *                             type: string
+ *                             example: '2'
+ *                           eventStatus:
+ *                             type: string
+ *                             example: '101'
+ *                           year:
+ *                             type: integer
+ *                             example: 2024
+ *                           author:
+ *                             type: string
+ *                             example: '663cd63f6e8a9c42c'
+ *                           projects:
+ *                             type: array
+ *                             items:
+ *                               type: string
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                           __v:
+ *                             type: integer
+ *                       defenseType:
+ *                         type: string
+ *                         example: 'proposal'
+ *                       defenseTime:
+ *                         type: string
+ *                         example: '2024-06-04T05:15:00.000Z'
+ *                       defenseDate:
+ *                         type: string
+ *                         example: '2024-06-08T18:14:59.000Z'
+ *                       status:
+ *                         type: string
+ *                         example: '101'
+ *                       rooms:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             _id:
+ *                               type: string
+ *                               example: '665f0913607414761fff0e2e'
+ *                             room:
+ *                               type: string
+ *                               example: 'A202'
+ *                             evaluators:
+ *                               type: array
+ *                               items:
+ *                                 type: string
+ *                             projects:
+ *                               type: array
+ *                               items:
+ *                                 type: string
+ *                             createdAt:
+ *                               type: string
+ *                               format: date-time
+ *                             updatedAt:
+ *                               type: string
+ *                               format: date-time
+ *                             __v:
+ *                               type: integer
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                       __v:
+ *                         type: integer
+ *       '204':
+ *         description: No Content
+ *       '400':
+ *         description: Bad Request
+ *       '500':
+ *         description: Internal Server Error
+ */
 
 router
   .route("/defense/defenses")
