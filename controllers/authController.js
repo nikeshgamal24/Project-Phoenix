@@ -44,8 +44,15 @@ const handleLogin = async (req, res) => {
         message: "Unauthorized User", //401 ---> Unauthorized user
       });
 
-    //check for the password match
-    const match = await bcrypt.compare(password, foundUser.password);
+    try {
+      //check for the password match
+      const match = await bcrypt.compare(password, foundUser.password);
+    } catch (err) {
+      console.error(`error-message: ${err.message}`);
+      return res.status(400).json({
+        message: "password does not matched",
+      });
+    }
 
     if (match) {
       const role = Object.values(foundUser.role);
