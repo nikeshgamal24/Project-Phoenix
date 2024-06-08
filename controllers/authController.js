@@ -50,7 +50,9 @@ const handleLogin = async (req, res) => {
       match = await bcrypt.compare(password, foundUser.password);
     } catch (err) {
       console.error(`error-message: ${err.message}`);
-      return res.sendStatus(401);
+      return res.status(401).json({
+        message: "Unauthorized User", //401 ---> Unauthorized user
+      });
     }
 
     if (match) {
