@@ -44,14 +44,13 @@ const handleLogin = async (req, res) => {
         message: "Unauthorized User", //401 ---> Unauthorized user
       });
 
+    let match;
     try {
       //check for the password match
-      const match = await bcrypt.compare(password, foundUser.password);
+      match = await bcrypt.compare(password, foundUser.password);
     } catch (err) {
       console.error(`error-message: ${err.message}`);
-      return res.status(400).json({
-        message: "password does not matched",
-      });
+      return res.status(401);
     }
 
     if (match) {
