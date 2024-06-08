@@ -15,11 +15,11 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3500",
+        url: "http://localhost:3500/",
         description: "Localhost",
       },
       {
-        url: "https://project-phoenix-clz.vercel.app",
+        url: "https://project-phoenix-clz.vercel.app/",
         description: "Vercel Hosted Backend",
       },
     ],
