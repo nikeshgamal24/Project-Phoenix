@@ -5,7 +5,7 @@ const setCookie = (res, refreshToken) => {
     sameSite: "None",
     secure: true,
     maxAge: 24 * 60 * 60 * 1000,
-    // domain: "project-phoenix-omega.vercel.app",
+    // domain: "project-phoenix-omega.vercel.app", using coleascing operator TODO
   });
 };
 
