@@ -50,7 +50,7 @@ const handleLogin = async (req, res) => {
       match = await bcrypt.compare(password, foundUser.password);
     } catch (err) {
       console.error(`error-message: ${err.message}`);
-      return res.status(401);
+      return res.sendStatus(401);
     }
 
     if (match) {
