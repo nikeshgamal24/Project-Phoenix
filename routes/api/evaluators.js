@@ -722,4 +722,8 @@ router
   .route("/defense/project/:id")
   .get(verifyRoles(ROLES_LIST.Evaluator), evaluatorController.getProjectBydId);
 
+router
+  .route("/defense/evaluation")
+  .post(verifyRoles(ROLES_LIST.Evaluator), evaluatorController.submitEvaluation);
+
 module.exports = router;

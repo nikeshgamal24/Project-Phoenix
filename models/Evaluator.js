@@ -18,7 +18,7 @@ const evaluatorSchema = new Schema(
     },
     currentDefense:{
       type:Schema.Types.ObjectId,
-      refer:"Defense"
+      ref:"Defense"
     },
     defense: [
       {
