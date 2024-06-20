@@ -71,26 +71,38 @@ const getProjectBydId = async (req, res) => {
 const submitEvaluation = async (req, res) => {
   try {
     // console.log(req.body);
+    const {
+      individualEvaluation,
+      projectEvaluation,
+      projectId,
+      evaluatorId,
+      defenseId,
+      eventId,
+      evaluationType,
+    } = req.body;
+
     if (
-      !req?.body?.individualEvaluation.length ||
-      !req?.body?.projectEvaluation ||
-      !req?.body?.projectId ||
-      !req?.body?.evaluatorId ||
-      !req?.body?.defenseId ||
-      !req?.body?.eventId
+      !individualEvaluation.length ||
+      !projectEvaluation ||
+      !projectId ||
+      !evaluatorId ||
+      !defenseId ||
+      !eventId
     ) {
       return res.status(400).json({
         message: "Required Credentials Missing",
       });
     }
 
-    const evaluationType = req.body.evaluationType;
-    const projectOf = await Project.findOne({
+    const project = await Project.findOne({
       _id: req.body.projectId,
+    });
+    const defense = await Defense.findOne({
+      _id: req.body.defenseId,
     });
 
     //if no project found
-    if (!projectOf) return res.sendStatus(404);
+    if (!project) return res.sendStatus(404);
 
     // Get the start and end of today
     const startOfDay = new Date();
@@ -100,50 +112,103 @@ const submitEvaluation = async (req, res) => {
     endOfDay.setHours(23, 59, 59, 999);
     // Find evaluations done today
     const matchingEvaluation = await Evaluation.find({
-      _id: { $in: projectOf[evaluationType].evaluations },
+      _id: { $in: project[evaluationType].evaluations },
       project: req.body.projectId,
       createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
 
-    const projectEvaluations = projectOf[evaluationType].evaluations;
-    console.log("projectEvaluations");
-    console.log(matchingEvaluation);
+    const projectEvaluations = project[evaluationType].evaluations;
 
     //if there is evaluation done today then
     // tally the newly evaluation's judgement and today created evaluations
     if (matchingEvaluation) {
-      const conflictExists = matchingEvaluation.some(evaluation => {  
-        // If judgement does not match, return true to indicate conflict
-        if (req.body.projectEvaluation.judgement !== evaluation.projectEvaluation.judgement) {
-          return true; // Conflict found
+      const conflictExists = matchingEvaluation.some((evaluation) => {
+        console.log("*****projectEvaluation.judgement******");
+        console.log(projectEvaluation.judgement);
+
+        let conflictFound = false; // Initialize a boolean to track conflict
+      for(let i = 0;i<evaluation.individualEvaluation.length;i++){
+          console.log("*****evaluation.projectEvaluation.judgement******");
+          console.log(evaluation.individualEvaluation[i]);
+
+          // Check if the first evaluation's judgment is "0" (absent case)
+          if (evaluation.individualEvaluation[i].projectEvaluation.judgement === "0") {
+            // Continue checking other evaluations
+            continue;
+          }
+
+          console.log(projectEvaluation.judgement);
+          console.log(evaluation.individualEvaluation[i].projectEvaluation.judgement);
+          // Compare the judgment values
+          if (
+            projectEvaluation.judgement !==
+            evaluation.individualEvaluation[i].projectEvaluation.judgement
+          ) {
+            // Set conflictFound to true if conflict detected
+            console.log("inside the conflict return scope");
+            conflictFound = true;
+          }
         }
-        return false; // No conflict
+
+        // Return the conflictFound boolean to some() method
+        return conflictFound;
       });
+
+      console.log("********conflictExists********");
+      console.log(conflictExists);
 
       if (conflictExists) {
         return res.sendStatus(409); // Conflict
       }
     }
 
+    // Map projectEvaluation to each individualEvaluation object
+    const formattedIndividualEvaluations = individualEvaluation.map(
+      (evaluation) => ({
+        student: evaluation.member, //here student ID is member
+        performanceAtPresentation: evaluation.performanceAtPresentation,
+        absent: evaluation.absent,
+        projectEvaluation: {
+          projectTitleAndAbstract: evaluation.absent
+            ? "0"
+            : projectEvaluation.projectTitleAndAbstract,
+          project: evaluation.absent ? "0" : projectEvaluation.project,
+          objective: evaluation.absent ? "0" : projectEvaluation.objective,
+          teamWork: evaluation.absent ? "0" : projectEvaluation.teamWork,
+          documentation: evaluation.absent
+            ? "0"
+            : projectEvaluation.documentation,
+          plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
+          judgement: evaluation.absent ? "0" : projectEvaluation.judgement,
+          feedback: evaluation.absent ? "0" : projectEvaluation.feedback,
+          outstanding: evaluation.absent
+            ? false
+            : projectEvaluation.outstanding,
+        },
+      })
+    );
     //create a new evaluator, with credentials
     const newEvaluation = await Evaluation.create({
-      individualEvaluation: req.body.individualEvaluation,
-      projectEvaluation: req.body.projectEvaluation,
-      project: req.body.projectId,
-      evaluator: req.body.evaluatorId,
-      defense: req.body.defenseId,
-      event: req.body.eventId,
+      individualEvaluation: formattedIndividualEvaluations,
+      project: projectId,
+      evaluator: evaluatorId,
+      defense: defenseId,
+      event: eventId,
       evaluationType: evaluationType,
     });
 
     // if no evaluator is created
     if (!newEvaluation) return res.sendStatus(400);
-    //if creation is success
+    //if creation is success then push the newly created evaluation id to the project's defense type's evaluations array of object ids
     projectEvaluations.push(newEvaluation._id);
+
+    //update defense evaluation field to with the newly created
+    defense.evaluations.push(newEvaluation._id);
 
     //return if everything goes well
     //save project changes
-    projectOf.save();
+    project.save();
+    defense.save();
     return res.status(201).json({
       data: newEvaluation,
     });

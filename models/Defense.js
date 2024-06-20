@@ -25,6 +25,12 @@ const defenseSchema = new Schema(
         ref: "Room",
       },
     ],
+    evaluations:[
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Evaluation",
+      },
+    ],
     timeStamps: {
       type: Date,
       timestamps: true,

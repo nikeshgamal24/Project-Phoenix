@@ -1,21 +1,5 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-
-const individualEvaluationSchema = new Schema({
-  member: {
-    type:Schema.Types.ObjectId,
-    ref:"Student",
-    required: true,
-  },
-  performanceAtPresentation: {
-    type: String,
-    required: true,
-  },
-  absent: {
-    type: Boolean,
-    required: true
-  }
-});
 
 const projectEvaluationSchema = new Schema({
   projectTitleAndAbstract: {
@@ -45,51 +29,72 @@ const projectEvaluationSchema = new Schema({
   judgement: {
     type: String,
     required: true,
-  },    
+  },
   feedback: {
     type: String,
-    required: true
+    required: true,
   },
   outstanding: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 });
 
-const evaluationSchema = new Schema({
-  individualEvaluation: {
-    type: [individualEvaluationSchema],
-    required: true
-  },
-  projectEvaluation: {
-    type: projectEvaluationSchema,
-    required: true
-  },
-  project: {
-    type: mongoose.Types.ObjectId,
+
+const individualEvaluationSchema = new Schema({
+  student: {
+    type: Schema.Types.ObjectId,
+    ref: "Student",
     required: true,
   },
-  evaluator: {
-    type:Schema.Types.ObjectId,
-    ref:"Evaluator",
-    required: true,
-  },
-  defense: {
-    type:Schema.Types.ObjectId,
-    ref:"Defense",
-    required: true,
-  },
-  event: {
-    type:Schema.Types.ObjectId,
-    ref:"Event",
-    required: true,
-  },
-  evaluationType: {
+  performanceAtPresentation: {
     type: String,
     required: true,
-  }
-}, { timestamps: true });
+  },
+  absent: {
+    type: Boolean,
+    required: true,
+  },
 
-const Evaluation = mongoose.model('Evaluation', evaluationSchema);
+  projectEvaluation: {
+    type: projectEvaluationSchema,
+    required: true,
+  },
+});
+
+const evaluationSchema = new Schema(
+  {
+    individualEvaluation: {
+      type: [individualEvaluationSchema],
+      required: true,
+    },
+    project: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+    },
+    evaluator: {
+      type: Schema.Types.ObjectId,
+      ref: "Evaluator",
+      required: true,
+    },
+    defense: {
+      type: Schema.Types.ObjectId,
+      ref: "Defense",
+      required: true,
+    },
+    event: {
+      type: Schema.Types.ObjectId,
+      ref: "Event",
+      required: true,
+    },
+    evaluationType: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const Evaluation = mongoose.model("Evaluation", evaluationSchema);
 
 module.exports = Evaluation;
