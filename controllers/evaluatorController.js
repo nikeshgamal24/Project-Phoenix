@@ -151,39 +151,20 @@ const submitEvaluation = async (req, res) => {
         console.log(projectEvaluation.judgement);
         console.log(evaluation);
         let conflictFound = false; // Initialize a boolean to track conflict
-        for (let i = 0; i < evaluation.individualEvaluation.length; i++) {
-          console.log("*****evaluation.projectEvaluation.judgement******");
-          console.log(evaluation.individualEvaluation[i]);
+        console.log(
+          "*****evaluation.individualEvaluation[i].projectEvaluation.judgement******"
+        );
+        console.log(evaluation.projectEvaluation.judgement);
 
-          console.log(
-            "*****evaluation.individualEvaluation[i].projectEvaluation.judgement******"
-          );
-          console.log(
-            evaluation.individualEvaluation[i].projectEvaluation.judgement
-          );
-
-          // Check if the first evaluation's judgment is "0" (absent case)
-          if (
-            evaluation.individualEvaluation[i].projectEvaluation.judgement ===
-            "-1"
-          ) {
-            // Continue checking other evaluations
-            continue;
-          }
-
-          console.log(projectEvaluation.judgement);
-          console.log(
-            evaluation.individualEvaluation[i].projectEvaluation.judgement
-          );
-          // Compare the judgment values
-          if (
-            projectEvaluation.judgement !==
-            evaluation.individualEvaluation[i].projectEvaluation.judgement
-          ) {
-            // Set conflictFound to true if conflict detected
-            console.log("inside the conflict return scope");
-            conflictFound = true;
-          }
+        console.log(projectEvaluation.judgement);
+        console.log(evaluation.projectEvaluation.judgement);
+        // Compare the judgment values
+        if (
+          projectEvaluation.judgement !== evaluation.projectEvaluation.judgement
+        ) {
+          // Set conflictFound to true if conflict detected
+          console.log("inside the conflict return scope");
+          conflictFound = true;
         }
 
         // Return the conflictFound boolean to some() method
@@ -194,7 +175,9 @@ const submitEvaluation = async (req, res) => {
       console.log(conflictExists);
 
       if (conflictExists) {
-        return res.sendStatus(409); // Conflict
+        return res.status(409).json({
+          "message":"Conflict data",
+        }); // Conflict
       }
     }
 
@@ -204,30 +187,23 @@ const submitEvaluation = async (req, res) => {
         student: evaluation.member, //here student ID is member
         performanceAtPresentation: evaluation.performanceAtPresentation,
         absent: evaluation.absent,
-        projectEvaluation: {
-          projectTitleAndAbstract: evaluation.absent
-            ? "0"
-            : projectEvaluation.projectTitleAndAbstract,
-          project: evaluation.absent ? "0" : projectEvaluation.project,
-          objective: evaluation.absent ? "0" : projectEvaluation.objective,
-          teamWork: evaluation.absent ? "0" : projectEvaluation.teamWork,
-          documentation: evaluation.absent
-            ? "0"
-            : projectEvaluation.documentation,
-          plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
-          judgement: evaluation.absent ? "-1" : projectEvaluation.judgement,
-          feedback: evaluation.absent
-            ? "<p>No Feedback</p>"
-            : projectEvaluation.feedback,
-          outstanding: evaluation.absent
-            ? false
-            : projectEvaluation.outstanding,
-        },
+
+        projectTitleAndAbstract: evaluation.absent
+          ? "0"
+          : projectEvaluation.projectTitleAndAbstract,
+        project: evaluation.absent ? "0" : projectEvaluation.project,
+        objective: evaluation.absent ? "0" : projectEvaluation.objective,
+        teamWork: evaluation.absent ? "0" : projectEvaluation.teamWork,
+        documentation: evaluation.absent
+          ? "0"
+          : projectEvaluation.documentation,
+        plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
       })
     );
     //create a new evaluator, with credentials
     const newEvaluation = await Evaluation.create({
       individualEvaluation: formattedIndividualEvaluations,
+      projectEvaluation: projectEvaluation,
       project: projectId,
       evaluator: evaluatorId,
       defense: defenseId,
@@ -284,11 +260,9 @@ const submitEvaluation = async (req, res) => {
 
         projectEvaluations.forEach((evaluation) => {
           console.log("individualEvaluation");
-          evaluation.individualEvaluation.forEach((individualEvaluation) => {
             previousJudgement =
               previousJudgement !== null ? previousJudgement : "";
-            const currentJudgement =
-              individualEvaluation.projectEvaluation.judgement;
+            const currentJudgement =evaluation.projectEvaluation.judgement;
 
             console.log(previousJudgement, currentJudgement);
 
@@ -303,7 +277,7 @@ const submitEvaluation = async (req, res) => {
             }
 
             previousJudgement = currentJudgement;
-          });
+   
         });
 
         console.log("judgement-verdict", projectJudgement);

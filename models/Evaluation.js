@@ -55,9 +55,28 @@ const individualEvaluationSchema = new Schema({
     type: Boolean,
     required: true,
   },
-
-  projectEvaluation: {
-    type: projectEvaluationSchema,
+  projectTitleAndAbstract: {
+    type: String,
+    required: true,
+  },
+  project: {
+    type: String,
+    required: true,
+  },
+  objective: {
+    type: String,
+    required: true,
+  },
+  teamWork: {
+    type: String,
+    required: true,
+  },
+  documentation: {
+    type: String,
+    required: true,
+  },
+  plagiarism: {
+    type: String,
     required: true,
   },
 });
@@ -66,6 +85,10 @@ const evaluationSchema = new Schema(
   {
     individualEvaluation: {
       type: [individualEvaluationSchema],
+      required: true,
+    },
+    projectEvaluation:{
+      type: projectEvaluationSchema,
       required: true,
     },
     project: {

@@ -29,30 +29,33 @@ const projectSchema = new Schema(
       default: "101",
     },
     proposal: {
-      defenses: [
-        {
-          defense: {
-            type: Schema.Types.ObjectId,
-            ref: "Defense",
-          },
-          evaluators: [
-            {
-              evaluator: {
-                type: Schema.Types.ObjectId,
-                ref: "Evaluator",
-              },
-              hasEvaluated: {
-                type: Boolean,
-                default: false,
-              },
+      defenses: {
+        type: [
+          {
+            defense: {
+              type: Schema.Types.ObjectId,
+              ref: "Defense",
             },
-          ],
-          isGraded: {
-            type: Boolean,
-            default:false,
+            evaluators: [
+              {
+                evaluator: {
+                  type: Schema.Types.ObjectId,
+                  ref: "Evaluator",
+                },
+                hasEvaluated: {
+                  type: Boolean,
+                  default: false,
+                },
+              },
+            ],
+            isGraded: {
+              type: Boolean,
+              default: false,
+            },
           },
-        },
-      ],
+        ],
+        default: [],
+      },
       hasGraduated: {
         type: Boolean,
         default: false,
@@ -76,12 +79,33 @@ const projectSchema = new Schema(
       ],
     },
     mid: {
-      defenseId: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "Defense",
-        },
-      ],
+      defenses: {
+        type: [
+          {
+            defense: {
+              type: Schema.Types.ObjectId,
+              ref: "Defense",
+            },
+            evaluators: [
+              {
+                evaluator: {
+                  type: Schema.Types.ObjectId,
+                  ref: "Evaluator",
+                },
+                hasEvaluated: {
+                  type: Boolean,
+                  default: false,
+                },
+              },
+            ],
+            isGraded: {
+              type: Boolean,
+              default: false,
+            },
+          },
+        ],
+        default: [],
+      },
       hasGraduated: {
         type: Boolean,
         default: false,
@@ -105,12 +129,33 @@ const projectSchema = new Schema(
       ],
     },
     final: {
-      defenseId: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "Defense",
-        },
-      ],
+      defenses: {
+        type: [
+          {
+            defense: {
+              type: Schema.Types.ObjectId,
+              ref: "Defense",
+            },
+            evaluators: [
+              {
+                evaluator: {
+                  type: Schema.Types.ObjectId,
+                  ref: "Evaluator",
+                },
+                hasEvaluated: {
+                  type: Boolean,
+                  default: false,
+                },
+              },
+            ],
+            isGraded: {
+              type: Boolean,
+              default: false,
+            },
+          },
+        ],
+        default: [],
+      },
       hasGraduated: {
         type: Boolean,
         default: false,
