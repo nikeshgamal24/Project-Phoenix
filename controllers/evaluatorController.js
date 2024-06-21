@@ -73,9 +73,10 @@ const getProjectBydId = async (req, res) => {
     const progressStatus = project.teamMembers[0].progressStatus;
     const defenseType = determineDefenseType(progressStatus);
     // console.log(progressStatus, defenseType);
-    const populatedEvaluations = await project[defenseType].populate(
-      "evaluations"
-    );
+    const populatedEvaluations = await project[defenseType].populate({
+      path: "evaluations",
+      populate: { path: "evaluator" },
+    });
     // console.log(populatedEvaluations);
     const evaluationField = project[defenseType].evaluations;
 
@@ -158,7 +159,7 @@ const submitEvaluation = async (req, res) => {
 
         console.log(projectEvaluation.judgement);
         console.log(evaluation.projectEvaluation.judgement);
-        // Compare the judgment values
+        // Compare the judgment values between two evaluation
         if (
           projectEvaluation.judgement !== evaluation.projectEvaluation.judgement
         ) {
@@ -166,6 +167,16 @@ const submitEvaluation = async (req, res) => {
           console.log("inside the conflict return scope");
           conflictFound = true;
         }
+
+        // //comparing the individual absent section if there is any mismatch then return conflict
+        // for (let i = 0; i < individualEvaluation.length; i++) {
+        //   if (
+        //     individualEvaluation[i].absent !==
+        //     evaluation.individualEvaluation[i].absent
+        //   ) {
+        //     conflictFound = true;
+        //   }
+        // }
 
         // Return the conflictFound boolean to some() method
         return conflictFound;
@@ -176,7 +187,7 @@ const submitEvaluation = async (req, res) => {
 
       if (conflictExists) {
         return res.status(409).json({
-          "message":"Conflict data",
+          message: "Conflict data",
         }); // Conflict
       }
     }
@@ -242,8 +253,6 @@ const submitEvaluation = async (req, res) => {
       }
 
       //updating the hasGradutated: if the isGraded is true then checking for the judment
-      //i.e. if judgement is 0 or 1 that is accepted and accepted conditionally then hasGraduated will update to true
-      // and update the student progress status accordingly
 
       if (obj.isGraded) {
         //checking the judgement
@@ -260,29 +269,32 @@ const submitEvaluation = async (req, res) => {
 
         projectEvaluations.forEach((evaluation) => {
           console.log("individualEvaluation");
-            previousJudgement =
-              previousJudgement !== null ? previousJudgement : "";
-            const currentJudgement =evaluation.projectEvaluation.judgement;
+          previousJudgement =
+            previousJudgement !== null ? previousJudgement : "";
+          const currentJudgement = evaluation.projectEvaluation.judgement;
 
-            console.log(previousJudgement, currentJudgement);
+          console.log(previousJudgement, currentJudgement);
 
-            if (currentJudgement !== -1) {
-              if (
-                previousJudgement !== "" &&
-                currentJudgement !== previousJudgement
-              ) {
-                judgementEquals = false;
-              }
-              projectJudgement = currentJudgement;
+          if (currentJudgement !== -1) {
+            if (
+              previousJudgement !== "" &&
+              currentJudgement !== previousJudgement
+            ) {
+              judgementEquals = false;
             }
+            projectJudgement = currentJudgement;
+          }
 
-            previousJudgement = currentJudgement;
-   
+          previousJudgement = currentJudgement;
         });
 
-        console.log("judgement-verdict", projectJudgement);
         //based on the judgement update the teamMembers progressStatus ALSO CONSIDERING THE EVALUATIONTYPE
       }
+      console.log("judgement-verdict", projectJudgement);
+      //i.e. if judgement is 0 or 1 that is accepted and accepted conditionally then hasGraduated will update to true
+
+      // and update the student progress status accordingly
+
       //if judgemnt is 2 or 3 that is re-defense or re-jected then backtrack the progress status of the student
     });
 
