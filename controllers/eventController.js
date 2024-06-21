@@ -404,6 +404,69 @@ const createNewDefense = async (req, res) => {
 
     if (!newDefense) return res.sendStatus(400);
 
+    const defenseType = req.body.defenseType;
+    //save to newdefense id to event
+    const eventDoc = await Event.findOne({
+      _id: req.body.eventId,
+    });
+    const eventDefenseField = eventDoc[defenseType];
+    eventDefenseField.defenseId.push(newDefense._id);
+    console.log(eventDefenseField.defenseId);
+    // Save the updated project
+    await eventDoc.save();
+
+    //iterate through project and update the defenseId field in project model
+    for (const room of req.body.rooms) {
+      for (const project of room.projects) {
+        try {
+          const projectDoc = await Project.findOne({
+            _id: project._id,
+          });
+
+          const defenseField = projectDoc[defenseType];
+
+          // Ensure the defense field exists and is an object with a defenseId array
+          if (!defenseField) {
+            project[defenseType] = { defenseId: [] };
+          } else if (!Array.isArray(defenseField.defenses)) {
+            project[defenseType].defenses = [];
+          }
+
+          console.log(
+            "Trying to project defense array section before pushing new defense id"
+          );
+          console.log("defenseField");
+          console.log(defenseField);
+          console.log(newDefense._id);
+          console.log(
+            "Trying to update project defense array section after pushing new defense id"
+          );
+
+          //creating a object that contains defense ID , evaluators list with their evaluation status and isGraded status and push them into defenseField's defenses
+
+          const defenseObjDetails = {
+            defense: newDefense._id,
+            evaluators: room.evaluators.map((evaluator) => {
+              return { evaluator: evaluator._id, hasEvaluated: false };
+            }),
+          };
+
+          // Add new defense ID to the array
+          defenseField.defenses.push(defenseObjDetails);
+          console.log(defenseField.defenses);
+          // Save the updated project
+          await projectDoc.save();
+
+          console.log("Project after saving:");
+          console.log(projectDoc);
+          console.log("---------after project Doc save()-------");
+        } catch (error) {
+          console.error(`Error updating project ${project._id}:`, error);
+          return res.sendStatus(400);
+        }
+      }
+    }
+    //section for sending email
     //generate unique access code for each evaluators and save the access code to the evaluator's accessCode field
     roomList.forEach((room) => {
       room.evaluators.forEach(async (evaluator) => {
@@ -440,60 +503,6 @@ const createNewDefense = async (req, res) => {
         await evaluatorDetails.save();
       });
     });
-
-    const defenseType = req.body.defenseType;
-    //save to newdefense id to event
-    const eventDoc = await Event.findOne({
-      _id: req.body.eventId,
-    });
-    const eventDefenseField = eventDoc[defenseType];
-    eventDefenseField.defenseId.push(newDefense._id);
-    console.log(eventDefenseField.defenseId);
-    // Save the updated project
-    await eventDoc.save();
-
-    //iterate through project and update the defenseId field in project model
-    for (const room of req.body.rooms) {
-      for (const project of room.projects) {
-        try {
-          const projectDoc = await Project.findOne({
-            _id: project._id,
-          });
-
-          const defenseField = projectDoc[defenseType];
-
-          // Ensure the defense field exists and is an object with a defenseId array
-          if (!defenseField) {
-            project[defenseType] = { defenseId: [] };
-          } else if (!Array.isArray(defenseField.defenseId)) {
-            project[defenseType].defenseId = [];
-          }
-
-          console.log(
-            "Trying to project defense array section before pushing new defense id"
-          );
-          console.log("defenseField");
-          console.log(defenseField);
-          console.log(newDefense._id);
-          console.log(
-            "Trying to update project defense array section after pushing new defense id"
-          );
-
-          // Add new defense ID to the array
-          defenseField.defenseId.push(newDefense._id);
-          console.log(defenseField.defenseId);
-          // Save the updated project
-          await projectDoc.save();
-
-          console.log("Project after saving:");
-          console.log(projectDoc);
-          console.log("---------after project Doc save()-------");
-        } catch (error) {
-          console.error(`Error updating project ${project._id}:`, error);
-          return res.sendStatus(400);
-        }
-      }
-    }
 
     return res.status(201).json({
       data: newDefense,
