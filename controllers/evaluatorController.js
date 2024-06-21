@@ -31,7 +31,7 @@ const getDefenseBydId = async (req, res) => {
         // Populate projects for the current defense
         const populatedProjecs = await room.populate({
           path: "projects",
-          populate: {path:"teamMembers"},
+          populate: { path: "teamMembers" },
         });
 
         //populate teamMembers that reside inside projects
@@ -78,10 +78,10 @@ const getProjectBydId = async (req, res) => {
     );
     // console.log(populatedEvaluations);
     const evaluationField = project[defenseType].evaluations;
-    console.log(evaluationField);
+
     // Send response
     return res.status(200).json({
-      data: { ...project.toObject(), evaluationField: populatedEvaluations },
+      data: { ...project.toObject() },
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
@@ -118,126 +118,129 @@ const submitEvaluation = async (req, res) => {
     const project = await Project.findOne({
       _id: req.body.projectId,
     });
-    // const defense = await Defense.findOne({
-    //   _id: req.body.defenseId,
-    // });
+    const defense = await Defense.findOne({
+      _id: req.body.defenseId,
+    });
 
-    // //if no project found
-    // if (!project) return res.sendStatus(404);
+    //if no project found
+    if (!project) return res.sendStatus(404);
 
-    // // Get the start and end of today
-    // const startOfDay = new Date();
-    // startOfDay.setHours(0, 0, 0, 0);
+    // Get the start and end of today
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
 
-    // const endOfDay = new Date();
-    // endOfDay.setHours(23, 59, 59, 999);
-    // // Find evaluations done today
-    // const matchingEvaluation = await Evaluation.find({
-    //   _id: { $in: project[evaluationType].evaluations },
-    //   project: req.body.projectId,
-    //   createdAt: { $gte: startOfDay, $lt: endOfDay },
-    // });
-    // console.log("****matchingEvaluation**");
-    // console.log(matchingEvaluation);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    // Find evaluations done today
+    const matchingEvaluation = await Evaluation.find({
+      _id: { $in: project[evaluationType].evaluations },
+      project: req.body.projectId,
+      createdAt: { $gte: startOfDay, $lt: endOfDay },
+    });
+    console.log("****matchingEvaluation**");
+    console.log(matchingEvaluation);
 
     const projectOfPhase = project[evaluationType];
-    // console.log("****projectOfPhase**");
-    // console.log(projectOfPhase);
-    // //if there is evaluation done today then
-    // // tally the newly evaluation's judgement and today created evaluations
-    // if (matchingEvaluation) {
-    //   const conflictExists = matchingEvaluation.some((evaluation) => {
-    //     console.log("*****projectEvaluation.judgement******");
-    //     console.log(projectEvaluation.judgement);
-    //     console.log(evaluation);
-    //     let conflictFound = false; // Initialize a boolean to track conflict
-    //     for (let i = 0; i < evaluation.individualEvaluation.length; i++) {
-    //       console.log("*****evaluation.projectEvaluation.judgement******");
-    //       console.log(evaluation.individualEvaluation[i]);
+    console.log("****projectOfPhase**");
+    console.log(projectOfPhase);
+    //if there is evaluation done today then
+    // tally the newly evaluation's judgement and today created evaluations
+    if (matchingEvaluation) {
+      const conflictExists = matchingEvaluation.some((evaluation) => {
+        console.log("*****projectEvaluation.judgement******");
+        console.log(projectEvaluation.judgement);
+        console.log(evaluation);
+        let conflictFound = false; // Initialize a boolean to track conflict
+        for (let i = 0; i < evaluation.individualEvaluation.length; i++) {
+          console.log("*****evaluation.projectEvaluation.judgement******");
+          console.log(evaluation.individualEvaluation[i]);
 
-    //       console.log(
-    //         "*****evaluation.individualEvaluation[i].projectEvaluation.judgement******"
-    //       );
-    //       console.log(
-    //         evaluation.individualEvaluation[i].projectEvaluation.judgement
-    //       );
+          console.log(
+            "*****evaluation.individualEvaluation[i].projectEvaluation.judgement******"
+          );
+          console.log(
+            evaluation.individualEvaluation[i].projectEvaluation.judgement
+          );
 
-    //       // Check if the first evaluation's judgment is "0" (absent case)
-    //       if (
-    //         evaluation.individualEvaluation[i].projectEvaluation.judgement ==="-1"
-    //       ) {
-    //         // Continue checking other evaluations
-    //         continue;
-    //       }
+          // Check if the first evaluation's judgment is "0" (absent case)
+          if (
+            evaluation.individualEvaluation[i].projectEvaluation.judgement ===
+            "-1"
+          ) {
+            // Continue checking other evaluations
+            continue;
+          }
 
-    //       console.log(projectEvaluation.judgement);
-    //       console.log(
-    //         evaluation.individualEvaluation[i].projectEvaluation.judgement
-    //       );
-    //       // Compare the judgment values
-    //       if (
-    //         projectEvaluation.judgement !==
-    //         evaluation.individualEvaluation[i].projectEvaluation.judgement
-    //       ) {
-    //         // Set conflictFound to true if conflict detected
-    //         console.log("inside the conflict return scope");
-    //         conflictFound = true;
-    //       }
-    //     }
+          console.log(projectEvaluation.judgement);
+          console.log(
+            evaluation.individualEvaluation[i].projectEvaluation.judgement
+          );
+          // Compare the judgment values
+          if (
+            projectEvaluation.judgement !==
+            evaluation.individualEvaluation[i].projectEvaluation.judgement
+          ) {
+            // Set conflictFound to true if conflict detected
+            console.log("inside the conflict return scope");
+            conflictFound = true;
+          }
+        }
 
-    //     // Return the conflictFound boolean to some() method
-    //     return conflictFound;
-    //   });
+        // Return the conflictFound boolean to some() method
+        return conflictFound;
+      });
 
-    //   console.log("********conflictExists********");
-    //   console.log(conflictExists);
+      console.log("********conflictExists********");
+      console.log(conflictExists);
 
-    //   if (conflictExists) {
-    //     return res.sendStatus(409); // Conflict
-    //   }
-    // }
+      if (conflictExists) {
+        return res.sendStatus(409); // Conflict
+      }
+    }
 
-    // // Map projectEvaluation to each individualEvaluation object
-    // const formattedIndividualEvaluations = individualEvaluation.map(
-    //   (evaluation) => ({
-    //     student: evaluation.member, //here student ID is member
-    //     performanceAtPresentation: evaluation.performanceAtPresentation,
-    //     absent: evaluation.absent,
-    //     projectEvaluation: {
-    //       projectTitleAndAbstract: evaluation.absent
-    //         ? "0"
-    //         : projectEvaluation.projectTitleAndAbstract,
-    //       project: evaluation.absent ? "0" : projectEvaluation.project,
-    //       objective: evaluation.absent ? "0" : projectEvaluation.objective,
-    //       teamWork: evaluation.absent ? "0" : projectEvaluation.teamWork,
-    //       documentation: evaluation.absent
-    //         ? "0"
-    //         : projectEvaluation.documentation,
-    //       plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
-    //       judgement: evaluation.absent ? "-1" : projectEvaluation.judgement,
-    //       feedback: evaluation.absent ? "<p>No Feedback</p>" : projectEvaluation.feedback,
-    //       outstanding: evaluation.absent
-    //         ? false
-    //         : projectEvaluation.outstanding,
-    //     },
-    //   })
-    // );
-    // //create a new evaluator, with credentials
-    // const newEvaluation = await Evaluation.create({
-    //   individualEvaluation: formattedIndividualEvaluations,
-    //   project: projectId,
-    //   evaluator: evaluatorId,
-    //   defense: defenseId,
-    //   event: eventId,
-    //   evaluationType: evaluationType,
-    // });
+    // Map projectEvaluation to each individualEvaluation object
+    const formattedIndividualEvaluations = individualEvaluation.map(
+      (evaluation) => ({
+        student: evaluation.member, //here student ID is member
+        performanceAtPresentation: evaluation.performanceAtPresentation,
+        absent: evaluation.absent,
+        projectEvaluation: {
+          projectTitleAndAbstract: evaluation.absent
+            ? "0"
+            : projectEvaluation.projectTitleAndAbstract,
+          project: evaluation.absent ? "0" : projectEvaluation.project,
+          objective: evaluation.absent ? "0" : projectEvaluation.objective,
+          teamWork: evaluation.absent ? "0" : projectEvaluation.teamWork,
+          documentation: evaluation.absent
+            ? "0"
+            : projectEvaluation.documentation,
+          plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
+          judgement: evaluation.absent ? "-1" : projectEvaluation.judgement,
+          feedback: evaluation.absent
+            ? "<p>No Feedback</p>"
+            : projectEvaluation.feedback,
+          outstanding: evaluation.absent
+            ? false
+            : projectEvaluation.outstanding,
+        },
+      })
+    );
+    //create a new evaluator, with credentials
+    const newEvaluation = await Evaluation.create({
+      individualEvaluation: formattedIndividualEvaluations,
+      project: projectId,
+      evaluator: evaluatorId,
+      defense: defenseId,
+      event: eventId,
+      evaluationType: evaluationType,
+    });
 
-    // // if no evaluator is created
-    // if (!newEvaluation) return res.sendStatus(400);
-    // //if creation is success then push the newly created evaluation id to the project's defense type's evaluations array of object ids
+    // if no evaluator is created
+    if (!newEvaluation) return res.sendStatus(400);
+    //if creation is success then push the newly created evaluation id to the project's defense type's evaluations array of object ids
 
-    // //push the newEvaluation id to the project phase evaulation array
-    // projectOfPhase.evaluations.push(newEvaluation._id);
+    //push the newEvaluation id to the project phase evaulation array
+    projectOfPhase.evaluations.push(newEvaluation._id);
 
     //update the evaluator hasEvaluated inside project evaluationType's evaluators
     projectOfPhase.defenses.forEach(async (obj) => {
@@ -281,8 +284,6 @@ const submitEvaluation = async (req, res) => {
 
         projectEvaluations.forEach((evaluation) => {
           console.log("individualEvaluation");
-          console.log();
-
           evaluation.individualEvaluation.forEach((individualEvaluation) => {
             previousJudgement =
               previousJudgement !== null ? previousJudgement : "";
@@ -311,16 +312,16 @@ const submitEvaluation = async (req, res) => {
       //if judgemnt is 2 or 3 that is re-defense or re-jected then backtrack the progress status of the student
     });
 
-    // //update defense evaluation field to with the newly created
-    // defense.evaluations.push(newEvaluation._id);
+    //update defense evaluation field to with the newly created
+    defense.evaluations.push(newEvaluation._id);
 
-    // //return if everything goes well
-    // //save project changes
+    //return if everything goes well
+    //save project changes
     project.save();
-    // defense.save();
-    // return res.status(201).json({
-    //   data: newEvaluation,
-    // });
+    defense.save();
+    return res.status(201).json({
+      data: newEvaluation,
+    });
   } catch (err) {
     console.error(`error-message:${err.message}`);
     return res.status(500).json({ message: "Server error." });
