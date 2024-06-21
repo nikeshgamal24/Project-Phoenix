@@ -1,6 +1,10 @@
 const Defense = require("../models/Defense");
 const Project = require("../models/Project");
 const Evaluation = require("../models/Evaluation");
+const {
+  determineDefenseType,
+} = require("./utility functions/determineDefenseType");
+const { ObjectId } = require("mongodb");
 
 const getDefenseBydId = async (req, res) => {
   // Check if ID is provided
@@ -58,11 +62,21 @@ const getProjectBydId = async (req, res) => {
       return res.sendStatus(204);
     }
 
+    //extract progressStatus of the student
+    const progressStatus = project.teamMembers[0].progressStatus;
+    const defenseType = determineDefenseType(progressStatus);
+    console.log(progressStatus, defenseType);
+    const populatedEvaluations = await project[defenseType].populate(
+      "evaluations"
+    );
+    console.log(populatedEvaluations);
+    const evaluationField = project[defenseType].evaluations;
+    console.log(evaluationField);
     // Send response
     return res.status(200).json({
-      data: project,
+      data: { ...project.toObject(), evaluationField: populatedEvaluations },
     });
-  } catch (error) {
+  } catch (err) {
     console.error(`error-message:${err.message}`);
     return res.status(500).json({ message: "Server error." });
   }
@@ -116,29 +130,43 @@ const submitEvaluation = async (req, res) => {
       project: req.body.projectId,
       createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
+    console.log("****matchingEvaluation**");
+    console.log(matchingEvaluation);
 
-    const projectEvaluations = project[evaluationType].evaluations;
-
+    const projectOfPhase = project[evaluationType];
+    console.log("****projectOfPhase**");
+    console.log(projectOfPhase);
     //if there is evaluation done today then
     // tally the newly evaluation's judgement and today created evaluations
     if (matchingEvaluation) {
       const conflictExists = matchingEvaluation.some((evaluation) => {
         console.log("*****projectEvaluation.judgement******");
         console.log(projectEvaluation.judgement);
-
+        console.log(evaluation);
         let conflictFound = false; // Initialize a boolean to track conflict
-      for(let i = 0;i<evaluation.individualEvaluation.length;i++){
+        for (let i = 0; i < evaluation.individualEvaluation.length; i++) {
           console.log("*****evaluation.projectEvaluation.judgement******");
           console.log(evaluation.individualEvaluation[i]);
 
+          console.log(
+            "*****evaluation.individualEvaluation[i].projectEvaluation.judgement******"
+          );
+          console.log(
+            evaluation.individualEvaluation[i].projectEvaluation.judgement
+          );
+
           // Check if the first evaluation's judgment is "0" (absent case)
-          if (evaluation.individualEvaluation[i].projectEvaluation.judgement === "0") {
+          if (
+            evaluation.individualEvaluation[i].projectEvaluation.judgement ==="-1"
+          ) {
             // Continue checking other evaluations
             continue;
           }
 
           console.log(projectEvaluation.judgement);
-          console.log(evaluation.individualEvaluation[i].projectEvaluation.judgement);
+          console.log(
+            evaluation.individualEvaluation[i].projectEvaluation.judgement
+          );
           // Compare the judgment values
           if (
             projectEvaluation.judgement !==
@@ -179,8 +207,8 @@ const submitEvaluation = async (req, res) => {
             ? "0"
             : projectEvaluation.documentation,
           plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
-          judgement: evaluation.absent ? "0" : projectEvaluation.judgement,
-          feedback: evaluation.absent ? "0" : projectEvaluation.feedback,
+          judgement: evaluation.absent ? "-1" : projectEvaluation.judgement,
+          feedback: evaluation.absent ? "<p>No Feedback</p>" : projectEvaluation.feedback,
           outstanding: evaluation.absent
             ? false
             : projectEvaluation.outstanding,
@@ -200,7 +228,29 @@ const submitEvaluation = async (req, res) => {
     // if no evaluator is created
     if (!newEvaluation) return res.sendStatus(400);
     //if creation is success then push the newly created evaluation id to the project's defense type's evaluations array of object ids
-    projectEvaluations.push(newEvaluation._id);
+
+    //push the newEvaluation id to the project phase evaulation array
+    projectOfPhase.evaluations.push(newEvaluation._id);
+
+    //update the evaluator hasEvaluated inside project evaluationType's evaluators
+    projectOfPhase.defenses.forEach((obj) => {
+      const evaluatorIdObj = new ObjectId(evaluatorId);
+      let trueCount = 0;
+      obj.evaluators.forEach((evaluatorObj) => {
+        console.log(evaluatorId, evaluatorObj.evaluator);
+        // Compare the two ObjectId values
+        if (evaluatorIdObj.equals(evaluatorObj.evaluator)) {
+          evaluatorObj.hasEvaluated = true;
+        }
+        if (evaluatorObj.hasEvaluated) {
+          trueCount += 1;
+        }
+        console.log("trueCount", trueCount);
+        if (trueCount === evaluatorObj.length) {
+          console.log("section for changing hasGraded section");
+        }
+      });
+    });
 
     //update defense evaluation field to with the newly created
     defense.evaluations.push(newEvaluation._id);
