@@ -1,9 +1,9 @@
 const judgementConfig = {
-    0: "Accepted",
-    1: "Accepted Conditionally",
-    2: "Re-Demo",
-    3: "Re-Defend",
-    "-1": "Absent",
+    "Accepted":"0",
+    "Accepted Conditionally":"1",
+    "Re-Demo":"2",
+    "Re-Defense":"3",
+    "Absent":"-1",
   };
 
 module.exports = judgementConfig;
