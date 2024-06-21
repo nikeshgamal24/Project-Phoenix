@@ -1,10 +1,25 @@
 const Defense = require("../models/Defense");
 const Project = require("../models/Project");
+const Student = require("../models/Student");
 const Evaluation = require("../models/Evaluation");
 const {
   determineDefenseType,
 } = require("./utility functions/determineDefenseType");
 const { ObjectId } = require("mongodb");
+const judgementConfig = require("../config/judgementConfig");
+const progressStatusEligibilityCode = require("../config/progressStatusEligibilityCode");
+const {
+  updateProjectFirstProgressStatus,
+} = require("./utility functions/updateProjectFirstProgressStatus");
+const {
+  updateMinorProgressStatus,
+} = require("./utility functions/updateMinorProgressStatus");
+const {
+  updateMajorProgressStatus,
+} = require("./utility functions/updateMajorProgressStatus");
+const {
+  initializeEventTypeBasedOnBatch,
+} = require("./utility functions/initializeEventTypeBasedOnBatch");
 
 const getDefenseBydId = async (req, res) => {
   // Check if ID is provided
@@ -69,9 +84,15 @@ const getProjectBydId = async (req, res) => {
       return res.sendStatus(204);
     }
 
+    console.log("*****project*******");
+    console.log(project);
     //extract progressStatus of the student
     const progressStatus = project.teamMembers[0].progressStatus;
+    console.log("*****progressStatus*****");
+    console.log(progressStatus);
     const defenseType = determineDefenseType(progressStatus);
+    console.log("defenseType");
+    console.log(defenseType);
     // console.log(progressStatus, defenseType);
     const populatedEvaluations = await project[defenseType].populate({
       path: "evaluations",
@@ -168,15 +189,15 @@ const submitEvaluation = async (req, res) => {
           conflictFound = true;
         }
 
-        // //comparing the individual absent section if there is any mismatch then return conflict
-        // for (let i = 0; i < individualEvaluation.length; i++) {
-        //   if (
-        //     individualEvaluation[i].absent !==
-        //     evaluation.individualEvaluation[i].absent
-        //   ) {
-        //     conflictFound = true;
-        //   }
-        // }
+        //comparing the individual absent section if there is any mismatch then return conflict
+        for (let i = 0; i < individualEvaluation.length; i++) {
+          if (
+            individualEvaluation[i].absent !==
+            evaluation.individualEvaluation[i].absent
+          ) {
+            conflictFound = true;
+          }
+        }
 
         // Return the conflictFound boolean to some() method
         return conflictFound;
@@ -235,6 +256,8 @@ const submitEvaluation = async (req, res) => {
       let trueCount = 0;
       //this is the evaluators
       obj.evaluators.forEach((evaluatorObj) => {
+        console.log("***before updating to hasEvaluated****");
+        console.log();
         console.log(evaluatorId, evaluatorObj.evaluator);
         // Compare the two ObjectId values
         if (evaluatorIdObj.equals(evaluatorObj.evaluator)) {
@@ -288,14 +311,110 @@ const submitEvaluation = async (req, res) => {
           previousJudgement = currentJudgement;
         });
 
+        console.log("judgement-verdict", projectJudgement);
         //based on the judgement update the teamMembers progressStatus ALSO CONSIDERING THE EVALUATIONTYPE
+        //i.e. if judgement is 0 or 1 that is accepted and accepted conditionally then hasGraduated will update to true
+        console.log(
+          projectJudgement === judgementConfig.Accepted ||
+            projectJudgement === judgementConfig["Accepted Conditionally"]
+        );
+        if (
+          projectJudgement === judgementConfig.Accepted ||
+          projectJudgement === judgementConfig["Accepted Conditionally"]
+        ) {
+          //update project defense type's hasGraduated section to true
+          console.log("****hasGraduated*******");
+          console.log(project[evaluationType].hasGraduated);
+          project[evaluationType].hasGraduated = true;
+          project.save(); // saves updates to the project
+          //update the student status based on the
+          if (project[evaluationType].hasGraduated) {
+            project.teamMembers.forEach(async (studentId) => {
+              const student = await Student.findOne({ _id: studentId });
+              console.log("***studnet******");
+              console.log(student);
+              const eventType = initializeEventTypeBasedOnBatch(
+                student.batchNumber
+              );
+              console.log("*****eventType*****");
+              console.log(eventType);
+              //update the progress status
+              switch (eventType) {
+                case "0":
+                  student.progressStatus = updateProjectFirstProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defensePass
+                  );
+                  break;
+                case "1":
+                  student.progressStatus = updateMinorProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defensePass
+                  );
+                  break;
+                case "2":
+                  student.progressStatus = updateMajorProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defensePass
+                  );
+                  break;
+                default:
+                  break;
+              }
+              student.save(); //save the updates for forward update
+            });
+          }
+        } else {
+          //if judgemnt is 2 or 3 that is re-defense or re-jected then backtrack the progress status of the student4
+          console.log("backtrack section");
+          project.teamMembers.forEach(async (studentId) => {
+            const student = await Student.findOne({ _id: studentId });
+            console.log("***student******");
+            console.log(student);
+            const eventType = initializeEventTypeBasedOnBatch(
+              student.batchNumber
+            );
+            console.log("*****eventType*****");
+            console.log(eventType);
+
+            //update the progress status
+            switch (eventType) {
+              case "0":
+                student.progressStatus = updateProjectFirstProgressStatus(
+                  progressStatusEligibilityCode[evaluationType].defenseFail
+                );
+                break;
+              case "1":
+                student.progressStatus = updateMinorProgressStatus(
+                  progressStatusEligibilityCode[evaluationType].defenseFail
+                );
+                break;
+              case "2":
+                console.log(
+                  "progressStatusEligibilityCode[evaluationType].defenseFail"
+                );
+                console.log(
+                  progressStatusEligibilityCode[evaluationType].defenseFail
+                );
+                student.progressStatus = updateMajorProgressStatus(
+                  progressStatusEligibilityCode[evaluationType].defenseFail
+                );
+                console.log("**********updateMajorProgressStatus*******");
+                console.log(
+                  updateMajorProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defenseFail
+                  )
+                );
+                console.log(student.progressStatus);
+                break;
+              default:
+                break;
+            }
+            console.log("*****after bactracking****");
+            console.log(student);
+            student.save(); //save the updates for backward update
+            console.log("*****after bactracking save****");
+            console.log(student);
+          });
+        }
       }
-      console.log("judgement-verdict", projectJudgement);
-      //i.e. if judgement is 0 or 1 that is accepted and accepted conditionally then hasGraduated will update to true
-
-      // and update the student progress status accordingly
-
-      //if judgemnt is 2 or 3 that is re-defense or re-jected then backtrack the progress status of the student
     });
 
     //update defense evaluation field to with the newly created
@@ -305,6 +424,8 @@ const submitEvaluation = async (req, res) => {
     //save project changes
     project.save();
     defense.save();
+
+    console.log("******update completed********");
     return res.status(201).json({
       data: newEvaluation,
     });
