@@ -29,10 +29,28 @@ const projectSchema = new Schema(
       default: "101",
     },
     proposal: {
-      defenseId: [
+      defenses: [
         {
-          type: Schema.Types.ObjectId,
-          ref: "Defense",
+          defense: {
+            type: Schema.Types.ObjectId,
+            ref: "Defense",
+          },
+          evaluators: [
+            {
+              evaluator: {
+                type: Schema.Types.ObjectId,
+                ref: "Evaluator",
+              },
+              hasEvaluated: {
+                type: Boolean,
+                default: false,
+              },
+            },
+          ],
+          isGraded: {
+            type: Boolean,
+            default:false,
+          },
         },
       ],
       hasGraduated: {
