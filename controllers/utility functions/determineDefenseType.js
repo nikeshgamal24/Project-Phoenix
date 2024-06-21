@@ -1,8 +1,12 @@
 const defenseTypeCode = require("../../config/defenseTypeCodeList");
 
 const determineDefenseType = (progressStatus) => {
+  console.log(progressStatus);
+  console.log(progressStatus);
+
   // Extract the last two digits from the progress status string
-  const secondLastDigit = progressStatus.slice(-2,-1);
+  const secondLastDigit = progressStatus.slice(-2, -1);
+  console.log("secondLastDigit");
   console.log(secondLastDigit);
   switch (secondLastDigit) {
     case "0":
@@ -12,7 +16,7 @@ const determineDefenseType = (progressStatus) => {
     case "2":
       return defenseTypeCode.final;
     default:
-        return "unknown";
+      return "unknown";
   }
 };
 
