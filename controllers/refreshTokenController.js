@@ -11,7 +11,8 @@ const handleRefreshToken = async (req, res) => {
     const cookies = req.cookies;
 
     if (!cookies?.jwt) return res.sendStatus(401); //Unauthorized
-
+    // console.log("inside refresh middleware");
+    // console.log(refreshToken);
     const refreshToken = cookies.jwt;
     // check for user found or not
     const foundUser =
@@ -20,6 +21,8 @@ const handleRefreshToken = async (req, res) => {
       (await Supervisor.findOne({ refreshToken }).exec()) ??
       (await Evaluator.findOne({ refreshToken }).exec());
 
+    // console.log("foundUser");
+    // console.log(foundUser);
     if (!foundUser) return res.sendStatus(403);
     // console.log(foundUser);
 
@@ -28,6 +31,9 @@ const handleRefreshToken = async (req, res) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
       (err, decoded) => {
+        // console.log("inside jwt verifying section");
+        // console.log(decoded.email);
+        // console.log(foundUser.email);
         if (err || foundUser.email !== decoded.email)
           return res.sendStatus(403);
 
