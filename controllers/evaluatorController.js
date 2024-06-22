@@ -455,7 +455,7 @@ const submitProposalEvaluation = async (req, res) => {
             }
           );
           await Promise.all(studentSavePromises); // <- Missing line added here
-          if (obj.isGraded) {
+          if (obj.isGraded && (projectJudgement === proposalJudgementConfig["Re-Defense"] ||projectJudgement === proposalJudgementConfig.Rejected)) {
             project[evaluationType].report = undefined;
             console.log("******after report is removed*********");
             console.log(project[evaluationType].report);
