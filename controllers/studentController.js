@@ -312,9 +312,7 @@ const getProjectById = async (req, res) => {
   }
 
   try {
-    let project = await Project.findOne({
-      _id: req.params.id,
-    })
+    let project = await Project.findOne({ _id: req.params.id })
       .populate("teamMembers")
       .populate("event");
 
@@ -325,8 +323,9 @@ const getProjectById = async (req, res) => {
     }
 
     const sensitiveDetails = ["password", "OTP", "refreshToken"];
-
+    let defenseType;
     const filteredStudentsDetails = project.teamMembers.map((student) => {
+      defenseType = determineDefenseType(student.progressStatus);
       const filteredStudent = filterSensitiveFields(
         student.toObject(),
         sensitiveDetails
@@ -334,12 +333,34 @@ const getProjectById = async (req, res) => {
       return filteredStudent;
     });
 
+    // Check if defenseType is valid
+    if (!defenseType) {
+      return res
+        .status(400)
+        .json({ message: "Defense type could not be determined." });
+    }
+
+    // Populate evaluations within project[defenseType]
+    await Project.populate(project, { path: `${defenseType}.evaluations` });
+
+    // Option to disable strict population checks
+    const options = { strictPopulate: false };
+
+    // Populate defenses.defense within project[defenseType].proposal.defenses
+    for (let i = 0; i < project[defenseType].defenses.length; i++) {
+      await project.populate({
+        path: `${defenseType}.defenses.${i}.defense`,
+        options,
+      });
+    }
+  
+    await project.save();
     return res.status(200).json({
       data: { ...project.toObject(), teamMembers: filteredStudentsDetails },
     });
   } catch (err) {
-    console.error(`error-message:${err.message}`);
-    res.sendStatus(500);
+    console.error(`Error: ${err.message}`);
+    return res.sendStatus(500);
   }
 };
 
