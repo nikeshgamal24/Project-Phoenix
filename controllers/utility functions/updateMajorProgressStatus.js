@@ -5,6 +5,8 @@ const updateMajorProgressStatus = (eligibility) => {
   console.log(eligibility);
   try {
     switch (eligibility) {
+      case eligibilityStatus.proposal.rejected:
+        return "2000";
       case eligibilityStatus.proposal.eligibeForReportSubmission:
       case eligibilityStatus.proposal.defenseFail:
       case eligibilityStatus.proposal.createTeam:
