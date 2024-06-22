@@ -341,7 +341,10 @@ const getProjectById = async (req, res) => {
     }
 
     // Populate evaluations within project[defenseType]
-    await Project.populate(project, { path: `${defenseType}.evaluations` });
+    await Project.populate(project, {
+      path: `${defenseType}.evaluations`,
+      populate: { path: "evaluator" },
+    });
 
     // Option to disable strict population checks
     const options = { strictPopulate: false };
@@ -353,7 +356,7 @@ const getProjectById = async (req, res) => {
         options,
       });
     }
-  
+
     await project.save();
     return res.status(200).json({
       data: { ...project.toObject(), teamMembers: filteredStudentsDetails },
