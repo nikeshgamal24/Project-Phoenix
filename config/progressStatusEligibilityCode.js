@@ -8,13 +8,13 @@ const progressStatusEligibilityCode = {
     defensePass: "04",
   },
   mid: {
-    eligibeForReportSubmission: "11",
+    approvalFromSupervisor: "11",
     eligibleForDefense: "12",
     defenseFail: "13",
     defensePass: "14",
   },
   final: {
-    eligibeForReportSubmission: "21",
+    approvalFromSupervisor: "21",
     eligibleForDefense: "22",
     defenseFail: "23",
     defensePass: "24",
