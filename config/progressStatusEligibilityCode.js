@@ -1,5 +1,6 @@
 const progressStatusEligibilityCode = {
   proposal: {
+    rejected:"00",
     createTeam:"00",
     eligibeForReportSubmission: "01",
     eligibleForDefense: "02",
