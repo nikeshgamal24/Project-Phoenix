@@ -164,72 +164,79 @@ const updateEvent = async (req, res) => {
 
 //get specified event based on event id
 const getEvent = async (req, res) => {
-  // Check if ID is provided
-  if (!req?.params?.id) {
-    return res.status(400).json({ message: "Event ID required." });
+// Check if ID is provided
+if (!req?.params?.id) {
+  return res.status(400).json({ message: "Event ID required." });
+}
+
+try {
+  // Find event by ID and populate the author field
+  const event = await Event.findById(req.params.id)
+    .populate("author")
+    .populate("projects");
+
+  // Check if event exists
+  if (!event) {
+    return res.sendStatus(204);
   }
 
-  try {
-    // Find event by ID and populate the author field
-    const event = await Event.findById(req.params.id)
-      .populate("author")
-      .populate("projects");
+  // Filter sensitive fields from the author
+  event.author = filterSensitiveFields(event.author, sensitiveFields);
 
-    // Check if event exists
-    if (!event) {
-      return res.sendStatus(204);
-    }
+  // Filter projects based on status active or complete
+  const filteredProjects = event.projects.filter(
+    (project) => project.status === eventStatusList.active || project.status === eventStatusList.active
+  );
 
-    // Filter sensitive fields from the author
-    event.author = filterSensitiveFields(event.author, sensitiveFields);
+  // Populate team members for filtered projects
+  const populatedProjects = await Promise.all(
+    filteredProjects.map(async (project) => {
+      // Populate team members for the current project
+      const populatedData = await project.populate({
+        path: "teamMembers",
+        select: "-password -OTP -refreshToken",
+      });
+      // Return the populated project
+      return populatedData;
+    })
+  );
 
-    /**********Populated the team members of the projects inside the event object*****************/
+  // Total student count eligible for particular event
+  // Get the batch number of the student
+  const batchNumber = getBatchYearFromEventType(event.eventType);
 
-    // Map over each project and populate team members
-    const populatedProjects = await Promise.all(
-      event.projects.map(async (project) => {
-        // Populate team members for the current project
-        const populatedData = await project.populate({
-          path: "teamMembers",
-          select: "-password -OTP -refreshToken",
-        });
-        // Return the populated project
-        return populatedData;
-      })
-    );
-
-    /**********Total student count eligible for particular event****************/
-    //get the batch number of the student
-    const batchNumber = getBatchYearFromEventType(event.eventType);
-
-    //1. Construct the query based on the event type
-    let query;
-    if (event.eventTarget === "72354") {
-      // If event type is '72354', include all students regardless of program
-      query = { batchNumber: batchNumber };
-    } else {
-      // Otherwise, include only students whose program matches the event target
-      query = { program: event.eventTarget, batchNumber: batchNumber };
-    }
-
-    // 2. based on event target get the student number who can participant in that event
-    const studentCount = await Student.find(query).countDocuments();
-
-    //search for the defense that has given event id
-    const defenses = await Defense.find({
-      event: req.params.id,
-    });
-
-    // Send response
-    return res.status(200).json({
-      eligibleStudentCountForEvent: studentCount,
-      data: event,
-      defenses: defenses,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error." });
+  // Construct the query based on the event type
+  let query;
+  if (event.eventTarget === "72354") {
+    // If event type is '72354', include all students regardless of program
+    query = { batchNumber: batchNumber };
+  } else {
+    // Otherwise, include only students whose program matches the event target
+    query = { program: event.eventTarget, batchNumber: batchNumber };
   }
+
+  // Get the number of students who can participate in that event
+  const studentCount = await Student.find(query).countDocuments();
+
+  // Search for the defenses that have the given event ID
+  const defenses = await Defense.find({
+    event: req.params.id,
+  });
+
+  // Send response
+  return res.status(200).json({
+    eligibleStudentCountForEvent: studentCount,
+    data: {
+      ...event.toObject(),
+      projects: populatedProjects,
+    },
+    defenses: defenses,
+  });
+} catch (error) {
+  console.error(error);
+  return res.status(500).json({ message: "Server error." });
+}
+
 };
 
 const createEvaluator = async (req, res) => {
@@ -293,20 +300,27 @@ const getAllEvaluators = async (req, res) => {
 
 const getAllEventsAndEvaluators = async (req, res) => {
   try {
-    //fetch all events details and populate projects
+    // Fetch all events details and populate projects
     let events = await Event.find()
       .sort({ createdAt: -1 })
       .populate("projects");
-
-    //if no events
-    if (!events) return res.sendStatus(204);
-
+  
+    // If no events, return status 204
+    if (!events || events.length === 0) {
+      return res.sendStatus(204);
+    }
+  
     // Map over each event and process its projects
     events = await Promise.all(
       events.map(async (event) => {
-        // Populate team members for each project within the current event
+        // Filter projects by status 101
+        const filteredProjects = event.projects.filter(
+          (project) => project.status === "101"
+        );
+  
+        // Populate team members for each filtered project within the current event
         event.projects = await Promise.all(
-          event.projects.map(async (project) => {
+          filteredProjects.map(async (project) => {
             await project.populate({
               path: "teamMembers",
               select: "-password -OTP -refreshToken",
@@ -317,10 +331,11 @@ const getAllEventsAndEvaluators = async (req, res) => {
         return event;
       })
     );
-
-    // Find all events and populate the author field
+  
+    // Find all evaluators and sort by createdAt
     const evaluators = await Evaluator.find().sort({ createdAt: -1 }).lean();
-
+  
+    // Return response with events and evaluators
     return res.status(200).json({
       data: {
         events: events,
@@ -328,9 +343,10 @@ const getAllEventsAndEvaluators = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(`error-message:${err.message}`);
-    return res.sendStatus(400);
+    console.error(`Error: ${err.message}`);
+    return res.sendStatus(500);
   }
+  
 };
 
 const getAllDefenses = async (req, res) => {
@@ -374,7 +390,7 @@ const createNewDefense = async (req, res) => {
     console.log(defenseExists);
 
     //does not allow to create defense of a particular event that has been already created for e.g. if project I proposal defense has already been created then if we create it again it will give 409----> conflict
-    if(defenseExists.length){
+    if (defenseExists.length) {
       return res.status(409).json({
         message: "Defense already exists for the given event and defense type",
       });
@@ -501,7 +517,7 @@ const createNewDefense = async (req, res) => {
 
         //mail the acccess code to the evaluator
         const status = sendMailToUser({
-          defenseType:req.body.defenseType,
+          defenseType: req.body.defenseType,
           evaluatorEmail: evaluatorDetails.email,
           accessCode: accessCode,
           room: room.room,
