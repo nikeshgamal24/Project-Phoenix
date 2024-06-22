@@ -29,6 +29,7 @@ const {
 const {
   updateMinorProgressStatus,
 } = require("./utility functions/updateMinorProgressStatus");
+const { determineProposalDefenseType } = require("./utility functions/determineProposalDefenseType");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -314,7 +315,19 @@ const getProjectById = async (req, res) => {
   try {
     let project = await Project.findOne({ _id: req.params.id })
       .populate("teamMembers")
-      .populate("event");
+      .populate("event")
+      .populate({
+        path: "proposal.evaluations",
+        populate: { path: "evaluator" },
+      })
+      .populate({
+        path: "mid.evaluations",
+        populate: { path: "evaluator" },
+      })
+      .populate({
+        path: "final.evaluations",
+        populate: { path: "evaluator" },
+      });
 
     if (!project) {
       return res
@@ -340,22 +353,14 @@ const getProjectById = async (req, res) => {
         .json({ message: "Defense type could not be determined." });
     }
 
-    // Populate evaluations within project[defenseType]
-    await Project.populate(project, {
-      path: `${defenseType}.evaluations`,
-      populate: { path: "evaluator" },
-    });
-
-
-
     // Populate defenses.defense within project[defenseType].defenses
     for (let i = 0; i < project[defenseType].defenses.length; i++) {
       await project.populate({
-          path: `${defenseType}.defenses.${i}.defense`,
-          populate: { path: "rooms" },
-          options: { strictPopulate: false }
+        path: `${defenseType}.defenses.${i}.defense`,
+        populate: { path: "rooms" },
+        options: { strictPopulate: false },
       });
-  }
+    }
     await project.save();
     return res.status(200).json({
       data: { ...project.toObject(), teamMembers: filteredStudentsDetails },
@@ -372,12 +377,33 @@ const submitReport = async (req, res) => {
       return res.status(400).json({ message: "Invalid Project Id" });
     }
     //get the progressStatus Code from the db
-    const { teamMembers } = await Project.findOne({
+    const project = await Project.findOne({
       _id: req.params.id,
     }).populate("teamMembers");
 
-    //determine the defenseType
-    const defenseType = determineDefenseType(teamMembers[0].progressStatus);
+    console.log(project.teamMembers[0]);
+
+    //determine event type
+    const eventType = initializeEventTypeBasedOnBatch(
+      project.teamMembers[0].batchNumber
+    );
+
+    console.log(eventType);
+    let defenseType = null;
+    switch (eventType) {
+      case "0":
+        //determine the defenseType
+         defenseType = determineProposalDefenseType(project.teamMembers[0].progressStatus);
+        break;
+      case "1":
+         defenseType = determineDefenseType(project.teamMembers[0].progressStatus);
+        break;
+      case "2":
+         defenseType = determineDefenseType(project.teamMembers[0].progressStatus);
+        break;
+      default:
+        break;
+    }
 
     //check defenseType for unknown
     if (defenseType === "unknown")
@@ -400,16 +426,11 @@ const submitReport = async (req, res) => {
     //if null then send bad request as something went wrong fetching the project and updating the project fields
     if (!result) return res.sendStatus(400);
 
-    //determine event type
-    const eventType = initializeEventTypeBasedOnBatch(
-      teamMembers[0].batchNumber
-    );
-
     //not null update the status
     //1. get the team memebers
     //2. use map and update the progress status of every stuent
     //according to the defense type and eligibility the progress status will be changes after submitting the report for the defense once uploading the report is successfull
-    teamMembers.forEach(async (student) => {
+    project.teamMembers.forEach(async (student) => {
       //update the status code based on their event type
 
       switch (eventType) {
