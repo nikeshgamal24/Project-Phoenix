@@ -4,42 +4,38 @@ const Schema = mongoose.Schema;
 const projectEvaluationSchema = new Schema({
   projectTitleAndAbstract: {
     type: String,
-    required: true,
   },
   project: {
     type: String,
-    required: true,
   },
   objective: {
     type: String,
-    required: true,
   },
   teamWork: {
     type: String,
-    required: true,
   },
   documentation: {
     type: String,
-    required: true,
   },
   plagiarism: {
     type: String,
-    required: true,
+  },
+  feedbackIncorporated: {
+    type: String,
+  },
+  workProgress: {
+    type: String,
   },
   judgement: {
     type: String,
-    required: true,
   },
   feedback: {
     type: String,
-    required: true,
   },
   outstanding: {
     type: Boolean,
-    required: true,
   },
 });
-
 
 const individualEvaluationSchema = new Schema({
   student: {
@@ -57,27 +53,27 @@ const individualEvaluationSchema = new Schema({
   },
   projectTitleAndAbstract: {
     type: String,
-    required: true,
   },
   project: {
     type: String,
-    required: true,
   },
   objective: {
     type: String,
-    required: true,
   },
   teamWork: {
     type: String,
-    required: true,
   },
   documentation: {
     type: String,
-    required: true,
   },
   plagiarism: {
     type: String,
-    required: true,
+  },
+  eedbackIncorporated: {
+    type: String,
+  },
+  workProgress: {
+    type: String,
   },
 });
 
@@ -87,7 +83,7 @@ const evaluationSchema = new Schema(
       type: [individualEvaluationSchema],
       required: true,
     },
-    projectEvaluation:{
+    projectEvaluation: {
       type: projectEvaluationSchema,
       required: true,
     },
