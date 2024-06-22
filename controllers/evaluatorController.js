@@ -154,23 +154,7 @@ const getProjectBydId = async (req, res) => {
     // Find event by ID and populate the author field
     const project = await Project.findById(req.params.id)
       .populate("teamMembers")
-      .populate("event");
-
-    // Check if event exists
-    if (!project) {
-      return res.sendStatus(204);
-    }
-
-    console.log("*****project*******");
-    console.log(project);
-    //extract progressStatus of the student
-    const progressStatus = project.teamMembers[0].progressStatus;
-    console.log("*****progressStatus*****");
-    console.log(progressStatus);
-    const defenseType = determineDefenseType(progressStatus);
-    console.log("defenseType");
-    console.log(defenseType);
-    const populatedEvaluations = await project
+      .populate("event")
       .populate({
         path: "proposal.evaluations",
         populate: { path: "evaluator" },
@@ -183,8 +167,40 @@ const getProjectBydId = async (req, res) => {
         path: "final.evaluations",
         populate: { path: "evaluator" },
       });
-    console.log("populatedEvaluations");
-    console.log(populatedEvaluations);
+
+    // Check if event exists
+    if (!project) {
+      return res.sendStatus(204);
+    }
+
+    console.log("*****project*******");
+    console.log(project);
+    // //extract progressStatus of the student
+    // const progressStatus = project.teamMembers[0].progressStatus;
+    // console.log("*****progressStatus*****");
+    // console.log(progressStatus);
+    // const defenseType = determineDefenseType(progressStatus);
+    // console.log("defenseType");
+    // console.log(defenseType);
+    // const populatedEvaluations = await project
+    //   .populate([
+    //     {
+    //       path: "proposal.evaluations",
+    //       populate: { path: "evaluator" },
+    //     },
+    //     {
+    //       path: "mid.evaluations",
+    //       populate: { path: "evaluator" },
+    //     },
+    //     {
+    //       path: "final.evaluations",
+    //       populate: { path: "evaluator" },
+    //     },
+    //   ])
+    //   .execPopulate();
+
+    // console.log("populatedEvaluations");
+    // console.log(populatedEvaluations);
     // const evaluationField = project[defenseType].evaluations;
 
     // Send response
