@@ -3,12 +3,13 @@ const Project = require("../models/Project");
 const Student = require("../models/Student");
 const Evaluator = require("../models/Evaluator");
 const Room = require("../models/Room");
+const ProposalEvaluation = require("../models/ProposalEvaluation");
 const Evaluation = require("../models/Evaluation");
 const {
   determineDefenseType,
 } = require("./utility functions/determineDefenseType");
 const { ObjectId } = require("mongodb");
-const judgementConfig = require("../config/judgementConfig");
+const midJudgementConfig = require("../config/midJudgementConfig");
 const progressStatusEligibilityCode = require("../config/progressStatusEligibilityCode");
 const {
   updateProjectFirstProgressStatus,
@@ -24,6 +25,7 @@ const {
 } = require("./utility functions/initializeEventTypeBasedOnBatch");
 const eventStatusList = require("../config/eventStatusList");
 const proposalJudgementConfig = require("../config/proposalJudgementConfig");
+const MidEvaluation = require("../models/MidEvaluation");
 
 const getDefenseBydId = async (req, res) => {
   // Check if ID is provided
@@ -175,34 +177,6 @@ const getProjectBydId = async (req, res) => {
 
     console.log("*****project*******");
     console.log(project);
-    // //extract progressStatus of the student
-    // const progressStatus = project.teamMembers[0].progressStatus;
-    // console.log("*****progressStatus*****");
-    // console.log(progressStatus);
-    // const defenseType = determineDefenseType(progressStatus);
-    // console.log("defenseType");
-    // console.log(defenseType);
-    // const populatedEvaluations = await project
-    //   .populate([
-    //     {
-    //       path: "proposal.evaluations",
-    //       populate: { path: "evaluator" },
-    //     },
-    //     {
-    //       path: "mid.evaluations",
-    //       populate: { path: "evaluator" },
-    //     },
-    //     {
-    //       path: "final.evaluations",
-    //       populate: { path: "evaluator" },
-    //     },
-    //   ])
-    //   .execPopulate();
-
-    // console.log("populatedEvaluations");
-    // console.log(populatedEvaluations);
-    // const evaluationField = project[defenseType].evaluations;
-
     // Send response
     return res.status(200).json({
       data: project,
@@ -213,7 +187,7 @@ const getProjectBydId = async (req, res) => {
   }
 };
 
-const submitProposalEvaluation = async (req, res) => {
+const submitEvaluation = async (req, res) => {
   try {
     const {
       individualEvaluation,
@@ -239,11 +213,24 @@ const submitProposalEvaluation = async (req, res) => {
       });
     }
 
+    console.log(req.body);
+
     const project = await Project.findOne({ _id: projectId });
     const defense = await Defense.findOne({ _id: defenseId });
 
     if (!project) return res.sendStatus(404);
+    // const evaluationModel =
+    //   evaluationType === "proposal"
+    //     ? ProposalEvaluation
+    //     : evaluationType === "mid"
+    //     ? MidEvaluation
+    //     : evaluationType === "final"
+    //     ? "FinalEvaluation"
+    //     : null;
 
+    // if (!evaluationModel) return res.sendStatus(400);
+    // console.log("******Evaluation model*********");
+    // console.log(evaluationModel);
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -291,36 +278,76 @@ const submitProposalEvaluation = async (req, res) => {
         });
       }
     }
+    let formattedIndividualEvaluations;
+    let newEvaluation;
+    switch (evaluationType) {
+      case "proposal":
+        formattedIndividualEvaluations = individualEvaluation.map(
+          (evaluation) => ({
+            student: evaluation.member,
+            performanceAtPresentation: evaluation.performanceAtPresentation,
+            absent: evaluation.absent,
+            projectTitleAndAbstract: evaluation.absent
+              ? "0"
+              : projectEvaluation.projectTitleAndAbstract,
+            project: evaluation.absent ? "0" : projectEvaluation.project,
+            objective: evaluation.absent ? "0" : projectEvaluation.objective,
+            teamWork: evaluation.absent ? "0" : projectEvaluation.teamWork,
+            documentation: evaluation.absent
+              ? "0"
+              : projectEvaluation.documentation,
+            plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
+          })
+        );
 
-    const formattedIndividualEvaluations = individualEvaluation.map(
-      (evaluation) => ({
-        student: evaluation.member,
-        performanceAtPresentation: evaluation.performanceAtPresentation,
-        absent: evaluation.absent,
-        projectTitleAndAbstract: evaluation.absent
-          ? "0"
-          : projectEvaluation.projectTitleAndAbstract,
-        project: evaluation.absent ? "0" : projectEvaluation.project,
-        objective: evaluation.absent ? "0" : projectEvaluation.objective,
-        teamWork: evaluation.absent ? "0" : projectEvaluation.teamWork,
-        documentation: evaluation.absent
-          ? "0"
-          : projectEvaluation.documentation,
-        plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
-      })
-    );
+        newEvaluation = await Evaluation.create({
+          individualEvaluation: formattedIndividualEvaluations,
+          projectEvaluation: projectEvaluation,
+          project: projectId,
+          evaluator: evaluatorId,
+          defense: defenseId,
+          event: eventId,
+          evaluationType: evaluationType,
+        });
 
-    const newEvaluation = await Evaluation.create({
-      individualEvaluation: formattedIndividualEvaluations,
-      projectEvaluation: projectEvaluation,
-      project: projectId,
-      evaluator: evaluatorId,
-      defense: defenseId,
-      event: eventId,
-      evaluationType: evaluationType,
-    });
+        if (!newEvaluation) return res.sendStatus(400);
+        break;
+      case "mid":
+        console.log("MidEvaluation Section");
+        formattedIndividualEvaluations = individualEvaluation.map(
+          (evaluation) => ({
+            student: evaluation.member,
+            performanceAtPresentation: evaluation.performanceAtPresentation,
+            absent: evaluation.absent,
+            feedbackIncorporated: evaluation.absent
+              ? "0"
+              : projectEvaluation.feedbackIncorporated,
+            workProgress: evaluation.absent
+              ? "0"
+              : projectEvaluation.workProgress,
+            documentation: evaluation.absent
+              ? "0"
+              : projectEvaluation.documentation,
+          })
+        );
 
-    if (!newEvaluation) return res.sendStatus(400);
+        newEvaluation = await Evaluation.create({
+          individualEvaluation: formattedIndividualEvaluations,
+          projectEvaluation: projectEvaluation,
+          project: projectId,
+          evaluator: evaluatorId,
+          defense: defenseId,
+          event: eventId,
+          evaluationType: evaluationType,
+        });
+        if (!newEvaluation) return res.sendStatus(400);
+        break;
+      case "final":
+        console.log("FinalEvaluation Section");
+        break;
+      default:
+        return res.sendStaus(400);
+    }
 
     projectOfPhase.evaluations.push(newEvaluation._id);
 
@@ -371,7 +398,10 @@ const submitProposalEvaluation = async (req, res) => {
 
         if (
           projectJudgement === proposalJudgementConfig.Accepted ||
-          projectJudgement === proposalJudgementConfig["Accepted Conditionally"]
+          projectJudgement ===
+            proposalJudgementConfig["Accepted Conditionally"] ||
+          projectJudgement === midJudgementConfig["Progress Satisfactory"] ||
+          projectJudgement === midJudgementConfig["Progress Seen"]
         ) {
           project[evaluationType].hasGraduated = true;
 
@@ -508,4 +538,4 @@ const submitProposalEvaluation = async (req, res) => {
   }
 };
 
-module.exports = { getDefenseBydId, getProjectBydId, submitProposalEvaluation };
+module.exports = { getDefenseBydId, getProjectBydId, submitEvaluation };
