@@ -1289,4 +1289,8 @@ router
   .route("/defense/defenses")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllDefenses);
 
+router
+  .route("/defense/:id")
+  .get(verifyRoles(ROLES_LIST.Admin), eventController.getDefenseById);
+
 module.exports = router;

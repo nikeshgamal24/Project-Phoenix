@@ -724,6 +724,6 @@ router
 
 router
   .route("/defense/evaluation")
-  .post(verifyRoles(ROLES_LIST.Evaluator), evaluatorController.submitProposalEvaluation);
+  .post(verifyRoles(ROLES_LIST.Evaluator), evaluatorController.submitEvaluation);
 
 module.exports = router;
