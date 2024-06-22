@@ -171,8 +171,9 @@ const submitEvaluation = async (req, res) => {
       eventId,
       evaluationType,
     } = req.body;
-
+  
     if (
+      !Array.isArray(individualEvaluation) ||
       !individualEvaluation.length ||
       !projectEvaluation ||
       !projectId ||
@@ -184,55 +185,48 @@ const submitEvaluation = async (req, res) => {
         message: "Required Credentials Missing",
       });
     }
-
-    const project = await Project.findOne({ _id: req.body.projectId });
-    const defense = await Defense.findOne({ _id: req.body.defenseId });
-
+  
+    const project = await Project.findOne({ _id: projectId });
+    const defense = await Defense.findOne({ _id: defenseId });
+  
     if (!project) return res.sendStatus(404);
-
+  
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-
+  
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
-
+  
     const matchingEvaluation = await Evaluation.find({
       _id: { $in: project[evaluationType].evaluations },
-      project: req.body.projectId,
+      project: projectId,
       createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
-
+  
     const projectOfPhase = project[evaluationType];
-
-    if (matchingEvaluation) {
+  
+    if (matchingEvaluation.length) {
       const conflictExists = matchingEvaluation.some((evaluation) => {
-        let conflictFound = false;
-
-        if (
-          projectEvaluation.judgement !== evaluation.projectEvaluation.judgement
-        ) {
-          conflictFound = true;
+        if (projectEvaluation.judgement !== evaluation.projectEvaluation.judgement) {
+          return true;
         }
-
+  
         for (let i = 0; i < individualEvaluation.length; i++) {
-          if (
-            individualEvaluation[i].absent !==
-            evaluation.individualEvaluation[i].absent
-          ) {
-            conflictFound = true;
+          if (individualEvaluation[i].absent !== evaluation.individualEvaluation[i].absent) {
+            return true;
           }
         }
-
-        return conflictFound;
+  
+        return false;
       });
-
+  
       if (conflictExists) {
         return res.status(409).json({
           message: "Conflict data",
         });
       }
     }
-
+  
     const formattedIndividualEvaluations = individualEvaluation.map((evaluation) => ({
       student: evaluation.member,
       performanceAtPresentation: evaluation.performanceAtPresentation,
@@ -244,7 +238,7 @@ const submitEvaluation = async (req, res) => {
       documentation: evaluation.absent ? "0" : projectEvaluation.documentation,
       plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
     }));
-
+  
     const newEvaluation = await Evaluation.create({
       individualEvaluation: formattedIndividualEvaluations,
       projectEvaluation: projectEvaluation,
@@ -254,143 +248,126 @@ const submitEvaluation = async (req, res) => {
       event: eventId,
       evaluationType: evaluationType,
     });
-
+  
     if (!newEvaluation) return res.sendStatus(400);
-
+  
     projectOfPhase.evaluations.push(newEvaluation._id);
-
-    projectOfPhase.defenses.forEach(async (obj) => {
+  
+    for (const obj of projectOfPhase.defenses) {
       const evaluatorIdObj = new ObjectId(evaluatorId);
       let trueCount = 0;
-
-      obj.evaluators.forEach((evaluatorObj) => {
+  
+      for (const evaluatorObj of obj.evaluators) {
         if (evaluatorIdObj.equals(evaluatorObj.evaluator)) {
           evaluatorObj.hasEvaluated = true;
         }
         if (evaluatorObj.hasEvaluated) {
           trueCount += 1;
         }
-      });
-
+      }
+  
       if (trueCount === obj.evaluators.length) {
         obj.isGraded = true;
       }
-
+  
       if (obj.isGraded) {
         const projectEvaluations = await Evaluation.find({
           project: project._id,
           defense: obj.defense,
         });
-
+  
         let projectJudgement = null;
         let previousJudgement = null;
         let judgementEquals = true;
-
-        projectEvaluations.forEach((evaluation) => {
-          previousJudgement =
-            previousJudgement !== null ? previousJudgement : "";
+  
+        for (const evaluation of projectEvaluations) {
+          previousJudgement = previousJudgement !== null ? previousJudgement : "";
           const currentJudgement = evaluation.projectEvaluation.judgement;
-
+  
           if (currentJudgement !== -1) {
-            if (
-              previousJudgement !== "" &&
-              currentJudgement !== previousJudgement
-            ) {
+            if (previousJudgement !== "" && currentJudgement !== previousJudgement) {
               judgementEquals = false;
             }
             projectJudgement = currentJudgement;
           }
-
+  
           previousJudgement = currentJudgement;
-        });
-
-        if (
-          projectJudgement === judgementConfig.Accepted ||
-          projectJudgement === judgementConfig["Accepted Conditionally"]
-        ) {
+        }
+  
+        if (projectJudgement === judgementConfig.Accepted || projectJudgement === judgementConfig["Accepted Conditionally"]) {
           project[evaluationType].hasGraduated = true;
-
+  
           if (project[evaluationType].hasGraduated) {
-            const studentSavePromises = project.teamMembers.map(
-              async (studentId) => {
-                const student = await Student.findOne({ _id: studentId });
-                const eventType = initializeEventTypeBasedOnBatch(
-                  student.batchNumber
-                );
-                consoele.log(
-                  "*********student forward update progress section***********"
-                );
-                switch (eventType) {
-                  case "0":
-                    student.progressStatus = updateProjectFirstProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].defensePass
-                    );
-                    break;
-                  case "1":
-                    student.progressStatus = updateMinorProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].defensePass
-                    );
-                    break;
-                  case "2":
-                    student.progressStatus = updateMajorProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].defensePass
-                    );
-                    break;
-                  default:
-                    break;
-                }
-                return student.save();
-              }
-            );
-
-            await Promise.all(studentSavePromises);
-          }
-        } else {
-          const studentSavePromises = project.teamMembers.map(
-            async (studentId) => {
+            const studentSavePromises = project.teamMembers.map(async (studentId) => {
               const student = await Student.findOne({ _id: studentId });
-              const eventType = initializeEventTypeBasedOnBatch(
-                student.batchNumber
-              );
-              console.log(
-                "*********student backward update progress section***********"
-              );
-
+              const eventType = initializeEventTypeBasedOnBatch(student.batchNumber);
+              console.log("*********student forward update progress section***********");
               switch (eventType) {
                 case "0":
                   student.progressStatus = updateProjectFirstProgressStatus(
-                    progressStatusEligibilityCode[evaluationType].defenseFail
+                    progressStatusEligibilityCode[evaluationType].defensePass
                   );
                   break;
                 case "1":
                   student.progressStatus = updateMinorProgressStatus(
-                    progressStatusEligibilityCode[evaluationType].defenseFail
+                    progressStatusEligibilityCode[evaluationType].defensePass
                   );
                   break;
                 case "2":
                   student.progressStatus = updateMajorProgressStatus(
-                    progressStatusEligibilityCode[evaluationType].defenseFail
+                    progressStatusEligibilityCode[evaluationType].defensePass
                   );
                   break;
                 default:
                   break;
               }
               return student.save();
+            });
+  
+            await Promise.all(studentSavePromises);
+          }
+        } else {
+          const studentSavePromises = project.teamMembers.map(async (studentId) => {
+            const student = await Student.findOne({ _id: studentId });
+            const eventType = initializeEventTypeBasedOnBatch(student.batchNumber);
+            console.log("*********student backward update progress section***********");
+  
+            switch (eventType) {
+              case "0":
+                student.progressStatus = updateProjectFirstProgressStatus(
+                  progressStatusEligibilityCode[evaluationType].defenseFail
+                );
+                break;
+              case "1":
+                student.progressStatus = updateMinorProgressStatus(
+                  progressStatusEligibilityCode[evaluationType].defenseFail
+                );
+                break;
+              case "2":
+                student.progressStatus = updateMajorProgressStatus(
+                  progressStatusEligibilityCode[evaluationType].defenseFail
+                );
+                break;
+              default:
+                break;
             }
-          );
+            return student.save();
+          });
           console.log("******before report is to be removed*********");
           console.log(project[evaluationType].report);
-          // await Promise.all(studentSavePromises);
+  
+          await Promise.all(studentSavePromises); // <- Missing line added here
+  
           project[evaluationType].report = undefined;
-
+  
           console.log("******after report is removed*********");
           console.log(project[evaluationType].report);
         }
       }
-    });
-
+    }
+  
     defense.evaluations.push(newEvaluation._id);
-
+  
     await defense.save();
     await project.save();
     console.log("******after the report undefined is saved***************");
@@ -403,6 +380,7 @@ const submitEvaluation = async (req, res) => {
     console.error(error);
     res.status(500).send({ message: error.message });
   }
+  
 };
 
 module.exports = { getDefenseBydId, getProjectBydId, submitEvaluation };
