@@ -346,17 +346,16 @@ const getProjectById = async (req, res) => {
       populate: { path: "evaluator" },
     });
 
-    // Option to disable strict population checks
-    const options = { strictPopulate: false };
 
-    // Populate defenses.defense within project[defenseType].proposal.defenses
+
+    // Populate defenses.defense within project[defenseType].defenses
     for (let i = 0; i < project[defenseType].defenses.length; i++) {
       await project.populate({
-        path: `${defenseType}.defenses.${i}.defense`,
-        options,
+          path: `${defenseType}.defenses.${i}.defense`,
+          populate: { path: "rooms" },
+          options: { strictPopulate: false }
       });
-    }
-
+  }
     await project.save();
     return res.status(200).json({
       data: { ...project.toObject(), teamMembers: filteredStudentsDetails },
