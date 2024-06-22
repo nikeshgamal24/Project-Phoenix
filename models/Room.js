@@ -19,6 +19,11 @@ const roomSchema = new Schema(
         ref: "Project",
       },
     ],
+    isCompleted: {
+      type: Boolean,
+      default: false,
+    },
+
     timeStamps: {
       type: Date,
       timestamps: true,
