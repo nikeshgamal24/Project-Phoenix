@@ -19,6 +19,9 @@ const {
 } = require("./utility functions/generateAccessCode");
 const bcrypt = require("bcrypt");
 const { sendMailToUser } = require("./utility functions/sendMailToUser");
+const {
+  initializeEventTypeBasedOnBatch,
+} = require("./utility functions/initializeEventTypeBasedOnBatch");
 
 //sensitive fields that will be undefined by the funciton filterSensitiveFields
 const sensitiveFields = ["role", "password", "refreshToken"];
@@ -362,6 +365,21 @@ const createNewDefense = async (req, res) => {
         message: "Required redentials are missing",
       });
 
+    const defenseExists = await Defense.find({
+      event: req.body.eventId,
+      defenseType: req.body.defenseType,
+      status: eventStatusList.active,
+    });
+
+    console.log(defenseExists);
+
+    //does not allow to create defense of a particular event that has been already created for e.g. if project I proposal defense has already been created then if we create it again it will give 409----> conflict
+    if(defenseExists.length){
+      return res.status(409).json({
+        message: "Defense already exists for the given event and defense type",
+      });
+    }
+
     for (const room of req.body.rooms) {
       console.log(room);
       console.log(room.evaluators.length);
@@ -466,6 +484,7 @@ const createNewDefense = async (req, res) => {
         }
       }
     }
+
     //section for sending email
     //generate unique access code for each evaluators and save the access code to the evaluator's accessCode field
     roomList.forEach((room) => {
@@ -482,6 +501,7 @@ const createNewDefense = async (req, res) => {
 
         //mail the acccess code to the evaluator
         const status = sendMailToUser({
+          defenseType:req.body.defenseType,
           evaluatorEmail: evaluatorDetails.email,
           accessCode: accessCode,
           room: room.room,
@@ -498,7 +518,7 @@ const createNewDefense = async (req, res) => {
           accessCode: hashedAccessCode,
         };
 
-        //save access code along with the particular defense id--> push the both in evalueators defense field
+        // //save access code along with the particular defense id--> push the both in evalueators defense field
         evaluatorDetails.defense.push(newDefenseObject);
         await evaluatorDetails.save();
       });
