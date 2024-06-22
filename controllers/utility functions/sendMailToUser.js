@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 const sendMailToUser = ({
+  defenseType,
   evaluatorEmail,
   accessCode,
   defenseDate,
@@ -33,7 +34,7 @@ const sendMailToUser = ({
       },
       to: evaluatorEmail,
       subject: `Upcoming Defense Details: ${date} - ${time} `,
-      text: `Dear ${evaluatorName},\n\nPlease find the details for the upcoming defense:\n\nDefense Time: ${time}\nDefense Date: ${date}\nAccess Code: ${accessCode}\nRoom: ${room}\n\nRegards,\nProject Phoenix`,
+      text: `Dear ${evaluatorName},\n\nPlease find the details for the upcoming defense:\n\nDefense Type: ${defenseType}\nDefense Time: ${time}\nDefense Date: ${date}\nAccess Code: ${accessCode}\nRoom: ${room}\n\nRegards,\nProject Phoenix`,
     };
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
