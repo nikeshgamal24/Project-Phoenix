@@ -455,13 +455,14 @@ const submitProposalEvaluation = async (req, res) => {
             }
           );
           await Promise.all(studentSavePromises); // <- Missing line added here
+          if (obj.isGraded) {
+            project[evaluationType].report = undefined;
+            console.log("******after report is removed*********");
+            console.log(project[evaluationType].report);
+          }
         }
       }
-      if (obj.isGraded) {
-        project[evaluationType].report = undefined;
-        console.log("******after report is removed*********");
-        console.log(project[evaluationType].report);
-      }
+     
     }
 
     defense.evaluations.push(newEvaluation._id);
