@@ -170,11 +170,19 @@ const getProjectBydId = async (req, res) => {
     const defenseType = determineDefenseType(progressStatus);
     console.log("defenseType");
     console.log(defenseType);
-    // console.log(progressStatus, defenseType);
-    const populatedEvaluations = await project[defenseType].populate({
-      path: "evaluations",
-      populate: { path: "evaluator" },
-    });
+    const populatedEvaluations = await project
+      .populate({
+        path: "proposal.evaluations",
+        populate: { path: "evaluator" },
+      })
+      .populate({
+        path: "mid.evaluations",
+        populate: { path: "evaluator" },
+      })
+      .populate({
+        path: "final.evaluations",
+        populate: { path: "evaluator" },
+      });
     console.log("populatedEvaluations");
     console.log(populatedEvaluations);
     // const evaluationField = project[defenseType].evaluations;
@@ -455,14 +463,17 @@ const submitProposalEvaluation = async (req, res) => {
             }
           );
           await Promise.all(studentSavePromises); // <- Missing line added here
-          if (obj.isGraded && (projectJudgement === proposalJudgementConfig["Re-Defense"] ||projectJudgement === proposalJudgementConfig.Rejected)) {
+          if (
+            obj.isGraded &&
+            (projectJudgement === proposalJudgementConfig["Re-Defense"] ||
+              projectJudgement === proposalJudgementConfig.Rejected)
+          ) {
             project[evaluationType].report = undefined;
             console.log("******after report is removed*********");
             console.log(project[evaluationType].report);
           }
         }
       }
-     
     }
 
     defense.evaluations.push(newEvaluation._id);
