@@ -92,7 +92,7 @@ const getDefenseBydId = async (req, res) => {
         //if isGraded is true then update room's isCompleted to true
         //function to keep track of the rooms that has been completed
         roomIsCompleteStatusCount += 1;
-        if (roomIsCompleteStatusCount === room.project.length) {
+        if (roomIsCompleteStatusCount === room.projects.length) {
           defenseCompletionStatus = true;
           console.log("******section before room is saved");
           console.log(room);
