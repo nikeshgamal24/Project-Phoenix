@@ -1293,4 +1293,9 @@ router
   .route("/defense/:id")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getDefenseById);
 
+
+router
+  .route("/event/extendDeadline")
+  .patch(verifyRoles(ROLES_LIST.Admin), eventController.extendDeadline);
+
 module.exports = router;

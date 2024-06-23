@@ -591,6 +591,37 @@ const getDefenseById = async (req, res) => {
   }
 };
 
+const extendDeadline = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { subEventType, reportDeadline, defenseDate, event } = req.body;
+    if (!subEventType || !reportDeadline || !defenseDate || !event) {
+      return res.status(400).json({ error: 'Missing required fields' });  
+    }
+
+    //get the event
+    const eventDetails = await Event.findOne({
+      _id: event,
+    });
+
+    if(!eventDetails) return res.status(404).json({ error: 'Event not found' });
+    previousPhase = Number(eventDetails[subEventType].phase);
+    previousPhase++;
+
+    //update the reportDeadline and defensesDate of the event
+    eventDetails[subEventType].defenseDate = defenseDate;
+    eventDetails[subEventType].reportDeadline = reportDeadline;
+    eventDetails[subEventType].phase = previousPhase.toString();
+
+
+    await eventDetails.save();
+    return res.status(200);
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(500);
+  }
+};
+
 module.exports = {
   createNewEvent,
   getAllEvents,
@@ -602,4 +633,5 @@ module.exports = {
   getAllDefenses,
   createNewDefense,
   getDefenseById,
+  extendDeadline,
 };
