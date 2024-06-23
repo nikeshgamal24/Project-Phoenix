@@ -615,7 +615,9 @@ const extendDeadline = async (req, res) => {
 
 
     await eventDetails.save();
-    return res.sendStatus(200);
+    return res.status(200).json({
+      data:eventDetails
+    });
   } catch (err) {
     console.error(`error-message:${err.message}`);
     return res.sendStatus(500);
