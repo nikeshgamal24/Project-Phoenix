@@ -596,7 +596,7 @@ const extendDeadline = async (req, res) => {
     console.log(req.body);
     const { subEventType, reportDeadline, defenseDate, event } = req.body;
     if (!subEventType || !reportDeadline || !defenseDate || !event) {
-      return res.status(400).json({ error: 'Missing required fields' });  
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     //get the event
@@ -604,7 +604,8 @@ const extendDeadline = async (req, res) => {
       _id: event,
     });
 
-    if(!eventDetails) return res.status(404).json({ error: 'Event not found' });
+    if (!eventDetails)
+      return res.status(404).json({ error: "Event not found" });
     previousPhase = Number(eventDetails[subEventType].phase);
     previousPhase++;
 
@@ -613,13 +614,52 @@ const extendDeadline = async (req, res) => {
     eventDetails[subEventType].reportDeadline = reportDeadline;
     eventDetails[subEventType].phase = previousPhase.toString();
 
-
     await eventDetails.save();
     return res.status(200).json({
-      data:eventDetails
+      data: eventDetails,
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
+    return res.sendStatus(500);
+  }
+};
+
+const getAllProjects = async (req, res) => {
+  try {
+    // Fetch all events details and populate projects
+    let projects = await Project.find().sort({ createdAt: -1 });
+
+    // If no events, return status 204
+    if (!projects || projects.length === 0) {
+      return res.sendStatus(204);
+    }
+
+    // Return response with events and evaluators
+    return res.status(200).json({
+      data: projects,
+    });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    return res.sendStatus(500);
+  }
+};
+
+const getAllStudents = async (req, res) => {
+  try {
+    // Fetch all events details and populate projects
+    let students = await Student.find().sort({ createdAt: -1 });
+
+    // If no events, return status 204
+    if (!students || students.length === 0) {
+      return res.sendStatus(204);
+    }
+
+    // Return response with events and evaluators
+    return res.status(200).json({
+      data: students,
+    });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
     return res.sendStatus(500);
   }
 };
@@ -636,4 +676,6 @@ module.exports = {
   createNewDefense,
   getDefenseById,
   extendDeadline,
+  getAllProjects,
+  getAllStudents,
 };

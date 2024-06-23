@@ -1293,9 +1293,16 @@ router
   .route("/defense/:id")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getDefenseById);
 
-
 router
   .route("/event/extendDeadline")
   .patch(verifyRoles(ROLES_LIST.Admin), eventController.extendDeadline);
+
+router
+  .route("/event/projects")
+  .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllProjects);
+
+router
+  .route("/event/students")
+  .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllStudents);
 
 module.exports = router;
