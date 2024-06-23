@@ -34,105 +34,73 @@ const getDefenseBydId = async (req, res) => {
   }
 
   try {
-    // Find event by ID and populate the author field
+    // Find event by ID and populate the relevant fields
     const defense = await Defense.findById(req.params.id)
       .populate("rooms")
       .populate("event")
       .populate("evaluations");
-
+  
     // Check if event exists
     if (!defense) {
       return res.sendStatus(204);
     }
-
+  
     const defenseType = defense.defenseType;
-    let roomIsCompleteStatusCount = 0;
-    let defenseCompletionStatus = false; // to keep track the rooms that has been completed
-    //go throught each room and see the project's defenstype's defenses' isGraded and
-    for (let i = 0; i < defense.rooms.length; i++) {
-      const room = await Room.findOne({ _id: defense.rooms[i] });
+    let allRoomsCompleted = true;
+  
+    // Go through each room
+    for (const room of defense.rooms) {
       let isGradedStatus = true;
-
-      for (let j = 0; j < room.projects.length; j++) {
-        let projectId = room.projects[j];
-        const projectDoc = await Project.findOne({ _id: projectId });
-
-        for (let k = 0; k < projectDoc[defenseType].defenses.length; k++) {
-          let defensesObj = projectDoc[defenseType].defenses[k];
-          if (!defensesObj.isGraded) {
+  
+      // Fetch the projects for the room in one query
+      const projects = await Project.find({ _id: { $in: room.projects } });
+  
+      for (const project of projects) {
+        for (const defenseObj of project[defenseType].defenses) {
+          if (!defenseObj.isGraded) {
             isGradedStatus = false;
             break;
           }
         }
-
-        // If any project is not graded, no need to check further projects in this room
         if (!isGradedStatus) break;
       }
-
-      //when the all the defenses isGraded then change the room isCompleted to true
+  
+      // If all projects in the room are graded, mark the room as completed
       if (isGradedStatus) {
         room.isCompleted = true;
+  
+        // Remove access codes from evaluators
+        await Evaluator.updateMany(
+          { _id: { $in: room.evaluators }, "defense.defenseId": defense._id },
+          { $unset: { "defense.$.accessCode": "" } }
+        );
+      } else {
+        allRoomsCompleted = false;
       }
-
-      //if the room isCompleted status is true then remove the access code of the room evaluators from the database
-      if (room.isCompleted) {
-        room.evaluators.forEach(async (evaluatorId) => {
-          const evaluatorDoc = await Evaluator.findOne({ _id: evaluatorId });
-          evaluatorDoc.defense.forEach((defenseObj) => {
-            const defenseIdFromParams = new ObjectId(req.params.id);
-            if (defenseIdFromParams.equals(defenseObj.defenseId)) {
-              defenseObj.accessCode = undefined;
-            }
-          });
-          evaluatorDoc.save();
-        });
-
-        //if isGraded is true then update room's isCompleted to true
-        //function to keep track of the rooms that has been completed
-        roomIsCompleteStatusCount += 1;
-        console.log("🚀 ~ getDefenseBydId ~ roomIsCompleteStatusCount:", roomIsCompleteStatusCount)
-        if (roomIsCompleteStatusCount === defense.rooms.length) {
-          defenseCompletionStatus = true;
-          console.log("🚀 ~ getDefenseBydId ~ defenseCompletionStatus:", defenseCompletionStatus)
-          break; //break the loop and update the status of the defense to true
-        }
-      }
-      //saving room changes
-      // defense.markModified(`rooms[${i}]`);
+  
+      // Save the updated room
       await room.save();
-      console.log("******section after room is saved");
-      console.log(room);
     }
-
-    if (defenseCompletionStatus) {
-      console.log("******defenseCompletionStatus update********");
-      console.log(defenseCompletionStatus);
+  
+    // Update the defense status if all rooms are completed
+    if (allRoomsCompleted) {
       defense.status = eventStatusList.complete; // 105 i.e. complete
     }
-
-    //get check if the  defenses section's "isGraded" inside projects inside the rooms and only get the allow the projects whose isGraded is false
-
-    //populate evalutator and projects inside defense
-    // Map over each defense room  and populate evaluator and projects
-    const populatedRooms = await Promise.all(
+  
+    // Populate evaluators and projects within the rooms for the response
+    await Promise.all(
       defense.rooms.map(async (room) => {
-        // Populate projects for the current defense
-        const populatedProjecs = await room.populate({
+        await room.populate({
           path: "projects",
           populate: { path: "teamMembers" },
-        });
-
-        //populate teamMembers that reside inside projects
-        // populate evaluators
-        const populatedEvaluator = await room.populate("evaluators");
-        return { populatedProjecs, populatedEvaluator };
+        }).execPopulate();
+        await room.populate("evaluators").execPopulate();
       })
     );
-    console.log("********defense details before saving*********");
-    console.log(defense);
+  
+    // Save the updated defense
     await defense.save();
-    console.log("********defense details after saving*********");
-    console.log(defense);
+  
     // Send response
     return res.status(200).json({
       data: defense,
@@ -141,6 +109,7 @@ const getDefenseBydId = async (req, res) => {
     console.error(`error-message:${err.message}`);
     return res.status(500).json({ message: "Server error." });
   }
+  
 };
 
 const getProjectBydId = async (req, res) => {
