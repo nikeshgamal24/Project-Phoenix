@@ -39,4 +39,8 @@ router
 router
   .route("/project/:id")
   .get(verifyRoles(roleList.Student), studentController.getProjectById);
+
+router
+  .route("/associatedProjects/:studentId")
+  .get(verifyRoles(roleList.Student), studentController.getAllProjectsAssociated);
 module.exports = router;

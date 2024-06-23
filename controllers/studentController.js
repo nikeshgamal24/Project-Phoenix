@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const Student = require("../models/Student");
 const Event = require("../models/Event");
 const Project = require("../models/Project");
@@ -29,7 +31,9 @@ const {
 const {
   updateMinorProgressStatus,
 } = require("./utility functions/updateMinorProgressStatus");
-const { determineProposalDefenseType } = require("./utility functions/determineProposalDefenseType");
+const {
+  determineProposalDefenseType,
+} = require("./utility functions/determineProposalDefenseType");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -314,37 +318,37 @@ const getProjectById = async (req, res) => {
 
   try {
     const populateOptions = [
-      { path: 'teamMembers' },
-      { path: 'event' },
+      { path: "teamMembers" },
+      { path: "event" },
       {
-        path: 'proposal',
+        path: "proposal",
         populate: [
-          { path: 'evaluations', populate: { path: 'evaluator' } },
-          { path: 'defenses.evaluators.evaluator' },
-          { path: 'defenses.defense',populate:{path:"rooms"} },
-        ]
+          { path: "evaluations", populate: { path: "evaluator" } },
+          { path: "defenses.evaluators.evaluator" },
+          { path: "defenses.defense", populate: { path: "rooms" } },
+        ],
       },
       {
-        path: 'mid',
+        path: "mid",
         populate: [
-          { path: 'evaluations', populate: { path: 'evaluator' } },
-          { path: 'defenses.evaluators.evaluator' },
-          { path: 'defenses.defense',populate:{path:"rooms"} },
-          
-        ]
+          { path: "evaluations", populate: { path: "evaluator" } },
+          { path: "defenses.evaluators.evaluator" },
+          { path: "defenses.defense", populate: { path: "rooms" } },
+        ],
       },
       {
-        path: 'final',
+        path: "final",
         populate: [
-          { path: 'evaluations', populate: { path: 'evaluator' } },
-          { path: 'defenses.evaluators.evaluator' },
-          { path: 'defenses.defense',populate:{path:"rooms"} },
-        ]
-      }
+          { path: "evaluations", populate: { path: "evaluator" } },
+          { path: "defenses.evaluators.evaluator" },
+          { path: "defenses.defense", populate: { path: "rooms" } },
+        ],
+      },
     ];
-    
-    const project = await Project.findById(req.params.id).populate(populateOptions);
-    
+
+    const project = await Project.findById(req.params.id).populate(
+      populateOptions
+    );
 
     if (!project) {
       return res
@@ -410,13 +414,19 @@ const submitReport = async (req, res) => {
     switch (eventType) {
       case "0":
         //determine the defenseType
-         defenseType = determineProposalDefenseType(project.teamMembers[0].progressStatus);
+        defenseType = determineProposalDefenseType(
+          project.teamMembers[0].progressStatus
+        );
         break;
       case "1":
-         defenseType = determineDefenseType(project.teamMembers[0].progressStatus);
+        defenseType = determineDefenseType(
+          project.teamMembers[0].progressStatus
+        );
         break;
       case "2":
-         defenseType = determineDefenseType(project.teamMembers[0].progressStatus);
+        defenseType = determineDefenseType(
+          project.teamMembers[0].progressStatus
+        );
         break;
       default:
         break;
@@ -483,6 +493,34 @@ const submitReport = async (req, res) => {
   }
 };
 
+const getAllProjectsAssociated = async (req, res) => {
+  const studentId  = req.params.studentId;
+  console.log(studentId);
+  console.log(req.params.studentId);
+  if (!studentId) {
+    return res.status(400).json({ message: "ID parameter is required." });
+  }
+
+  try {
+    const associatedProjects = await Project.find({
+      teamMembers: {
+        $in: [studentId],
+      },
+    }).sort({ createdAt: -1 });
+
+    if (!associatedProjects || associatedProjects.length === 0) {
+      return res.sendStatus(204); // No Content
+    }
+
+    return res.status(200).json({
+      data: associatedProjects,
+    });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    return res.sendStatus(500);
+  }
+};
+
 module.exports = {
   updateStudent,
   getAllEvents,
@@ -491,4 +529,5 @@ module.exports = {
   createProjectTeam,
   getProjectById,
   submitReport,
+  getAllProjectsAssociated,
 };
