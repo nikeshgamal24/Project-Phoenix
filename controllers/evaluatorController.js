@@ -330,6 +330,54 @@ const submitEvaluation = async (req, res) => {
         break;
       case "final":
         console.log("FinalEvaluation Section");
+        formattedIndividualEvaluations = individualEvaluation.map(
+          (evaluation) => ({
+            student: evaluation.member,
+            performanceAtPresentation: evaluation.performanceAtPresentation,
+            absent: evaluation.absent,
+            contributionInWork: evaluation.absent
+              ? "0"
+              : evaluation.contributionInWork,
+            projectTitle: evaluation.absent
+              ? "0"
+              : projectEvaluation.projectTitle,
+            volume: evaluation.absent
+              ? "0"
+              : projectEvaluation.volume,
+            objective: evaluation.absent
+              ? "0"
+              : projectEvaluation.objective,
+            creativity: evaluation.absent
+              ? "0"
+              : projectEvaluation.creativity,
+            analysisAndDesign: evaluation.absent
+              ? "0"
+              : projectEvaluation.analysisAndDesign,
+            toolAndTechniques: evaluation.absent
+              ? "0"
+              : projectEvaluation.toolAndTechniques,
+            documentation: evaluation.absent
+              ? "0"
+              : projectEvaluation.documentation,
+            accomplished: evaluation.absent
+              ? "0"
+              : projectEvaluation.accomplished,
+            demo: evaluation.absent
+              ? "0"
+              : projectEvaluation.demo,
+          })
+        );
+
+        newEvaluation = await Evaluation.create({
+          individualEvaluation: formattedIndividualEvaluations,
+          projectEvaluation: projectEvaluation,
+          project: projectId,
+          evaluator: evaluatorId,
+          defense: defenseId,
+          event: eventId,
+          evaluationType: evaluationType,
+        });
+        if (!newEvaluation) return res.sendStatus(400);
         break;
       default:
         return res.sendStaus(400);
