@@ -34,27 +34,41 @@ const getDefenseBydId = async (req, res) => {
   }
 
   try {
-    // Find event by ID and populate the relevant fields
     const defense = await Defense.findById(req.params.id)
-      .populate("rooms")
+      .populate({
+        path: "rooms",
+        populate: [
+          { path: "evaluators" },
+          {
+            path: "projects",
+            populate: {path:"teamMembers"},
+          },
+        ],
+      })
       .populate("event")
       .populate("evaluations");
-  
+
+    // // Find event by ID and populate the relevant fields
+    // const defense = await Defense.findById(req.params.id)
+    //   .populate("rooms")
+    //   .populate("event")
+    //   .populate("evaluations");
+
     // Check if event exists
     if (!defense) {
       return res.sendStatus(204);
     }
-  
+
     const defenseType = defense.defenseType;
     let allRoomsCompleted = true;
-  
+
     // Go through each room
     for (const room of defense.rooms) {
       let isGradedStatus = true;
-  
+
       // Fetch the projects for the room in one query
       const projects = await Project.find({ _id: { $in: room.projects } });
-  
+
       for (const project of projects) {
         for (const defenseObj of project[defenseType].defenses) {
           if (!defenseObj.isGraded) {
@@ -64,11 +78,11 @@ const getDefenseBydId = async (req, res) => {
         }
         if (!isGradedStatus) break;
       }
-  
+
       // If all projects in the room are graded, mark the room as completed
       if (isGradedStatus) {
         room.isCompleted = true;
-  
+
         // Remove access codes from evaluators
         await Evaluator.updateMany(
           { _id: { $in: room.evaluators }, "defense.defenseId": defense._id },
@@ -77,30 +91,30 @@ const getDefenseBydId = async (req, res) => {
       } else {
         allRoomsCompleted = false;
       }
-  
+
       // Save the updated room
       await room.save();
     }
-  
+
     // Update the defense status if all rooms are completed
     if (allRoomsCompleted) {
       defense.status = eventStatusList.complete; // 105 i.e. complete
     }
-  
+
     // Populate evaluators and projects within the rooms for the response
-    await Promise.all(
-      defense.rooms.map(async (room) => {
-        await room.populate({
-          path: "projects",
-          populate: { path: "teamMembers" },
-        }).execPopulate();
-        await room.populate("evaluators").execPopulate();
-      })
-    );
-  
+    // await Promise.all(
+    //   defense.rooms.map(async (room) => {
+    //     await room.populate({
+    //       path: "projects",
+    //       populate: { path: "teamMembers" },
+    //     });
+    //     await room.populate("evaluators");
+    //   })
+    // );
+
     // Save the updated defense
     await defense.save();
-  
+
     // Send response
     return res.status(200).json({
       data: defense,
@@ -109,7 +123,6 @@ const getDefenseBydId = async (req, res) => {
     console.error(`error-message:${err.message}`);
     return res.status(500).json({ message: "Server error." });
   }
-  
 };
 
 const getProjectBydId = async (req, res) => {
@@ -538,7 +551,8 @@ const submitEvaluation = async (req, res) => {
           if (
             obj.isGraded &&
             (projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
-              projectJudgement === proposalJudgementConfig.REJECTED)
+              projectJudgement === proposalJudgementConfig.REJECTED ||
+              projectJudgement === finalJudgementConfig["RE-DEFENSE"])
           ) {
             console.log("************report remove section***********");
             console.log(projectJudgement);
