@@ -558,16 +558,24 @@ const getDefenseById = async (req, res) => {
   try {
     // Find defense by ID and populate different fields
     const defense = await Defense.findById(req.params.id)
-      .populate("rooms")
-      .populate("evaluations")
-      .populate({
-        path: "rooms",
-        populate: { path: "evaluators" },
-      })
-      .populate({
-        path: "rooms",
-        populate: { path: "projects" },
-      });
+  .populate({
+    path: "rooms",
+    populate: [
+      { path: "evaluators" },
+      {
+        path: "projects",
+        populate: [
+          { path: "proposal.evaluations" },
+          { path: "proposal.defenses.evaluators.evaluator" },
+          { path: "mid.evaluations" },
+          { path: "mid.defenses.evaluators.evaluator" },
+          { path: "final.evaluations" },
+          { path: "final.defenses.evaluators.evaluator" },
+        ],
+      },
+    ],
+  })
+  .populate("event");
 
     // Check if event exists
     if (!defense) {
