@@ -41,7 +41,7 @@ const getDefenseBydId = async (req, res) => {
           { path: "evaluators" },
           {
             path: "projects",
-            populate: {path:"teamMembers"},
+            populate: { path: "teamMembers" },
           },
         ],
       })
@@ -482,7 +482,10 @@ const submitEvaluation = async (req, res) => {
               if (
                 projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
                 projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
-                projectJudgement === finalJudgementConfig["RE-DEMO"]
+                projectJudgement === finalJudgementConfig["RE-DEMO"] ||
+                projectJudgement === proposalJudgementConfig.ABSENT ||
+                projectJudgement === midJudgementConfig.ABSENT ||
+                projectJudgement === finalJudgementConfig.ABSENT
               ) {
                 console.log(
                   "************judgement defense fail  section***********"
@@ -549,10 +552,13 @@ const submitEvaluation = async (req, res) => {
           );
           await Promise.all(studentSavePromises); // <- Missing line added here
           if (
-            obj.isGraded &&
-            (projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
-              projectJudgement === proposalJudgementConfig.REJECTED ||
-              projectJudgement === finalJudgementConfig["RE-DEFENSE"])
+            (obj.isGraded &&
+              (projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
+                projectJudgement === proposalJudgementConfig.REJECTED ||
+                projectJudgement === finalJudgementConfig["RE-DEFENSE"])) ||
+            projectJudgement === proposalJudgementConfig.ABSENT ||
+            projectJudgement === midJudgementConfig.ABSENT ||
+            projectJudgement === finalJudgementConfig.ABSENT
           ) {
             console.log("************report remove section***********");
             console.log(projectJudgement);
