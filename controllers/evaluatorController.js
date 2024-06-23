@@ -378,27 +378,29 @@ const submitEvaluation = async (req, res) => {
           defense: obj.defense,
         });
 
-        let projectJudgement = null;
-        let previousJudgement = null;
-        let judgementEquals = true;
+        
+        // let previousJudgement = null;
+        // let judgementEquals = true;
 
-        for (const evaluation of projectEvaluations) {
-          previousJudgement =
-            previousJudgement !== null ? previousJudgement : "";
-          const currentJudgement = evaluation.projectEvaluation.judgement;
+        // for (const evaluation of projectEvaluations) {
+        //   previousJudgement =
+        //     previousJudgement !== null ? previousJudgement : "";
+        //   const currentJudgement = evaluation.projectEvaluation.judgement;
 
-          if (currentJudgement !== -1) {
-            if (
-              previousJudgement !== "" &&
-              currentJudgement !== previousJudgement
-            ) {
-              judgementEquals = false;
-            }
-            projectJudgement = currentJudgement;
-          }
+        //   if (currentJudgement !== -1) {
+        //     if (
+        //       previousJudgement !== "" &&
+        //       currentJudgement !== previousJudgement
+        //     ) {
+        //       judgementEquals = false;
+        //     }
+        //     projectJudgement = currentJudgement;
+        //   }
 
-          previousJudgement = currentJudgement;
-        }
+        //   previousJudgement = currentJudgement;
+        // }
+
+        const projectJudgement = projectEvaluation.judgement;
 
         console.log("************judgement before comparison***********");
         console.log(projectJudgement);
@@ -552,13 +554,13 @@ const submitEvaluation = async (req, res) => {
           );
           await Promise.all(studentSavePromises); // <- Missing line added here
           if (
-            (obj.isGraded &&
-              (projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
-                projectJudgement === proposalJudgementConfig.REJECTED ||
-                projectJudgement === finalJudgementConfig["RE-DEFENSE"])) ||
-            projectJudgement === proposalJudgementConfig.ABSENT ||
-            projectJudgement === midJudgementConfig.ABSENT ||
-            projectJudgement === finalJudgementConfig.ABSENT
+            obj.isGraded &&
+            (projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
+              projectJudgement === proposalJudgementConfig.REJECTED ||
+              projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
+              projectJudgement === proposalJudgementConfig.ABSENT ||
+              projectJudgement === midJudgementConfig.ABSENT ||
+              projectJudgement === finalJudgementConfig.ABSENT)
           ) {
             console.log("************report remove section***********");
             console.log(projectJudgement);
