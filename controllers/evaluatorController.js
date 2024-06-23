@@ -24,6 +24,7 @@ const {
 } = require("./utility functions/initializeEventTypeBasedOnBatch");
 const eventStatusList = require("../config/eventStatusList");
 const proposalJudgementConfig = require("../config/proposalJudgementConfig");
+const defenseTypeCode = require("../config/defenseTypeCodeList");
 
 const getDefenseBydId = async (req, res) => {
   // Check if ID is provided
@@ -341,15 +342,9 @@ const submitEvaluation = async (req, res) => {
             projectTitle: evaluation.absent
               ? "0"
               : projectEvaluation.projectTitle,
-            volume: evaluation.absent
-              ? "0"
-              : projectEvaluation.volume,
-            objective: evaluation.absent
-              ? "0"
-              : projectEvaluation.objective,
-            creativity: evaluation.absent
-              ? "0"
-              : projectEvaluation.creativity,
+            volume: evaluation.absent ? "0" : projectEvaluation.volume,
+            objective: evaluation.absent ? "0" : projectEvaluation.objective,
+            creativity: evaluation.absent ? "0" : projectEvaluation.creativity,
             analysisAndDesign: evaluation.absent
               ? "0"
               : projectEvaluation.analysisAndDesign,
@@ -362,9 +357,7 @@ const submitEvaluation = async (req, res) => {
             accomplished: evaluation.absent
               ? "0"
               : projectEvaluation.accomplished,
-            demo: evaluation.absent
-              ? "0"
-              : projectEvaluation.demo,
+            demo: evaluation.absent ? "0" : projectEvaluation.demo,
           })
         );
 
@@ -454,16 +447,31 @@ const submitEvaluation = async (req, res) => {
                     student.progressStatus = updateProjectFirstProgressStatus(
                       progressStatusEligibilityCode[evaluationType].defensePass
                     );
+                    if (evaluationType === defenseTypeCode.final) {
+                      student.isAssociated = false;
+                      student.project = undefined;
+                      project.status = eventStatusList.complete;
+                    }
                     break;
                   case "1":
                     student.progressStatus = updateMinorProgressStatus(
                       progressStatusEligibilityCode[evaluationType].defensePass
                     );
+                    if (evaluationType === defenseTypeCode.final) {
+                      student.isAssociated = false;
+                      student.project = undefined;
+                      project.status = eventStatusList.complete;
+                    }
                     break;
                   case "2":
                     student.progressStatus = updateMajorProgressStatus(
                       progressStatusEligibilityCode[evaluationType].defensePass
                     );
+                    if (evaluationType === defenseTypeCode.final) {
+                      student.isAssociated = false;
+                      student.project = undefined;
+                      project.status = eventStatusList.complete;
+                    }
                     break;
                   default:
                     break;
