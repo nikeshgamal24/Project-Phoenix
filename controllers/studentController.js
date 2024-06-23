@@ -313,21 +313,38 @@ const getProjectById = async (req, res) => {
   }
 
   try {
-    let project = await Project.findOne({ _id: req.params.id })
-      .populate("teamMembers")
-      .populate("event")
-      .populate({
-        path: "proposal.evaluations",
-        populate: { path: "evaluator" },
-      })
-      .populate({
-        path: "mid.evaluations",
-        populate: { path: "evaluator" },
-      })
-      .populate({
-        path: "final.evaluations",
-        populate: { path: "evaluator" },
-      });
+    const populateOptions = [
+      { path: 'teamMembers' },
+      { path: 'event' },
+      {
+        path: 'proposal',
+        populate: [
+          { path: 'evaluations', populate: { path: 'evaluator' } },
+          { path: 'defenses.evaluators.evaluator' },
+          { path: 'defenses.defense',populate:{path:"rooms"} },
+        ]
+      },
+      {
+        path: 'mid',
+        populate: [
+          { path: 'evaluations', populate: { path: 'evaluator' } },
+          { path: 'defenses.evaluators.evaluator' },
+          { path: 'defenses.defense',populate:{path:"rooms"} },
+          
+        ]
+      },
+      {
+        path: 'final',
+        populate: [
+          { path: 'evaluations', populate: { path: 'evaluator' } },
+          { path: 'defenses.evaluators.evaluator' },
+          { path: 'defenses.defense',populate:{path:"rooms"} },
+        ]
+      }
+    ];
+    
+    const project = await Project.findById(req.params.id).populate(populateOptions);
+    
 
     if (!project) {
       return res
