@@ -25,6 +25,7 @@ const {
 const eventStatusList = require("../config/eventStatusList");
 const proposalJudgementConfig = require("../config/proposalJudgementConfig");
 const defenseTypeCode = require("../config/defenseTypeCodeList");
+const { finalJudgementConfig } = require("../config/finalJudgementConfig");
 
 const getDefenseBydId = async (req, res) => {
   // Check if ID is provided
@@ -428,7 +429,9 @@ const submitEvaluation = async (req, res) => {
           projectJudgement ===
             proposalJudgementConfig["Accepted Conditionally"] ||
           projectJudgement === midJudgementConfig["Progress Satisfactory"] ||
-          projectJudgement === midJudgementConfig["Progress Seen"]
+          projectJudgement === midJudgementConfig["Progress Seen"] ||projectJudgement === midJudgementConfig["Progress NOT Satisfactory"]||
+          projectJudgement === finalJudgementConfig.Accepted ||
+          projectJudgement === finalJudgementConfig["Accepted Conditionally"]
         ) {
           project[evaluationType].hasGraduated = true;
 
@@ -494,7 +497,7 @@ const submitEvaluation = async (req, res) => {
               );
 
               //judgement is
-              if (projectJudgement === proposalJudgementConfig["Re-Defense"]) {
+              if (projectJudgement === proposalJudgementConfig["Re-Defense"]||projectJudgement === finalJudgementConfig["Re-Defense"]||projectJudgement === finalJudgementConfig["Re-Demo"]) {
                 switch (eventType) {
                   case "0":
                     student.progressStatus = updateProjectFirstProgressStatus(
