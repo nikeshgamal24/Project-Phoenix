@@ -507,7 +507,7 @@ const getAllProjectsAssociated = async (req, res) => {
         $in: [studentId],
       },
       status:{
-        $in:[eventStatusList.compl,eventStatusList.archive]
+        $in:[eventStatusList.complete,eventStatusList.archive]
       }
     }).sort({ createdAt: -1 });
 
