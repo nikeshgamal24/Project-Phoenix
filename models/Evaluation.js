@@ -26,6 +26,27 @@ const projectEvaluationSchema = new Schema({
   workProgress: {
     type: String,
   },
+  projectTitle: {
+    type: String,
+  },
+  volume: {
+    type: String,
+  },
+  creativity: {
+    type: String,
+  },
+  analysisAndDesign: {
+    type: String,
+  },
+  toolAndTechniques: {
+    type: String,
+  },
+  accomplished: {
+    type: String,
+  },
+  demo: {
+    type: String,
+  },
   judgement: {
     type: String,
   },
@@ -51,16 +72,34 @@ const individualEvaluationSchema = new Schema({
     type: Boolean,
     required: true,
   },
+  contributionInWork: {
+    type: String,
+  },
   projectTitleAndAbstract: {
     type: String,
   },
   project: {
     type: String,
   },
+  projectTitle: {
+    type: String,
+  },
   objective: {
     type: String,
   },
+  volume: {
+    type: String,
+  },
   teamWork: {
+    type: String,
+  },
+  creativity: {
+    type: String,
+  },
+  analysisAndDesign: {
+    type: String,
+  },
+  toolAndTechniques: {
     type: String,
   },
   documentation: {
@@ -69,10 +108,16 @@ const individualEvaluationSchema = new Schema({
   plagiarism: {
     type: String,
   },
- feedbackIncorporated: {
+  feedbackIncorporated: {
     type: String,
   },
   workProgress: {
+    type: String,
+  },
+  accomplished: {
+    type: String,
+  },
+  demo: {
     type: String,
   },
 });
