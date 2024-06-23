@@ -3,7 +3,6 @@ const Project = require("../models/Project");
 const Student = require("../models/Student");
 const Evaluator = require("../models/Evaluator");
 const Room = require("../models/Room");
-const ProposalEvaluation = require("../models/ProposalEvaluation");
 const Evaluation = require("../models/Evaluation");
 const {
   determineDefenseType,
@@ -25,7 +24,6 @@ const {
 } = require("./utility functions/initializeEventTypeBasedOnBatch");
 const eventStatusList = require("../config/eventStatusList");
 const proposalJudgementConfig = require("../config/proposalJudgementConfig");
-const MidEvaluation = require("../models/MidEvaluation");
 
 const getDefenseBydId = async (req, res) => {
   // Check if ID is provided
@@ -219,18 +217,6 @@ const submitEvaluation = async (req, res) => {
     const defense = await Defense.findOne({ _id: defenseId });
 
     if (!project) return res.sendStatus(404);
-    // const evaluationModel =
-    //   evaluationType === "proposal"
-    //     ? ProposalEvaluation
-    //     : evaluationType === "mid"
-    //     ? MidEvaluation
-    //     : evaluationType === "final"
-    //     ? "FinalEvaluation"
-    //     : null;
-
-    // if (!evaluationModel) return res.sendStatus(400);
-    // console.log("******Evaluation model*********");
-    // console.log(evaluationModel);
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 

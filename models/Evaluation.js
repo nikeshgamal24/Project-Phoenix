@@ -69,7 +69,7 @@ const individualEvaluationSchema = new Schema({
   plagiarism: {
     type: String,
   },
-  eedbackIncorporated: {
+ feedbackIncorporated: {
     type: String,
   },
   workProgress: {
