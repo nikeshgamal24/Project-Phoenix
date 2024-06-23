@@ -1,7 +1,7 @@
 const proposalJudgementConfig = {
-    "Progress Satisfactory": "0",
-    "Progress Seen": "1",
-    "Progress NOT Satisfactory": "2",
+    "PROGRESS-SATISFACTORY": "10",
+    "PROGRESS-SEEN": "11",
+    "PROGRESS-NOT-SATISFACTORY": "12",
     "Absent": "-1",
   };
   

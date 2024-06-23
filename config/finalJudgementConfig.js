@@ -1,9 +1,9 @@
 const finalJudgementConfig = {
-  "Accepted": "0",
-  "Accepted Conditionally": "1",
-  "Re-Demo": "2",
-  "Re-Defense": "3",
-  "Absent": "-1",
+  "ACCEPTED": "20",
+  "ACCEPTED-CONDITIONALLY": "21",
+  "RE-DEMO": "22",
+  "RE-DEFENSE": "23",
+  "ABSENT": "-1",
 };
 
 module.exports = { finalJudgementConfig };

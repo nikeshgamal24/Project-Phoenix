@@ -40,8 +40,6 @@ const getDefenseBydId = async (req, res) => {
       .populate("event")
       .populate("evaluations");
 
-    console.log("defense");
-    console.log(defense);
     // Check if event exists
     if (!defense) {
       return res.sendStatus(204);
@@ -78,8 +76,6 @@ const getDefenseBydId = async (req, res) => {
 
       //if the room isCompleted status is true then remove the access code of the room evaluators from the database
       if (room.isCompleted) {
-        console.log("room");
-        console.log(room);
         room.evaluators.forEach(async (evaluatorId) => {
           const evaluatorDoc = await Evaluator.findOne({ _id: evaluatorId });
           evaluatorDoc.defense.forEach((defenseObj) => {
@@ -96,20 +92,19 @@ const getDefenseBydId = async (req, res) => {
         roomIsCompleteStatusCount += 1;
         if (roomIsCompleteStatusCount === room.projects.length) {
           defenseCompletionStatus = true;
-          console.log("******section before room is saved");
-          console.log(room);
-          //saving room changes
-          defense.markModified(`rooms[${i}]`);
-          await room.save();
-          console.log("******section after room is saved");
-          console.log(room);
           break; //break the loop and update the status of the defense to true
         }
       }
+      //saving room changes
+      // defense.markModified(`rooms[${i}]`);
+      await room.save();
+      console.log("******section after room is saved");
+      console.log(room);
     }
 
     if (defenseCompletionStatus) {
       console.log("******defenseCompletionStatus update********");
+      console.log(defenseCompletionStatus);
       defense.status = eventStatusList.complete; // 105 i.e. complete
     }
 
@@ -131,11 +126,11 @@ const getDefenseBydId = async (req, res) => {
         return { populatedProjecs, populatedEvaluator };
       })
     );
-
-    console.log("****defense object before saving**********");
+    console.log("********defense details before saving*********");
     console.log(defense);
-
     await defense.save();
+    console.log("********defense details after saving*********");
+    console.log(defense);
     // Send response
     return res.status(200).json({
       data: defense,
@@ -174,9 +169,6 @@ const getProjectBydId = async (req, res) => {
     if (!project) {
       return res.sendStatus(204);
     }
-
-    console.log("*****project*******");
-    console.log(project);
     // Send response
     return res.status(200).json({
       data: project,
@@ -424,15 +416,21 @@ const submitEvaluation = async (req, res) => {
           previousJudgement = currentJudgement;
         }
 
+        console.log("************judgement before comparison***********");
+        console.log(projectJudgement);
         if (
-          projectJudgement === proposalJudgementConfig.Accepted ||
+          projectJudgement === proposalJudgementConfig.ACCEPTED ||
           projectJudgement ===
-            proposalJudgementConfig["Accepted Conditionally"] ||
-          projectJudgement === midJudgementConfig["Progress Satisfactory"] ||
-          projectJudgement === midJudgementConfig["Progress Seen"] ||projectJudgement === midJudgementConfig["Progress NOT Satisfactory"]||
-          projectJudgement === finalJudgementConfig.Accepted ||
-          projectJudgement === finalJudgementConfig["Accepted Conditionally"]
+            proposalJudgementConfig["ACCEPTED-CONDITIONALLY"] ||
+          projectJudgement === midJudgementConfig["PROGRESS-SATISFACTORY"] ||
+          projectJudgement === midJudgementConfig["PROGRESS-SEEN"] ||
+          projectJudgement ===
+            midJudgementConfig["PROGRESS-NOT-SATISFACTORY"] ||
+          projectJudgement === finalJudgementConfig.ACCEPTED ||
+          projectJudgement === finalJudgementConfig["ACCEPTED-CONDITIONALLY"]
         ) {
+          console.log("************judgement pass section***********");
+          console.log(projectJudgement);
           project[evaluationType].hasGraduated = true;
 
           if (project[evaluationType].hasGraduated) {
@@ -497,7 +495,15 @@ const submitEvaluation = async (req, res) => {
               );
 
               //judgement is
-              if (projectJudgement === proposalJudgementConfig["Re-Defense"]||projectJudgement === finalJudgementConfig["Re-Defense"]||projectJudgement === finalJudgementConfig["Re-Demo"]) {
+              if (
+                projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
+                projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
+                projectJudgement === finalJudgementConfig["RE-DEMO"]
+              ) {
+                console.log(
+                  "************judgement defense fail  section***********"
+                );
+                console.log(projectJudgement);
                 switch (eventType) {
                   case "0":
                     student.progressStatus = updateProjectFirstProgressStatus(
@@ -519,8 +525,12 @@ const submitEvaluation = async (req, res) => {
                 }
                 return student.save();
               } else if (
-                projectJudgement === proposalJudgementConfig.Rejected
+                projectJudgement === proposalJudgementConfig.REJECTED
               ) {
+                console.log(
+                  "************judgement rejected section***********"
+                );
+                console.log(projectJudgement);
                 switch (eventType) {
                   case "0":
                     student.isAssociated = false;
@@ -556,9 +566,11 @@ const submitEvaluation = async (req, res) => {
           await Promise.all(studentSavePromises); // <- Missing line added here
           if (
             obj.isGraded &&
-            (projectJudgement === proposalJudgementConfig["Re-Defense"] ||
-              projectJudgement === proposalJudgementConfig.Rejected)
+            (projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
+              projectJudgement === proposalJudgementConfig.REJECTED)
           ) {
+            console.log("************report remove section***********");
+            console.log(projectJudgement);
             project[evaluationType].report = undefined;
             console.log("******after report is removed*********");
             console.log(project[evaluationType].report);
@@ -571,8 +583,6 @@ const submitEvaluation = async (req, res) => {
 
     await defense.save();
     await project.save();
-    console.log("******after the report undefined is saved***************");
-    console.log(project);
     console.log("******update completed********");
     return res.status(201).json({
       data: newEvaluation,
