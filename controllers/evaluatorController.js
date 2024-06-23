@@ -90,8 +90,10 @@ const getDefenseBydId = async (req, res) => {
         //if isGraded is true then update room's isCompleted to true
         //function to keep track of the rooms that has been completed
         roomIsCompleteStatusCount += 1;
-        if (roomIsCompleteStatusCount === room.projects.length) {
+        console.log("🚀 ~ getDefenseBydId ~ roomIsCompleteStatusCount:", roomIsCompleteStatusCount)
+        if (roomIsCompleteStatusCount === defense.rooms.length) {
           defenseCompletionStatus = true;
+          console.log("🚀 ~ getDefenseBydId ~ defenseCompletionStatus:", defenseCompletionStatus)
           break; //break the loop and update the status of the defense to true
         }
       }
