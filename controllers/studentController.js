@@ -493,8 +493,8 @@ const submitReport = async (req, res) => {
   }
 };
 
-const getAllProjectsAssociated = async (req, res) => {
-  const studentId  = req.params.studentId;
+const getAllArchiveProjects = async (req, res) => {
+  const studentId  = req.userId;
   console.log(studentId);
   console.log(req.params.studentId);
   if (!studentId) {
@@ -532,5 +532,5 @@ module.exports = {
   createProjectTeam,
   getProjectById,
   submitReport,
-  getAllProjectsAssociated,
+  getAllArchiveProjects,
 };
