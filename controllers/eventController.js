@@ -372,8 +372,9 @@ const createNewDefense = async (req, res) => {
       defenseType: req.body.defenseType,
       status: eventStatusList.active,
     });
+    console.log("🚀 ~ createNewDefense ~ defenseExists:", defenseExists)
 
-    console.log(defenseExists);
+
 
     //does not allow to create defense of a particular event that has been already created for e.g. if project I proposal defense has already been created then if we create it again it will give 409----> conflict
     if (defenseExists.length) {

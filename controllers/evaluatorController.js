@@ -354,8 +354,12 @@ const submitEvaluation = async (req, res) => {
     }
 
     projectOfPhase.evaluations.push(newEvaluation._id);
-
-    for (const obj of projectOfPhase.defenses) {
+   
+   const defensesLastIndex  = projectOfPhase.defenses.length-1;
+    console.log("🚀 ~ submitEvaluation ~ defensesLastIndex:", defensesLastIndex)
+    const obj = projectOfPhase.defenses[defensesLastIndex]
+    console.log("🚀 ~ submitEvaluation ~ obj:", obj)
+    if (!obj.isGraded) {
       const evaluatorIdObj = new ObjectId(evaluatorId);
       let trueCount = 0;
 
@@ -368,38 +372,22 @@ const submitEvaluation = async (req, res) => {
         }
       }
 
+      console.log("***********obj.isGraded Status*****************");
+      console.log(obj.isGraded);
+      console.log("🚀 ~ submitEvaluation ~ trueCount:", trueCount);
+      console.log(
+        "🚀 ~ submitEvaluation ~  obj.evaluators.length:",
+        obj.evaluators.length
+      );
       if (trueCount === obj.evaluators.length) {
+        console.log("**********obj.isGraded updated section**************");
         obj.isGraded = true;
       }
+      console.log("🚀 ~ submitEvaluation ~ obj.isGraded:", obj.isGraded);
 
       if (obj.isGraded) {
-        const projectEvaluations = await Evaluation.find({
-          project: project._id,
-          defense: obj.defense,
-        });
 
-        
-        // let previousJudgement = null;
-        // let judgementEquals = true;
-
-        // for (const evaluation of projectEvaluations) {
-        //   previousJudgement =
-        //     previousJudgement !== null ? previousJudgement : "";
-        //   const currentJudgement = evaluation.projectEvaluation.judgement;
-
-        //   if (currentJudgement !== -1) {
-        //     if (
-        //       previousJudgement !== "" &&
-        //       currentJudgement !== previousJudgement
-        //     ) {
-        //       judgementEquals = false;
-        //     }
-        //     projectJudgement = currentJudgement;
-        //   }
-
-        //   previousJudgement = currentJudgement;
-        // }
-
+        console.log("*********obj isGraded true entry section*****");
         const projectJudgement = projectEvaluation.judgement;
 
         console.log("************judgement before comparison***********");
@@ -571,6 +559,7 @@ const submitEvaluation = async (req, res) => {
         }
       }
     }
+
 
     defense.evaluations.push(newEvaluation._id);
 
