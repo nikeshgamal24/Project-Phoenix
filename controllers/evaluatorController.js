@@ -64,21 +64,32 @@ const getDefenseBydId = async (req, res) => {
 
     // Go through each room
     for (const room of defense.rooms) {
-      let isGradedStatus = true;
-
       // Fetch the projects for the room in one query
       const projects = await Project.find({ _id: { $in: room.projects } });
 
-      for (const project of projects) {
-        for (const defenseObj of project[defenseType].defenses) {
-          if (!defenseObj.isGraded) {
-            isGradedStatus = false;
-            break;
-          }
-        }
-        if (!isGradedStatus) break;
-      }
+      // for (const project of projects) {
+      //   for (const defenseObj of project[defenseType].defenses) {
+      //     if (!defenseObj.isGraded) {
+      //       isGradedStatus = false;
+      //       break;
+      //     }
+      //   }
+      //   if (!isGradedStatus) break;
+      // }
 
+      let isGradedStatus = true;
+      for (const project of projects) {
+        if (
+          !project[defenseType].defenses.every(
+            (defenseObj) => defenseObj.isGraded
+          )
+        ) {
+          isGradedStatus = false;
+          break;
+        }
+      }
+      
+      console.log("🚀 ~ getDefenseBydId ~ isGradedStatus:", isGradedStatus)
       // If all projects in the room are graded, mark the room as completed
       if (isGradedStatus) {
         room.isCompleted = true;
@@ -354,11 +365,14 @@ const submitEvaluation = async (req, res) => {
     }
 
     projectOfPhase.evaluations.push(newEvaluation._id);
-   
-   const defensesLastIndex  = projectOfPhase.defenses.length-1;
-    console.log("🚀 ~ submitEvaluation ~ defensesLastIndex:", defensesLastIndex)
-    const obj = projectOfPhase.defenses[defensesLastIndex]
-    console.log("🚀 ~ submitEvaluation ~ obj:", obj)
+
+    const defensesLastIndex = projectOfPhase.defenses.length - 1;
+    console.log(
+      "🚀 ~ submitEvaluation ~ defensesLastIndex:",
+      defensesLastIndex
+    );
+    const obj = projectOfPhase.defenses[defensesLastIndex];
+    console.log("🚀 ~ submitEvaluation ~ obj:", obj);
     if (!obj.isGraded) {
       const evaluatorIdObj = new ObjectId(evaluatorId);
       let trueCount = 0;
@@ -386,7 +400,6 @@ const submitEvaluation = async (req, res) => {
       console.log("🚀 ~ submitEvaluation ~ obj.isGraded:", obj.isGraded);
 
       if (obj.isGraded) {
-
         console.log("*********obj isGraded true entry section*****");
         const projectJudgement = projectEvaluation.judgement;
 
@@ -477,10 +490,11 @@ const submitEvaluation = async (req, res) => {
                 projectJudgement === midJudgementConfig.ABSENT ||
                 projectJudgement === finalJudgementConfig.ABSENT
               ) {
+                console.log("🚀 ~ projectJudgement:", projectJudgement);
                 console.log(
-                  "************judgement defense fail  section***********"
+                  "************judgement redefense defense fail  section***********"
                 );
-                console.log(projectJudgement);
+
                 switch (eventType) {
                   case "0":
                     student.progressStatus = updateProjectFirstProgressStatus(
@@ -559,7 +573,6 @@ const submitEvaluation = async (req, res) => {
         }
       }
     }
-
 
     defense.evaluations.push(newEvaluation._id);
 
