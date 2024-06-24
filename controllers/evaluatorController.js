@@ -96,12 +96,6 @@ const getDefenseBydId = async (req, res) => {
       if (isGradedStatus) {
         room.isCompleted = true;
         console.log("🚀 ~ getDefenseBydId ~ room:", room);
-
-        // Remove access codes from evaluators
-        await Evaluator.updateMany(
-          { _id: { $in: room.evaluators }, "defense.defenseId": defense._id },
-          { $unset: { "defense.$.accessCode": "" } }
-        );
       } else {
         allRoomsCompleted = false;
       }
@@ -189,6 +183,7 @@ const submitEvaluation = async (req, res) => {
       defenseId,
       eventId,
       evaluationType,
+      roomId,
     } = req.body;
 
     if (
@@ -198,7 +193,8 @@ const submitEvaluation = async (req, res) => {
       !projectId ||
       !evaluatorId ||
       !defenseId ||
-      !eventId
+      !eventId ||
+      !roomId
     ) {
       return res.status(400).json({
         message: "Required Credentials Missing",
@@ -209,8 +205,9 @@ const submitEvaluation = async (req, res) => {
 
     const project = await Project.findOne({ _id: projectId });
     const defense = await Defense.findOne({ _id: defenseId });
+    const room = await Room.findOne({ _id: roomId });
 
-    if (!project) return res.sendStatus(404);
+    if (!project || !defense || !room) return res.sendStatus(404);
     // const startOfDay = new Date();
     // startOfDay.setHours(0, 0, 0, 0);
 
@@ -228,11 +225,13 @@ const submitEvaluation = async (req, res) => {
     const matchingEvaluation = await Evaluation.find({
       _id: { $in: project[evaluationType].evaluations },
       project: projectId,
-      defense:defenseId,
+      defense: defenseId,
       // createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
-    console.log("🚀 ~ submitEvaluation ~ matchingEvaluation:", matchingEvaluation)
-
+    console.log(
+      "🚀 ~ submitEvaluation ~ matchingEvaluation:",
+      matchingEvaluation
+    );
 
     const projectOfPhase = project[evaluationType];
 
@@ -408,7 +407,10 @@ const submitEvaluation = async (req, res) => {
       // }
       // Update hasEvaluated for the evaluator
       obj.evaluators.forEach((evaluatorObj) => {
-        console.log("🚀 ~ obj.evaluators.forEach ~ evaluatorObj.evaluator.toString() === evaluatorId:", evaluatorObj.evaluator.toString() === evaluatorId)
+        console.log(
+          "🚀 ~ obj.evaluators.forEach ~ evaluatorObj.evaluator.toString() === evaluatorId:",
+          evaluatorObj.evaluator.toString() === evaluatorId
+        );
         if (evaluatorObj.evaluator.toString() === evaluatorId) {
           evaluatorObj.hasEvaluated = true;
         }
@@ -603,6 +605,35 @@ const submitEvaluation = async (req, res) => {
       }
     }
 
+    //remove accesss code once all has Evaluated status of all project for a particular evaluator is complete
+    // !project[defenseType].defenses.every((defenseObj) => {
+    //   console.log("🚀 ~ getDefenseBydId ~ defenseObj:", defenseObj);
+    //   return defenseObj.isGraded;
+    // }
+    const allProjectEvaluated = room.projects.every((project) => {
+      return project[evaluationType].defenses.every((defenseObj) => {
+        return defenseObj.evaluators.every((evaluatorObj) => {
+          // Ensure evaluatorObj.evaluator.toString() is called correctly
+          return (
+            evaluatorId === evaluatorObj.evaluator.toString() &&
+            evaluatorObj.hasEvaluated
+          );
+        });
+      });
+    });
+    console.log(
+      "🚀 ~ allProjectEvaluated ~ allProjectEvaluated:",
+      allProjectEvaluated
+    );
+
+    if (allProjectEvaluated) {
+      // Remove access codes from evaluators
+      await Evaluator.updateMany(
+        { _id: { $in: room.evaluators }, "defense.defenseId": defense._id },
+        { $unset: { "defense.$.accessCode": "" } }
+      );
+    }
+    //push newEvaluation id to  defense's  evaluation
     defense.evaluations.push(newEvaluation._id);
 
     await defense.save();
@@ -615,7 +646,6 @@ const submitEvaluation = async (req, res) => {
     console.error(error);
     res.status(500).send({ message: error.message });
   }
-    
 };
 
 module.exports = { getDefenseBydId, getProjectBydId, submitEvaluation };
