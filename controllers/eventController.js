@@ -170,38 +170,27 @@ const getEvent = async (req, res) => {
   }
 
   try {
+    console.log("🚀 ~ getEvent ~ eventStatusList.complete:", eventStatusList.complete)
+    console.log("🚀 ~ getEvent ~ eventStatusList.active:", eventStatusList.active)
     // Find event by ID and populate the author field
     const event = await Event.findById(req.params.id)
-      .populate("author")
-      .populate("projects");
+      .populate({ path: "author", select: "-password -refreshToken" })
+      .populate({
+        path: "projects",
+        match: {
+          status: { $in: [eventStatusList.active, eventStatusList.complete] },
+        },
+        populate: {
+          path: "teamMembers",
+          select: "-password -OTP -refreshToken",
+        },
+      });
+    console.log("🚀 ~ getEvent ~ event:", event)
 
     // Check if event exists
     if (!event) {
       return res.sendStatus(204);
     }
-
-    // Filter sensitive fields from the author
-    event.author = filterSensitiveFields(event.author, sensitiveFields);
-
-    // Filter projects based on status active or complete
-    const filteredProjects = event.projects.filter(
-      (project) =>
-        project.status === eventStatusList.active ||
-        project.status === eventStatusList.active
-    );
-
-    // Populate team members for filtered projects
-    const populatedProjects = await Promise.all(
-      filteredProjects.map(async (project) => {
-        // Populate team members for the current project
-        const populatedData = await project.populate({
-          path: "teamMembers",
-          select: "-password -OTP -refreshToken",
-        });
-        // Return the populated project
-        return populatedData;
-      })
-    );
 
     // Total student count eligible for particular event
     // Get the batch number of the student
@@ -228,10 +217,7 @@ const getEvent = async (req, res) => {
     // Send response
     return res.status(200).json({
       eligibleStudentCountForEvent: studentCount,
-      data: {
-        ...event.toObject(),
-        projects: populatedProjects,
-      },
+      data: event,
       defenses: defenses,
     });
   } catch (error) {
