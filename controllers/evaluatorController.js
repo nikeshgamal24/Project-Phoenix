@@ -66,6 +66,7 @@ const getDefenseBydId = async (req, res) => {
     for (const room of defense.rooms) {
       // Fetch the projects for the room in one query
       const projects = await Project.find({ _id: { $in: room.projects } });
+      console.log("🚀 ~ getDefenseBydId ~ projects:", projects);
 
       // for (const project of projects) {
       //   for (const defenseObj of project[defenseType].defenses) {
@@ -80,19 +81,21 @@ const getDefenseBydId = async (req, res) => {
       let isGradedStatus = true;
       for (const project of projects) {
         if (
-          !project[defenseType].defenses.every(
-            (defenseObj) => defenseObj.isGraded
-          )
+          !project[defenseType].defenses.every((defenseObj) => {
+            console.log("🚀 ~ getDefenseBydId ~ defenseObj:", defenseObj);
+            return defenseObj.isGraded;
+          })
         ) {
           isGradedStatus = false;
           break;
         }
       }
-      
-      console.log("🚀 ~ getDefenseBydId ~ isGradedStatus:", isGradedStatus)
+
+      console.log("🚀 ~ getDefenseBydId ~ isGradedStatus:", isGradedStatus);
       // If all projects in the room are graded, mark the room as completed
       if (isGradedStatus) {
         room.isCompleted = true;
+        console.log("🚀 ~ getDefenseBydId ~ room:", room);
 
         // Remove access codes from evaluators
         await Evaluator.updateMany(
@@ -105,9 +108,11 @@ const getDefenseBydId = async (req, res) => {
 
       // Save the updated room
       await room.save();
+      console.log("🚀 ~ getDefenseBydId ~ room:", room);
     }
 
     // Update the defense status if all rooms are completed
+    console.log("🚀 ~ getDefenseBydId ~ allRoomsCompleted:", allRoomsCompleted);
     if (allRoomsCompleted) {
       defense.status = eventStatusList.complete; // 105 i.e. complete
     }
@@ -206,20 +211,25 @@ const submitEvaluation = async (req, res) => {
     const defense = await Defense.findOne({ _id: defenseId });
 
     if (!project) return res.sendStatus(404);
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    // const startOfDay = new Date();
+    // startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
-    const latestIndexNumber = project[evaluationType].defenses.length - 1;
-    const latestDefenseId =
-      project[evaluationType].defenses[latestIndexNumber].defense;
-    console.log(latestDefenseId);
+    // const endOfDay = new Date();
+    // endOfDay.setHours(23, 59, 59, 999);
+    // const latestIndexNumber = project[evaluationType].defenses.length - 1;
+    // const latestDefenseId =
+    //   project[evaluationType].defenses[latestIndexNumber].defense;
+    // console.log(latestDefenseId);
+    // const latestDefense =  project[evaluationType].defenses.find(obj=>obj.defense.toString() === defenseId);
+    // console.log("🚀 ~ submitEvaluation ~ latestDefense:", latestDefense)
+
+    // if(!latestDefense) return res.sendStatus(404); // defense not found
+
     const matchingEvaluation = await Evaluation.find({
       _id: { $in: project[evaluationType].evaluations },
       project: projectId,
-      defense: latestDefenseId,
-      createdAt: { $gte: startOfDay, $lt: endOfDay },
+      defense:defenseId,
+      // createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
 
     console.log("******matchingEvaluation*********");
@@ -365,38 +375,57 @@ const submitEvaluation = async (req, res) => {
     }
 
     projectOfPhase.evaluations.push(newEvaluation._id);
-
-    const defensesLastIndex = projectOfPhase.defenses.length - 1;
+    const evaluatorIdObj = new ObjectId(evaluatorId);
     console.log(
-      "🚀 ~ submitEvaluation ~ defensesLastIndex:",
-      defensesLastIndex
+      "🚀 ~ submitEvaluation ~ evaluatorIdObj:",
+      typeof evaluatorIdObj
     );
-    const obj = projectOfPhase.defenses[defensesLastIndex];
+    console.log("🚀 ~ submitEvaluation ~ evaluatorIdObj:", evaluatorIdObj);
+    console.log(projectOfPhase.defenses[0].defense);
+
+    //find the defense that matches with the defense Id that we have
+    // Find the specific defense object where an evaluator matches evaluatorIdObj
+    const obj = projectOfPhase.defenses.find((defense) =>
+      defense.evaluators.some((evaluator) =>
+        evaluator.evaluator.equals(evaluatorIdObj)
+      )
+    );
     console.log("🚀 ~ submitEvaluation ~ obj:", obj);
+
+    if (!obj) {
+      return res.status(404).json({ message: "Defense not found" });
+    }
+
     if (!obj.isGraded) {
-      const evaluatorIdObj = new ObjectId(evaluatorId);
       let trueCount = 0;
 
-      for (const evaluatorObj of obj.evaluators) {
+      // for (const evaluatorObj of   .evaluators) {
+      //   if (evaluatorIdObj.equals(evaluatorObj.evaluator)) {
+      //     evaluatorObj.hasEvaluated = true;
+      //   }
+      //   if (evaluatorObj.hasEvaluated) {
+      //     trueCount += 1;
+      //   }
+      // }
+      // Update hasEvaluated for the evaluator
+      obj.evaluators.forEach((evaluatorObj) => {
         if (evaluatorIdObj.equals(evaluatorObj.evaluator)) {
           evaluatorObj.hasEvaluated = true;
         }
-        if (evaluatorObj.hasEvaluated) {
-          trueCount += 1;
-        }
-      }
+      });
 
       console.log("***********obj.isGraded Status*****************");
       console.log(obj.isGraded);
-      console.log("🚀 ~ submitEvaluation ~ trueCount:", trueCount);
-      console.log(
-        "🚀 ~ submitEvaluation ~  obj.evaluators.length:",
-        obj.evaluators.length
+      // Check if all evaluators have evaluated using every()
+      const allEvaluatedResult = obj.evaluators.every(
+        (evaluatorObj) => evaluatorObj.hasEvaluated
       );
-      if (trueCount === obj.evaluators.length) {
-        console.log("**********obj.isGraded updated section**************");
-        obj.isGraded = true;
-      }
+      console.log(
+        "🚀 ~ submitEvaluation ~ allEvaluatedResult:",
+        allEvaluatedResult
+      );
+      obj.isGraded = allEvaluatedResult;
+
       console.log("🚀 ~ submitEvaluation ~ obj.isGraded:", obj.isGraded);
 
       if (obj.isGraded) {
