@@ -231,9 +231,8 @@ const submitEvaluation = async (req, res) => {
       defense:defenseId,
       // createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
+    console.log("🚀 ~ submitEvaluation ~ matchingEvaluation:", matchingEvaluation)
 
-    console.log("******matchingEvaluation*********");
-    console.log(matchingEvaluation);
 
     const projectOfPhase = project[evaluationType];
 
@@ -409,7 +408,8 @@ const submitEvaluation = async (req, res) => {
       // }
       // Update hasEvaluated for the evaluator
       obj.evaluators.forEach((evaluatorObj) => {
-        if (evaluatorIdObj.equals(evaluatorObj.evaluator)) {
+        console.log("🚀 ~ obj.evaluators.forEach ~ evaluatorObj.evaluator.toString() === evaluatorId:", evaluatorObj.evaluator.toString() === evaluatorId)
+        if (evaluatorObj.evaluator.toString() === evaluatorId) {
           evaluatorObj.hasEvaluated = true;
         }
       });
@@ -615,6 +615,7 @@ const submitEvaluation = async (req, res) => {
     console.error(error);
     res.status(500).send({ message: error.message });
   }
+    
 };
 
 module.exports = { getDefenseBydId, getProjectBydId, submitEvaluation };
