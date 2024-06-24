@@ -41,6 +41,6 @@ router
   .get(verifyRoles(roleList.Student), studentController.getProjectById);
 
 router
-  .route("/associatedProjects/:studentId")
-  .get(verifyRoles(roleList.Student), studentController.getAllProjectsAssociated);
+  .route("/archive/")
+  .get(verifyRoles(roleList.Student), studentController.getAllArchiveProjects);
 module.exports = router;
