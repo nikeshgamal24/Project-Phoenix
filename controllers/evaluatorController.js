@@ -66,7 +66,7 @@ const getDefenseBydId = async (req, res) => {
     for (const room of defense.rooms) {
       // Fetch the projects for the room in one query
       const projects = await Project.find({ _id: { $in: room.projects } });
-      console.log("🚀 ~ getDefenseBydId ~ projects:", projects);
+      // console.log("🚀 ~ getDefenseBydId ~ projects:", projects);
 
       // for (const project of projects) {
       //   for (const defenseObj of project[defenseType].defenses) {
@@ -82,7 +82,7 @@ const getDefenseBydId = async (req, res) => {
       for (const project of projects) {
         if (
           !project[defenseType].defenses.every((defenseObj) => {
-            console.log("🚀 ~ getDefenseBydId ~ defenseObj:", defenseObj);
+            // console.log("🚀 ~ getDefenseBydId ~ defenseObj:", defenseObj);
             return defenseObj.isGraded;
           })
         ) {
@@ -91,18 +91,18 @@ const getDefenseBydId = async (req, res) => {
         }
       }
 
-      console.log("🚀 ~ getDefenseBydId ~ isGradedStatus:", isGradedStatus);
+      // console.log("🚀 ~ getDefenseBydId ~ isGradedStatus:", isGradedStatus);
       // If all projects in the room are graded, mark the room as completed
       if (isGradedStatus) {
         room.isCompleted = true;
-        console.log("🚀 ~ getDefenseBydId ~ room:", room);
+        // console.log("🚀 ~ getDefenseBydId ~ room:", room);
       } else {
         allRoomsCompleted = false;
       }
 
       // Save the updated room
       await room.save();
-      console.log("🚀 ~ getDefenseBydId ~ room:", room);
+      // console.log("🚀 ~ getDefenseBydId ~ room:", room);
     }
 
     // Update the defense status if all rooms are completed
@@ -625,10 +625,12 @@ const submitEvaluation = async (req, res) => {
       const defenseObj = subEvent.defenses.find((defense) => {
         return defense.defense.toString() === defenseId;
       });
+      console.log("🚀 ~ defenseObj ~ defenseObj:", defenseObj)
 
       const evaluatorObj = defenseObj.evaluators.find((evaluator) => {
         return evaluator.evaluator.toString() === evaluatorId;
       });
+      console.log("🚀 ~ evaluatorObj ~ evaluatorObj:", evaluatorObj)
 
       return evaluatorObj.hasEvaluated;
     });
