@@ -26,6 +26,12 @@ const eventStatusList = require("../config/eventStatusList");
 const proposalJudgementConfig = require("../config/proposalJudgementConfig");
 const defenseTypeCode = require("../config/defenseTypeCodeList");
 const { finalJudgementConfig } = require("../config/finalJudgementConfig");
+const {
+  determineConflictExistsStatus,
+} = require("./utility functions/evaluation section/determineConflictExistsStatus");
+const {
+  determineAllProjectsEvaluatedByEvaluator,
+} = require("./utility functions/evaluation section/determineAllProjectsEvaluatedByEvaluator");
 
 const getDefenseBydId = async (req, res) => {
   // Check if ID is provided
@@ -173,8 +179,489 @@ const getProjectBydId = async (req, res) => {
   }
 };
 
+// const submitPreviousEvaluation = async (req, res) => {
+//   try {
+//     const {
+//       individualEvaluation,
+//       projectEvaluation,
+//       projectId,
+//       evaluatorId,
+//       defenseId,
+//       eventId,
+//       evaluationType,
+//       roomId,
+//     } = req.body;
+
+//     if (
+//       !Array.isArray(individualEvaluation) ||
+//       !individualEvaluation.length ||
+//       !projectEvaluation ||
+//       !projectId ||
+//       !evaluatorId ||
+//       !defenseId ||
+//       !eventId ||
+//       !roomId
+//     ) {
+//       return res.status(400).json({
+//         message: "Required Credentials Missing",
+//       });
+//     }
+
+//     console.log(req.body);
+
+//     const project = await Project.findOne({ _id: projectId });
+//     const defense = await Defense.findOne({ _id: defenseId });
+//     const room = await Room.findOne({ _id: roomId });
+
+//     if (!project || !defense || !room) return res.sendStatus(404);
+//     // const startOfDay = new Date();
+//     // startOfDay.setHours(0, 0, 0, 0);
+
+//     // const endOfDay = new Date();
+//     // endOfDay.setHours(23, 59, 59, 999);
+//     // const latestIndexNumber = project[evaluationType].defenses.length - 1;
+//     // const latestDefenseId =
+//     //   project[evaluationType].defenses[latestIndexNumber].defense;
+//     // console.log(latestDefenseId);
+//     // const latestDefense =  project[evaluationType].defenses.find(obj=>obj.defense.toString() === defenseId);
+//     // console.log("🚀 ~ submitEvaluation ~ latestDefense:", latestDefense)
+
+//     // if(!latestDefense) return res.sendStatus(404); // defense not found
+
+//     const matchingEvaluation = await Evaluation.find({
+//       _id: { $in: project[evaluationType].evaluations },
+//       project: projectId,
+//       defense: defenseId,
+//       // createdAt: { $gte: startOfDay, $lt: endOfDay },
+//     });
+//     console.log(
+//       "🚀 ~ submitEvaluation ~ matchingEvaluation:",
+//       matchingEvaluation
+//     );
+
+//     const projectOfPhase = project[evaluationType];
+
+//     if (matchingEvaluation.length) {
+//       const conflictExists = matchingEvaluation.some((evaluation) => {
+//         if (
+//           projectEvaluation.judgement !== evaluation.projectEvaluation.judgement
+//         ) {
+//           return true;
+//         }
+
+//         for (let i = 0; i < individualEvaluation.length; i++) {
+//           if (
+//             individualEvaluation[i].absent !==
+//             evaluation.individualEvaluation[i].absent
+//           ) {
+//             return true;
+//           }
+//         }
+
+//         return false;
+//       });
+
+//       if (conflictExists) {
+//         return res.status(409).json({
+//           message: "Conflict data",
+//         });
+//       }
+//     }
+//     let formattedIndividualEvaluations;
+//     let newEvaluation;
+//     switch (evaluationType) {
+//       case "proposal":
+//         formattedIndividualEvaluations = individualEvaluation.map(
+//           (evaluation) => ({
+//             student: evaluation.member,
+//             performanceAtPresentation: evaluation.performanceAtPresentation,
+//             absent: evaluation.absent,
+//             projectTitleAndAbstract: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.projectTitleAndAbstract,
+//             project: evaluation.absent ? "0" : projectEvaluation.project,
+//             objective: evaluation.absent ? "0" : projectEvaluation.objective,
+//             teamWork: evaluation.absent ? "0" : projectEvaluation.teamWork,
+//             documentation: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.documentation,
+//             plagiarism: evaluation.absent ? "0" : projectEvaluation.plagiarism,
+//           })
+//         );
+
+//         newEvaluation = await Evaluation.create({
+//           individualEvaluation: formattedIndividualEvaluations,
+//           projectEvaluation: projectEvaluation,
+//           project: projectId,
+//           evaluator: evaluatorId,
+//           defense: defenseId,
+//           event: eventId,
+//           evaluationType: evaluationType,
+//         });
+
+//         if (!newEvaluation) return res.sendStatus(400);
+//         break;
+//       case "mid":
+//         console.log("MidEvaluation Section");
+//         formattedIndividualEvaluations = individualEvaluation.map(
+//           (evaluation) => ({
+//             student: evaluation.member,
+//             performanceAtPresentation: evaluation.performanceAtPresentation,
+//             absent: evaluation.absent,
+//             feedbackIncorporated: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.feedbackIncorporated,
+//             workProgress: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.workProgress,
+//             documentation: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.documentation,
+//           })
+//         );
+
+//         newEvaluation = await Evaluation.create({
+//           individualEvaluation: formattedIndividualEvaluations,
+//           projectEvaluation: projectEvaluation,
+//           project: projectId,
+//           evaluator: evaluatorId,
+//           defense: defenseId,
+//           event: eventId,
+//           evaluationType: evaluationType,
+//         });
+//         if (!newEvaluation) return res.sendStatus(400);
+//         break;
+//       case "final":
+//         console.log("FinalEvaluation Section");
+//         formattedIndividualEvaluations = individualEvaluation.map(
+//           (evaluation) => ({
+//             student: evaluation.member,
+//             performanceAtPresentation: evaluation.performanceAtPresentation,
+//             absent: evaluation.absent,
+//             contributionInWork: evaluation.absent
+//               ? "0"
+//               : evaluation.contributionInWork,
+//             projectTitle: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.projectTitle,
+//             volume: evaluation.absent ? "0" : projectEvaluation.volume,
+//             objective: evaluation.absent ? "0" : projectEvaluation.objective,
+//             creativity: evaluation.absent ? "0" : projectEvaluation.creativity,
+//             analysisAndDesign: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.analysisAndDesign,
+//             toolAndTechniques: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.toolAndTechniques,
+//             documentation: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.documentation,
+//             accomplished: evaluation.absent
+//               ? "0"
+//               : projectEvaluation.accomplished,
+//             demo: evaluation.absent ? "0" : projectEvaluation.demo,
+//           })
+//         );
+
+//         newEvaluation = await Evaluation.create({
+//           individualEvaluation: formattedIndividualEvaluations,
+//           projectEvaluation: projectEvaluation,
+//           project: projectId,
+//           evaluator: evaluatorId,
+//           defense: defenseId,
+//           event: eventId,
+//           evaluationType: evaluationType,
+//         });
+//         if (!newEvaluation) return res.sendStatus(400);
+//         break;
+//       default:
+//         return res.sendStaus(400);
+//     }
+
+//     projectOfPhase.evaluations.push(newEvaluation._id);
+//     const evaluatorIdObj = new ObjectId(evaluatorId);
+//     console.log(
+//       "🚀 ~ submitEvaluation ~ evaluatorIdObj:",
+//       typeof evaluatorIdObj
+//     );
+//     console.log("🚀 ~ submitEvaluation ~ evaluatorIdObj:", evaluatorIdObj);
+//     console.log(projectOfPhase.defenses[0].defense);
+
+//     //find the defense that matches with the defense Id that we have
+//     // Find the specific defense object where an evaluator matches evaluatorIdObj
+//     const obj = projectOfPhase.defenses.find((defense) =>
+//       defense.evaluators.some((evaluator) =>
+//         evaluator.evaluator.equals(evaluatorIdObj)
+//       )
+//     );
+//     console.log("🚀 ~ submitEvaluation ~ obj:", obj);
+
+//     if (!obj) {
+//       return res.status(404).json({ message: "Defense not found" });
+//     }
+
+//     if (!obj.isGraded) {
+//       //
+//       // Update hasEvaluated for the evaluator
+//       obj.evaluators.forEach((evaluatorObj) => {
+//
+//         if (evaluatorObj.evaluator.toString() === evaluatorId) {
+//           evaluatorObj.hasEvaluated = true;
+//         }
+//       });
+
+//       console.log("***********obj.isGraded Status*****************");
+//       console.log(obj.isGraded);
+//       // Check if all evaluators have evaluated using every()
+//       const allEvaluatedResult = obj.evaluators.every(
+//         (evaluatorObj) => evaluatorObj.hasEvaluated
+//       );
+//       console.log(
+//         "🚀 ~ submitEvaluation ~ allEvaluatedResult:",
+//         allEvaluatedResult
+//       );
+//       obj.isGraded = allEvaluatedResult;
+
+//       console.log("🚀 ~ submitEvaluation ~ obj.isGraded:", obj.isGraded);
+
+//       if (obj.isGraded) {
+//         console.log("*********obj isGraded true entry section*****");
+//         const projectJudgement = projectEvaluation.judgement;
+
+//         console.log("************judgement before comparison***********");
+//         console.log(projectJudgement);
+//         if (
+//           projectJudgement === proposalJudgementConfig.ACCEPTED ||
+//           projectJudgement ===
+//             proposalJudgementConfig["ACCEPTED-CONDITIONALLY"] ||
+//           projectJudgement === midJudgementConfig["PROGRESS-SATISFACTORY"] ||
+//           projectJudgement === midJudgementConfig["PROGRESS-SEEN"] ||
+//           projectJudgement ===
+//             midJudgementConfig["PROGRESS-NOT-SATISFACTORY"] ||
+//           projectJudgement === finalJudgementConfig.ACCEPTED ||
+//           projectJudgement === finalJudgementConfig["ACCEPTED-CONDITIONALLY"]
+//         ) {
+//           console.log("************judgement pass section***********");
+//           console.log(projectJudgement);
+//           project[evaluationType].hasGraduated = true;
+
+//           if (project[evaluationType].hasGraduated) {
+//             const studentSavePromises = project.teamMembers.map(
+//               async (studentId) => {
+//                 const student = await Student.findOne({ _id: studentId });
+//                 const eventType = initializeEventTypeBasedOnBatch(
+//                   student.batchNumber
+//                 );
+//                 console.log(
+//                   "*********student forward update progress section***********"
+//                 );
+//                 switch (eventType) {
+//                   case "0":
+//                     student.progressStatus = updateProjectFirstProgressStatus(
+//                       progressStatusEligibilityCode[evaluationType].defensePass
+//                     );
+//                     if (evaluationType === defenseTypeCode.final) {
+//                       student.isAssociated = false;
+//                       student.project = undefined;
+//                       project.status = eventStatusList.complete;
+//                     }
+//                     break;
+//                   case "1":
+//                     student.progressStatus = updateMinorProgressStatus(
+//                       progressStatusEligibilityCode[evaluationType].defensePass
+//                     );
+//                     if (evaluationType === defenseTypeCode.final) {
+//                       student.isAssociated = false;
+//                       student.project = undefined;
+//                       project.status = eventStatusList.complete;
+//                     }
+//                     break;
+//                   case "2":
+//                     student.progressStatus = updateMajorProgressStatus(
+//                       progressStatusEligibilityCode[evaluationType].defensePass
+//                     );
+//                     if (evaluationType === defenseTypeCode.final) {
+//                       student.isAssociated = false;
+//                       student.project = undefined;
+//                       project.status = eventStatusList.complete;
+//                     }
+//                     break;
+//                   default:
+//                     break;
+//                 }
+//                 return student.save();
+//               }
+//             );
+
+//             await Promise.all(studentSavePromises);
+//           }
+//         } else {
+//           const studentSavePromises = project.teamMembers.map(
+//             async (studentId) => {
+//               const student = await Student.findOne({ _id: studentId });
+//               const eventType = initializeEventTypeBasedOnBatch(
+//                 student.batchNumber
+//               );
+//               console.log(
+//                 "*********student backward update progress section***********"
+//               );
+
+//               //judgement is
+//               if (
+//                 projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
+//                 projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
+//                 projectJudgement === finalJudgementConfig["RE-DEMO"] ||
+//                 projectJudgement === proposalJudgementConfig.ABSENT ||
+//                 projectJudgement === midJudgementConfig.ABSENT ||
+//                 projectJudgement === finalJudgementConfig.ABSENT
+//               ) {
+//                 console.log("🚀 ~ projectJudgement:", projectJudgement);
+//                 console.log(
+//                   "************judgement redefense defense fail  section***********"
+//                 );
+
+//                 switch (eventType) {
+//                   case "0":
+//                     student.progressStatus = updateProjectFirstProgressStatus(
+//                       progressStatusEligibilityCode[evaluationType].defenseFail
+//                     );
+//                     break;
+//                   case "1":
+//                     student.progressStatus = updateMinorProgressStatus(
+//                       progressStatusEligibilityCode[evaluationType].defenseFail
+//                     );
+//                     break;
+//                   case "2":
+//                     student.progressStatus = updateMajorProgressStatus(
+//                       progressStatusEligibilityCode[evaluationType].defenseFail
+//                     );
+//                     break;
+//                   default:
+//                     break;
+//                 }
+//                 return student.save();
+//               } else if (
+//                 projectJudgement === proposalJudgementConfig.REJECTED
+//               ) {
+//                 console.log(
+//                   "************judgement rejected section***********"
+//                 );
+//                 console.log(projectJudgement);
+//                 switch (eventType) {
+//                   case "0":
+//                     student.isAssociated = false;
+//                     student.progressStatus = updateProjectFirstProgressStatus(
+//                       progressStatusEligibilityCode[evaluationType].rejected
+//                     );
+//                     student.project = undefined;
+//                     project.status = eventStatusList.archive;
+//                     break;
+//                   case "1":
+//                     student.isAssociated = false;
+//                     student.progressStatus = updateMinorProgressStatus(
+//                       progressStatusEligibilityCode[evaluationType].rejected
+//                     );
+//                     student.project = undefined;
+//                     project.status = eventStatusList.archive;
+//                     break;
+//                   case "2":
+//                     student.isAssociated = false;
+//                     student.progressStatus = updateMajorProgressStatus(
+//                       progressStatusEligibilityCode[evaluationType].rejected
+//                     );
+//                     student.project = undefined;
+//                     project.status = eventStatusList.archive;
+//                     break;
+//                   default:
+//                     break;
+//                 }
+//                 return student.save();
+//               }
+//             }
+//           );
+//           await Promise.all(studentSavePromises); // <- Missing line added here
+//           if (
+//             obj.isGraded &&
+//             (projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
+//               projectJudgement === proposalJudgementConfig.REJECTED ||
+//               projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
+//               projectJudgement === proposalJudgementConfig.ABSENT ||
+//               projectJudgement === midJudgementConfig.ABSENT ||
+//               projectJudgement === finalJudgementConfig.ABSENT)
+//           ) {
+//             console.log("************report remove section***********");
+//             console.log(projectJudgement);
+//             project[evaluationType].report = undefined;
+//             console.log("******after report is removed*********");
+//             console.log(project[evaluationType].report);
+//           }
+//         }
+//       }
+//     }
+
+//     //remove accesss code once all has Evaluated status of all project for a particular evaluator is complete
+//     // !project[defenseType].defenses.every((defenseObj) => {
+//     //   console.log("🚀 ~ getDefenseBydId ~ defenseObj:", defenseObj);
+//     //   return defenseObj.isGraded;
+//     // }
+//     console.log(
+//       "🚀 ~ returnproject[evaluationType].defenses.every ~ evaluationType:",
+//       evaluationType
+//     );
+
+//     // Fetch all projects at once
+//     const projects = await Project.find({ _id: { $in: room.projects } });
+//     console.log("🚀 ~ submitEvaluation ~ projects:", projects);
+
+//     const allProjectEvaluated = projects.every((project) => {
+//       const subEvent = project[evaluationType];
+
+//       const defenseObj = subEvent.defenses.find((defense) => {
+//         return defense.defense.toString() === defenseId;
+//       });
+//       console.log("🚀 ~ defenseObj ~ defenseObj:", defenseObj)
+
+//       const evaluatorObj = defenseObj.evaluators.find((evaluator) => {
+//         return evaluator.evaluator.toString() === evaluatorId;
+//       });
+//       console.log("🚀 ~ evaluatorObj ~ evaluatorObj:", evaluatorObj)
+
+//       return evaluatorObj.hasEvaluated;
+//     });
+
+//     console.log(
+//       "🚀 ~ allProjectEvaluated ~ allProjectEvaluated:",
+//       allProjectEvaluated
+//     );
+
+//     if (allProjectEvaluated) {
+//       //find evaluator having evaluator id and obj with the defense id inside it
+//       // Remove access codes from evaluators
+//       await Evaluator.updateOne(
+//         { _id: { $in: room.evaluators }, "defense.defenseId": defenseId },
+//         { $set: { "defense.$.accessCode": undefined } }
+//       );
+//     }
+
+//     //push newEvaluation id to  defense's  evaluation
+//     defense.evaluations.push(newEvaluation._id);
+
+//     await defense.save();
+
+//     await project.save();
+//     console.log("******update completed********");
+//     return res.status(201).json({
+//       data: newEvaluation,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ message: error.message });
+//   }
+// };
+
 const submitEvaluation = async (req, res) => {
   try {
+    //request body received
     const {
       individualEvaluation,
       projectEvaluation,
@@ -204,65 +691,313 @@ const submitEvaluation = async (req, res) => {
     console.log(req.body);
 
     const project = await Project.findOne({ _id: projectId });
+    console.log("🚀 ~ submitEvaluation ~ project:", project);
     const defense = await Defense.findOne({ _id: defenseId });
+    console.log("🚀 ~ submitEvaluation ~ defense:", defense);
     const room = await Room.findOne({ _id: roomId });
+    console.log("🚀 ~ submitEvaluation ~ room:", room);
 
-    if (!project || !defense || !room) return res.sendStatus(404);
-    // const startOfDay = new Date();
-    // startOfDay.setHours(0, 0, 0, 0);
-
-    // const endOfDay = new Date();
-    // endOfDay.setHours(23, 59, 59, 999);
-    // const latestIndexNumber = project[evaluationType].defenses.length - 1;
-    // const latestDefenseId =
-    //   project[evaluationType].defenses[latestIndexNumber].defense;
-    // console.log(latestDefenseId);
-    // const latestDefense =  project[evaluationType].defenses.find(obj=>obj.defense.toString() === defenseId);
-    // console.log("🚀 ~ submitEvaluation ~ latestDefense:", latestDefense)
-
-    // if(!latestDefense) return res.sendStatus(404); // defense not found
-
-    const matchingEvaluation = await Evaluation.find({
+    const matchingEvaluations = await Evaluation.find({
       _id: { $in: project[evaluationType].evaluations },
       project: projectId,
       defense: defenseId,
-      // createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
     console.log(
-      "🚀 ~ submitEvaluation ~ matchingEvaluation:",
-      matchingEvaluation
+      "🚀 ~ submitEvaluation ~ matchingEvaluations:",
+      matchingEvaluations
     );
 
-    const projectOfPhase = project[evaluationType];
+    if (matchingEvaluations.length) {
+      console.log(
+        "🚀 ~ submitEvaluation ~ matchingEvaluation.length:",
+        matchingEvaluations.length
+      );
 
-    if (matchingEvaluation.length) {
-      const conflictExists = matchingEvaluation.some((evaluation) => {
-        if (
-          projectEvaluation.judgement !== evaluation.projectEvaluation.judgement
-        ) {
-          return true;
-        }
-
-        for (let i = 0; i < individualEvaluation.length; i++) {
-          if (
-            individualEvaluation[i].absent !==
-            evaluation.individualEvaluation[i].absent
-          ) {
-            return true;
-          }
-        }
-
-        return false;
+      //check for the conflict if exists in judgemnt
+      const conflictExists = determineConflictExistsStatus({
+        matchingEvaluations: matchingEvaluations,
+        individualEvaluation: individualEvaluation,
+        projectEvaluation: projectEvaluation,
       });
 
+      console.log("🚀 ~ submitEvaluation ~ conflictExists:", conflictExists);
       if (conflictExists) {
         return res.status(409).json({
           message: "Conflict data",
         });
       }
     }
+
+    //findin obj i.e.project[evaluationType]'s defense
+
+    //find defense that matches with the defenseId that we have
+    //find the specific defense object where an evaluator[defense.evaluators' evaluator] matches evaluatorId
+    //projectSubEvent : proposal, mid or final
+    const projectSubEvent = project[evaluationType];
+    const obj = projectSubEvent.defenses.find((defense) => {
+      return defense.evaluators.some((evaluator) => {
+        console.log(
+          "🚀 ~ returndefense.evaluators.some ~ evaluator:",
+          evaluator.evaluator.toString()
+        );
+        console.log(
+          "🚀 ~ returndefense.evaluators.some ~ evaluatorId ===evaluator.evaluator.toSting():",
+          evaluatorId === evaluator.evaluator.toString()
+        );
+        return evaluatorId === evaluator.evaluator.toString();
+      });
+    });
+    console.log("🚀 ~ obj ~ obj:", obj);
+
+    //if no matching object is found
+    if (!obj) return res.status(404).json({ message: "Defense Not Found" });
+
+    //if object is found and isGraded is false i.e. all evaluation is not updated
+    //if obj.isGraded is tru then go directly to end section
+    if (!obj.isGraded) {
+      //update hasEvaluator for the evaluation by the evaluator
+      obj.evaluators.forEach((evaluatorObj) => {
+        if (evaluatorObj.evaluator.toString() === evaluatorId) {
+          evaluatorObj.hasEvaluated = true;
+        }
+      });
+      console.log("🚀 ~ obj after haseEvaluated section ~ obj:", obj);
+
+      //determing obj.isGraded status
+      //for every evaluatorObj is hasEvaluated is true every() will return true if encounter false if any iteration it returns false
+      const allEvaluatedResult = obj.evaluators.every(
+        (evaluatorObj) => evaluatorObj.hasEvaluated
+      );
+      console.log(
+        "🚀 ~ submitEvaluation ~ allEvaluatedResult:",
+        allEvaluatedResult
+      );
+      obj.isGraded = allEvaluatedResult;
+      console.log("🚀 ~ obj after allEvaluatedResult section ~ obj:", obj);
+      await project.save();
+      console.log(
+        "**********************PROJECT AFTER SAVE**********************"
+      );
+      console.log("🚀 ~ project after save ~ obj:", obj);
+      console.log(
+        "**********************PROJECT AFTER SAVE**********************"
+      );
+    }
+    let studentSavePromises;
+    if (obj.isGraded) {
+      console.log("*********obj isGraded true entry section*****");
+      const projectJudgement = projectEvaluation.judgement;
+
+      console.log("************judgement before comparison***********");
+      console.log(projectJudgement);
+      if (
+        projectJudgement === proposalJudgementConfig.ACCEPTED ||
+        projectJudgement ===
+          proposalJudgementConfig["ACCEPTED-CONDITIONALLY"] ||
+        projectJudgement === midJudgementConfig["PROGRESS-SATISFACTORY"] ||
+        projectJudgement === midJudgementConfig["PROGRESS-SEEN"] ||
+        projectJudgement === midJudgementConfig["PROGRESS-NOT-SATISFACTORY"] ||
+        projectJudgement === finalJudgementConfig.ACCEPTED ||
+        projectJudgement === finalJudgementConfig["ACCEPTED-CONDITIONALLY"]
+      ) {
+        console.log("************judgement pass section***********");
+        console.log(projectJudgement);
+        project[evaluationType].hasGraduated = true;
+
+        if (project[evaluationType].hasGraduated) {
+          const studentSavePromises = project.teamMembers.map(
+            async (studentId) => {
+              const student = await Student.findOne({ _id: studentId });
+              const eventType = initializeEventTypeBasedOnBatch(
+                student.batchNumber
+              );
+              console.log(
+                "*********student forward update progress section***********"
+              );
+              switch (eventType) {
+                case "0":
+                  student.progressStatus = updateProjectFirstProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defensePass
+                  );
+                  if (evaluationType === defenseTypeCode.final) {
+                    student.isAssociated = false;
+                    student.project = undefined;
+                    project.status = eventStatusList.complete;
+                  }
+                  break;
+                case "1":
+                  student.progressStatus = updateMinorProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defensePass
+                  );
+                  if (evaluationType === defenseTypeCode.final) {
+                    student.isAssociated = false;
+                    student.project = undefined;
+                    project.status = eventStatusList.complete;
+                  }
+                  break;
+                case "2":
+                  student.progressStatus = updateMajorProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defensePass
+                  );
+                  if (evaluationType === defenseTypeCode.final) {
+                    student.isAssociated = false;
+                    student.project = undefined;
+                    project.status = eventStatusList.complete;
+                  }
+                  break;
+                default:
+                  break;
+              }
+              return student.save();
+              
+            }
+          );
+          await Promise.all(studentSavePromises);
+        }
+      } else {
+        const studentSavePromises = project.teamMembers.map(
+          async (studentId) => {
+            console.log("🚀 ~  before studentId:", studentId);
+            const student = await Student.findOne({ _id: studentId });
+            const eventType = initializeEventTypeBasedOnBatch(
+              student.batchNumber
+            );
+            console.log(
+              "*********student backward update progress section***********"
+            );
+
+            //judgement is
+            if (
+              projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
+              projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
+              projectJudgement === finalJudgementConfig["RE-DEMO"] ||
+              projectJudgement === proposalJudgementConfig.ABSENT ||
+              projectJudgement === midJudgementConfig.ABSENT ||
+              projectJudgement === finalJudgementConfig.ABSENT
+            ) {
+              console.log("🚀 ~ projectJudgement:", projectJudgement);
+              console.log(
+                "************judgement redefense defense fail  section***********"
+              );
+
+              switch (eventType) {
+                case "0":
+                  student.progressStatus = updateProjectFirstProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defenseFail
+                  );
+                  break;
+                case "1":
+                  student.progressStatus = updateMinorProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defenseFail
+                  );
+                  break;
+                case "2":
+                  student.progressStatus = updateMajorProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].defenseFail
+                  );
+                  break;
+                default:
+                  break;
+              }
+              return student.save();
+              console.log("🚀 ~ after absent studentId:", studentId);
+            } else if (projectJudgement === proposalJudgementConfig.REJECTED) {
+              console.log("************judgement rejected section***********");
+              console.log(projectJudgement);
+              switch (eventType) {
+                case "0":
+                  student.isAssociated = false;
+                  student.progressStatus = updateProjectFirstProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].rejected
+                  );
+                  student.project = undefined;
+                  project.status = eventStatusList.archive;
+                  break;
+                case "1":
+                  student.isAssociated = false;
+                  student.progressStatus = updateMinorProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].rejected
+                  );
+                  student.project = undefined;
+                  project.status = eventStatusList.archive;
+                  break;
+                case "2":
+                  student.isAssociated = false;
+                  student.progressStatus = updateMajorProgressStatus(
+                    progressStatusEligibilityCode[evaluationType].rejected
+                  );
+                  student.project = undefined;
+                  project.status = eventStatusList.archive;
+                  break;
+                default:
+                  break;
+              }
+              return student.save();
+             
+            }
+          }
+        );
+        await Promise.all(studentSavePromises);
+        if (
+          obj.isGraded &&
+          (projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
+            projectJudgement === proposalJudgementConfig.REJECTED ||
+            projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
+            projectJudgement === proposalJudgementConfig.ABSENT ||
+            projectJudgement === midJudgementConfig.ABSENT ||
+            projectJudgement === finalJudgementConfig.ABSENT)
+        ) {
+          console.log(
+            "🚀 ~ submitEvaluation ~before  project[evaluationType].report :",
+            project[evaluationType].report
+          );
+          project[evaluationType].report = undefined;
+          console.log(
+            "🚀 ~ submitEvaluation ~after  project[evaluationType].report :",
+            project[evaluationType].report
+          );
+        }
+      }
+    }
+
+    //removal of access code
+
+    //fetch alll projects at once
+    const projects = await Project.find({ _id: { $in: room.projects } });
+    console.log("🚀 ~ submitEvaluation before ~ projects:", projects);
+    const allProjectEvaluated = determineAllProjectsEvaluatedByEvaluator({
+      res: res,
+      projects,
+      evaluationType,
+      defenseId,
+      evaluatorId,
+    });
+    console.log(
+      "🚀 ~ submitEvaluation over main controller function ~ allProjectsEvaluated:",
+      allProjectEvaluated
+    );
+
+    //if allproject evaluated then clear access code
+    let evaluator;
+    if (allProjectEvaluated) {
+      evaluator = await Evaluator.findOne({
+        _id: evaluatorId,
+      });
+      console.log("🚀 ~ submitEvaluation ~ inside evaluator:", evaluator);
+
+      const defenseObj = evaluator.defense.find((defense) => {
+        return defense.defenseId.toString() === defenseId;
+      });
+      console.log("🚀 ~ defenseObj ~ defenseObj:", defenseObj);
+
+      defenseObj.accessCode = undefined;
+    }
+    console.log("🚀 ~ submitEvaluation ~ outside evaluator:", evaluator);
+    await evaluator.save();
+    //finally save the evaluation
     let formattedIndividualEvaluations;
     let newEvaluation;
+
     switch (evaluationType) {
       case "proposal":
         formattedIndividualEvaluations = individualEvaluation.map(
@@ -372,296 +1107,17 @@ const submitEvaluation = async (req, res) => {
         return res.sendStaus(400);
     }
 
-    projectOfPhase.evaluations.push(newEvaluation._id);
-    const evaluatorIdObj = new ObjectId(evaluatorId);
-    console.log(
-      "🚀 ~ submitEvaluation ~ evaluatorIdObj:",
-      typeof evaluatorIdObj
-    );
-    console.log("🚀 ~ submitEvaluation ~ evaluatorIdObj:", evaluatorIdObj);
-    console.log(projectOfPhase.defenses[0].defense);
+    if (!newEvaluation) return res.sendStatus(400);
 
-    //find the defense that matches with the defense Id that we have
-    // Find the specific defense object where an evaluator matches evaluatorIdObj
-    const obj = projectOfPhase.defenses.find((defense) =>
-      defense.evaluators.some((evaluator) =>
-        evaluator.evaluator.equals(evaluatorIdObj)
-      )
-    );
-    console.log("🚀 ~ submitEvaluation ~ obj:", obj);
-
-    if (!obj) {
-      return res.status(404).json({ message: "Defense not found" });
-    }
-
-    if (!obj.isGraded) {
-      let trueCount = 0;
-
-      // for (const evaluatorObj of   .evaluators) {
-      //   if (evaluatorIdObj.equals(evaluatorObj.evaluator)) {
-      //     evaluatorObj.hasEvaluated = true;
-      //   }
-      //   if (evaluatorObj.hasEvaluated) {
-      //     trueCount += 1;
-      //   }
-      // }
-      // Update hasEvaluated for the evaluator
-      obj.evaluators.forEach((evaluatorObj) => {
-        console.log(
-          "🚀 ~ obj.evaluators.forEach ~ evaluatorObj.evaluator.toString() === evaluatorId:",
-          evaluatorObj.evaluator.toString() === evaluatorId
-        );
-        if (evaluatorObj.evaluator.toString() === evaluatorId) {
-          evaluatorObj.hasEvaluated = true;
-        }
-      });
-
-      console.log("***********obj.isGraded Status*****************");
-      console.log(obj.isGraded);
-      // Check if all evaluators have evaluated using every()
-      const allEvaluatedResult = obj.evaluators.every(
-        (evaluatorObj) => evaluatorObj.hasEvaluated
-      );
-      console.log(
-        "🚀 ~ submitEvaluation ~ allEvaluatedResult:",
-        allEvaluatedResult
-      );
-      obj.isGraded = allEvaluatedResult;
-
-      console.log("🚀 ~ submitEvaluation ~ obj.isGraded:", obj.isGraded);
-
-      if (obj.isGraded) {
-        console.log("*********obj isGraded true entry section*****");
-        const projectJudgement = projectEvaluation.judgement;
-
-        console.log("************judgement before comparison***********");
-        console.log(projectJudgement);
-        if (
-          projectJudgement === proposalJudgementConfig.ACCEPTED ||
-          projectJudgement ===
-            proposalJudgementConfig["ACCEPTED-CONDITIONALLY"] ||
-          projectJudgement === midJudgementConfig["PROGRESS-SATISFACTORY"] ||
-          projectJudgement === midJudgementConfig["PROGRESS-SEEN"] ||
-          projectJudgement ===
-            midJudgementConfig["PROGRESS-NOT-SATISFACTORY"] ||
-          projectJudgement === finalJudgementConfig.ACCEPTED ||
-          projectJudgement === finalJudgementConfig["ACCEPTED-CONDITIONALLY"]
-        ) {
-          console.log("************judgement pass section***********");
-          console.log(projectJudgement);
-          project[evaluationType].hasGraduated = true;
-
-          if (project[evaluationType].hasGraduated) {
-            const studentSavePromises = project.teamMembers.map(
-              async (studentId) => {
-                const student = await Student.findOne({ _id: studentId });
-                const eventType = initializeEventTypeBasedOnBatch(
-                  student.batchNumber
-                );
-                console.log(
-                  "*********student forward update progress section***********"
-                );
-                switch (eventType) {
-                  case "0":
-                    student.progressStatus = updateProjectFirstProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].defensePass
-                    );
-                    if (evaluationType === defenseTypeCode.final) {
-                      student.isAssociated = false;
-                      student.project = undefined;
-                      project.status = eventStatusList.complete;
-                    }
-                    break;
-                  case "1":
-                    student.progressStatus = updateMinorProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].defensePass
-                    );
-                    if (evaluationType === defenseTypeCode.final) {
-                      student.isAssociated = false;
-                      student.project = undefined;
-                      project.status = eventStatusList.complete;
-                    }
-                    break;
-                  case "2":
-                    student.progressStatus = updateMajorProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].defensePass
-                    );
-                    if (evaluationType === defenseTypeCode.final) {
-                      student.isAssociated = false;
-                      student.project = undefined;
-                      project.status = eventStatusList.complete;
-                    }
-                    break;
-                  default:
-                    break;
-                }
-                return student.save();
-              }
-            );
-
-            await Promise.all(studentSavePromises);
-          }
-        } else {
-          const studentSavePromises = project.teamMembers.map(
-            async (studentId) => {
-              const student = await Student.findOne({ _id: studentId });
-              const eventType = initializeEventTypeBasedOnBatch(
-                student.batchNumber
-              );
-              console.log(
-                "*********student backward update progress section***********"
-              );
-
-              //judgement is
-              if (
-                projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
-                projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
-                projectJudgement === finalJudgementConfig["RE-DEMO"] ||
-                projectJudgement === proposalJudgementConfig.ABSENT ||
-                projectJudgement === midJudgementConfig.ABSENT ||
-                projectJudgement === finalJudgementConfig.ABSENT
-              ) {
-                console.log("🚀 ~ projectJudgement:", projectJudgement);
-                console.log(
-                  "************judgement redefense defense fail  section***********"
-                );
-
-                switch (eventType) {
-                  case "0":
-                    student.progressStatus = updateProjectFirstProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].defenseFail
-                    );
-                    break;
-                  case "1":
-                    student.progressStatus = updateMinorProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].defenseFail
-                    );
-                    break;
-                  case "2":
-                    student.progressStatus = updateMajorProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].defenseFail
-                    );
-                    break;
-                  default:
-                    break;
-                }
-                return student.save();
-              } else if (
-                projectJudgement === proposalJudgementConfig.REJECTED
-              ) {
-                console.log(
-                  "************judgement rejected section***********"
-                );
-                console.log(projectJudgement);
-                switch (eventType) {
-                  case "0":
-                    student.isAssociated = false;
-                    student.progressStatus = updateProjectFirstProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].rejected
-                    );
-                    student.project = undefined;
-                    project.status = eventStatusList.archive;
-                    break;
-                  case "1":
-                    student.isAssociated = false;
-                    student.progressStatus = updateMinorProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].rejected
-                    );
-                    student.project = undefined;
-                    project.status = eventStatusList.archive;
-                    break;
-                  case "2":
-                    student.isAssociated = false;
-                    student.progressStatus = updateMajorProgressStatus(
-                      progressStatusEligibilityCode[evaluationType].rejected
-                    );
-                    student.project = undefined;
-                    project.status = eventStatusList.archive;
-                    break;
-                  default:
-                    break;
-                }
-                return student.save();
-              }
-            }
-          );
-          await Promise.all(studentSavePromises); // <- Missing line added here
-          if (
-            obj.isGraded &&
-            (projectJudgement === proposalJudgementConfig["RE-DEFENSE"] ||
-              projectJudgement === proposalJudgementConfig.REJECTED ||
-              projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
-              projectJudgement === proposalJudgementConfig.ABSENT ||
-              projectJudgement === midJudgementConfig.ABSENT ||
-              projectJudgement === finalJudgementConfig.ABSENT)
-          ) {
-            console.log("************report remove section***********");
-            console.log(projectJudgement);
-            project[evaluationType].report = undefined;
-            console.log("******after report is removed*********");
-            console.log(project[evaluationType].report);
-          }
-        }
-      }
-    }
-
-    //remove accesss code once all has Evaluated status of all project for a particular evaluator is complete
-    // !project[defenseType].defenses.every((defenseObj) => {
-    //   console.log("🚀 ~ getDefenseBydId ~ defenseObj:", defenseObj);
-    //   return defenseObj.isGraded;
-    // }
-    console.log(
-      "🚀 ~ returnproject[evaluationType].defenses.every ~ evaluationType:",
-      evaluationType
-    );
-
-    // Fetch all projects at once
-    const projects = await Project.find({ _id: { $in: room.projects } });
-    console.log("🚀 ~ submitEvaluation ~ projects:", projects);
-
-    const allProjectEvaluated = projects.every((project) => {
-      const subEvent = project[evaluationType];
-
-      const defenseObj = subEvent.defenses.find((defense) => {
-        return defense.defense.toString() === defenseId;
-      });
-      console.log("🚀 ~ defenseObj ~ defenseObj:", defenseObj)
-
-      const evaluatorObj = defenseObj.evaluators.find((evaluator) => {
-        return evaluator.evaluator.toString() === evaluatorId;
-      });
-      console.log("🚀 ~ evaluatorObj ~ evaluatorObj:", evaluatorObj)
-
-      return evaluatorObj.hasEvaluated;
-    });
-
-    console.log(
-      "🚀 ~ allProjectEvaluated ~ allProjectEvaluated:",
-      allProjectEvaluated
-    );
-
-    if (allProjectEvaluated) {
-      //find evaluator having evaluator id and obj with the defense id inside it
-      // Remove access codes from evaluators
-      await Evaluator.updateOne(
-        { _id: { $in: room.evaluators }, "defense.defenseId": defenseId },
-        { $set: { "defense.$.accessCode": undefined } }
-      );
-    }
-    //push newEvaluation id to  defense's  evaluation
     defense.evaluations.push(newEvaluation._id);
+    projectSubEvent.evaluations.push(newEvaluation._id);
 
+    //update the documenta here
     await defense.save();
-
     await project.save();
-    console.log("******update completed********");
-    return res.status(201).json({
-      data: newEvaluation,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: error.message });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    res.status(500).send({ message: err.message });
   }
 };
-
 module.exports = { getDefenseBydId, getProjectBydId, submitEvaluation };
