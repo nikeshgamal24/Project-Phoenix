@@ -849,7 +849,6 @@ const submitEvaluation = async (req, res) => {
                   break;
               }
               return student.save();
-              
             }
           );
           await Promise.all(studentSavePromises);
@@ -933,7 +932,6 @@ const submitEvaluation = async (req, res) => {
                   break;
               }
               return student.save();
-             
             }
           }
         );
@@ -945,7 +943,8 @@ const submitEvaluation = async (req, res) => {
             projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
             projectJudgement === proposalJudgementConfig.ABSENT ||
             projectJudgement === midJudgementConfig.ABSENT ||
-            projectJudgement === finalJudgementConfig.ABSENT)
+            projectJudgement === finalJudgementConfig.ABSENT ||
+            projectJudgement === finalJudgementConfig["RE-DEMO"])
         ) {
           console.log(
             "🚀 ~ submitEvaluation ~before  project[evaluationType].report :",
@@ -1116,8 +1115,8 @@ const submitEvaluation = async (req, res) => {
     await defense.save();
     await project.save();
     return res.status(201).json({
-      data:newEvaluation
-    })
+      data: newEvaluation,
+    });
   } catch (err) {
     console.error(`error-message:${err.message}`);
     res.status(500).send({ message: err.message });
