@@ -991,9 +991,9 @@ const submitEvaluation = async (req, res) => {
       console.log("🚀 ~ defenseObj ~ defenseObj:", defenseObj);
 
       defenseObj.accessCode = undefined;
+      console.log("🚀 ~ submitEvaluation ~ outside evaluator:", evaluator);
+      await evaluator.save();
     }
-    console.log("🚀 ~ submitEvaluation ~ outside evaluator:", evaluator);
-    await evaluator.save();
     //finally save the evaluation
     let formattedIndividualEvaluations;
     let newEvaluation;
@@ -1115,6 +1115,9 @@ const submitEvaluation = async (req, res) => {
     //update the documenta here
     await defense.save();
     await project.save();
+    return res.status(201).json({
+      data:newEvaluation
+    })
   } catch (err) {
     console.error(`error-message:${err.message}`);
     res.status(500).send({ message: err.message });
