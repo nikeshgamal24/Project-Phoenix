@@ -610,33 +610,47 @@ const submitEvaluation = async (req, res) => {
     //   console.log("🚀 ~ getDefenseBydId ~ defenseObj:", defenseObj);
     //   return defenseObj.isGraded;
     // }
-    const allProjectEvaluated = room.projects.every((project) => {
-      return project[evaluationType].defenses.every((defenseObj) => {
-        return defenseObj.evaluators.every((evaluatorObj) => {
-          // Ensure evaluatorObj.evaluator.toString() is called correctly
-          return (
-            evaluatorId === evaluatorObj.evaluator.toString() &&
-            evaluatorObj.hasEvaluated
-          );
-        });
+    console.log(
+      "🚀 ~ returnproject[evaluationType].defenses.every ~ evaluationType:",
+      evaluationType
+    );
+
+    // Fetch all projects at once
+    const projects = await Project.find({ _id: { $in: room.projects } });
+    console.log("🚀 ~ submitEvaluation ~ projects:", projects);
+
+    const allProjectEvaluated = projects.every((project) => {
+      const subEvent = project[evaluationType];
+
+      const defenseObj = subEvent.defenses.find((defense) => {
+        return defense.defense.toString() === defenseId;
       });
+
+      const evaluatorObj = defenseObj.evaluators.find((evaluator) => {
+        return evaluator.evaluator.toString() === evaluatorId;
+      });
+
+      return evaluatorObj.hasEvaluated;
     });
+
     console.log(
       "🚀 ~ allProjectEvaluated ~ allProjectEvaluated:",
       allProjectEvaluated
     );
 
     if (allProjectEvaluated) {
+      //find evaluator having evaluator id and obj with the defense id inside it
       // Remove access codes from evaluators
-      await Evaluator.updateMany(
-        { _id: { $in: room.evaluators }, "defense.defenseId": defense._id },
-        { $unset: { "defense.$.accessCode": "" } }
+      await Evaluator.updateOne(
+        { _id: { $in: room.evaluators }, "defense.defenseId": defenseId },
+        { $set: { "defense.$.accessCode": undefined } }
       );
     }
     //push newEvaluation id to  defense's  evaluation
     defense.evaluations.push(newEvaluation._id);
 
     await defense.save();
+
     await project.save();
     console.log("******update completed********");
     return res.status(201).json({
