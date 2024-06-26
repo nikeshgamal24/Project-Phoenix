@@ -178,6 +178,9 @@ const projectSchema = new Schema(
         },
       ],
     },
+    categories: {
+      type: [String],
+    },
     timeStamps: {
       type: Date,
       timestamps: true,

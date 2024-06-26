@@ -192,15 +192,22 @@ const getAllStudentsList = async (req, res) => {
 
 const createProjectTeam = async (req, res) => {
   try {
-    if (!req?.body?.projectName || !req?.body?.teamMembers) {
-      return res.status(400).json({ message: "Required Fields are empty" });
-    }
-
     //destructing the req.body to get the necessary values from the object
-    const { projectName, projectDescription, teamMembers, eventId } = req.body;
+    const {
+      projectName,
+      projectDescription,
+      teamMembers,
+      eventId,
+      categories,
+    } = req.body;
     const { batchNumber, program } = await Student.findOne({
       _id: req.userId,
     });
+
+    if (!projectName || !teamMembers || !category) {
+      return res.status(400).json({ message: "Required Fields are empty" });
+    }
+
     //first check whether the teamMembers selected are associated with other projects or not
     //1. check the isAssociated field and even one of the teamMember is already associated with other existing project then return with 409 conflicting status
     let alreadyAssociated = false;
@@ -236,6 +243,9 @@ const createProjectTeam = async (req, res) => {
       teamMembers: teamMembers,
       event: eventId,
       status: eventStatusList.active,
+      categories: categories.map((category) => {
+        return category;
+      }),
     });
 
     //unable to create team
@@ -494,7 +504,7 @@ const submitReport = async (req, res) => {
 };
 
 const getAllArchiveProjects = async (req, res) => {
-  const studentId  = req.userId;
+  const studentId = req.userId;
   console.log(studentId);
   console.log(req.params.studentId);
   if (!studentId) {
@@ -506,9 +516,9 @@ const getAllArchiveProjects = async (req, res) => {
       teamMembers: {
         $in: [studentId],
       },
-      status:{
-        $in:[eventStatusList.complete,eventStatusList.archive]
-      }
+      status: {
+        $in: [eventStatusList.complete, eventStatusList.archive],
+      },
     }).sort({ createdAt: -1 });
 
     if (!associatedProjects || associatedProjects.length === 0) {
