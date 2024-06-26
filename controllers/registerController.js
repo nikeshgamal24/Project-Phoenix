@@ -9,12 +9,24 @@ const {
 const {
   initializeProgressStatus,
 } = require("./utility functions/initializeProgressStatus");
+
 const handleNewUser = async (req, res) => {
-  const { fullname, email, photo, password, phoneNumber, program, role } =
-    req.body;
+  const {
+    fullname,
+    email,
+    photo,
+    password,
+    phoneNumber,
+    program,
+    role,
+    institution,
+    designation,
+    skillSet,
+  } = req.body;
+  console.log("🚀 ~ handleNewUser ~ req.body:", req.body);
 
   // checkCredentials(req,res,{ fullname, email, photo, password, phoneNumber, program });
-  if (!fullname || !email || !password || !phoneNumber)
+  if (!fullname || !email || !password || !phoneNumber || !role)
     return res.status(400).json({
       message: "All credentials are required",
     });
@@ -30,6 +42,7 @@ const handleNewUser = async (req, res) => {
   } else {
     return res.sendStatus(400);
   }
+  console.log("🚀 ~ handleNewUser ~ duplicate:", duplicate);
 
   // status 409--> for conflict status
   if (duplicate)
@@ -71,6 +84,11 @@ const handleNewUser = async (req, res) => {
         password: hashedPassword,
         phoneNumber: phoneNumber,
         role: [role],
+        institution: institution,
+        designation: designation,
+        skillSet: skillSet.map((skill) => {
+          return skill;
+        }),
       });
     } else if (role === roleList.Admin) {
       result = await Admin.create({

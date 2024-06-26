@@ -65,6 +65,7 @@ const handleLogin = async (req, res) => {
         role,
         process.env.ACCESS_TOKEN_EXPIRATION_TIME
       );
+
       if (!accessToken)
         return res.status(400).send("Access Token creation fail");
 
@@ -73,6 +74,7 @@ const handleLogin = async (req, res) => {
         foundUser,
         process.env.REFRESH_TOKEN_EXPIRATION_TIME
       );
+
       if (!refreshToken)
         return res.status(400).send("Refresh Token creation fail");
 
@@ -85,7 +87,7 @@ const handleLogin = async (req, res) => {
       foundUser.password = undefined;
       foundUser.refreshToken = undefined;
       //sending accessToken as an response
-      res.status(200).json({
+      return res.status(200).json({
         accessToken,
         user: foundUser,
       });
