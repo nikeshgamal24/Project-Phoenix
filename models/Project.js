@@ -28,6 +28,10 @@ const projectSchema = new Schema(
       type: String,
       default: "101",
     },
+    supervisorId:{
+      type: Schema.Types.ObjectId,
+      ref: "Supervisor",
+    },
     proposal: {
       defenses: {
         type: [

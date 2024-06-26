@@ -18,8 +18,6 @@ const supervisorSchema = new Schema(
     photo: String,
     password: {
       type: String,
-      required: [true, "Please provide a password!"],
-      minlength: 8,
     },
     phoneNumber: {
       type: String,
