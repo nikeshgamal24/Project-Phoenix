@@ -28,8 +28,25 @@ const supervisorSchema = new Schema(
     role: {
       type: [Number],
     },
+    designation: {
+      type: String,
+    },
+    institution: {
+      type: String,
+    },
+    skillSet: {
+      type: [String],
+    },
     refreshToken: {
       type: String,
+    },
+    isAvailable: {
+      type: Boolean,
+      default: true,
+    },
+    projectId: {
+      type: Schema.Types.ObjectId,
+      ref: "Project",
     },
     OTP: String,
     timeStamps: {
