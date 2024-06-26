@@ -53,7 +53,7 @@ app.use("/api/logout", require("./routes/logout"));
 app.use("/api/forgotPassword/OTP", require("./routes/matchOTP"));
 app.use("/api/forgotPassword/password", require("./routes/passwordReset"));
 
-app.use("/api/event", require("./routes/api/events"))
+// app.use("/api/event", require("./routes/api/events"))
 //excute the swagger docs function
 swaggerDocs(app, PORT);
 app.use(verifyJWT);
