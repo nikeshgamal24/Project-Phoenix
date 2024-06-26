@@ -1,5 +1,6 @@
 const Event = require("../models/Event");
 const Student = require("../models/Student");
+const Supervisor = require("../models/Supervisor");
 const Evaluator = require("../models/Evaluator");
 const Defense = require("../models/Defense");
 const Room = require("../models/Room");
@@ -170,8 +171,14 @@ const getEvent = async (req, res) => {
   }
 
   try {
-    console.log("🚀 ~ getEvent ~ eventStatusList.complete:", eventStatusList.complete)
-    console.log("🚀 ~ getEvent ~ eventStatusList.active:", eventStatusList.active)
+    console.log(
+      "🚀 ~ getEvent ~ eventStatusList.complete:",
+      eventStatusList.complete
+    );
+    console.log(
+      "🚀 ~ getEvent ~ eventStatusList.active:",
+      eventStatusList.active
+    );
     // Find event by ID and populate the author field
     const event = await Event.findById(req.params.id)
       .populate({ path: "author", select: "-password -refreshToken" })
@@ -185,7 +192,7 @@ const getEvent = async (req, res) => {
           select: "-password -OTP -refreshToken",
         },
       });
-    console.log("🚀 ~ getEvent ~ event:", event)
+    console.log("🚀 ~ getEvent ~ event:", event);
 
     // Check if event exists
     if (!event) {
@@ -372,9 +379,7 @@ const createNewDefense = async (req, res) => {
       defenseType: req.body.defenseType,
       status: eventStatusList.active,
     });
-    console.log("🚀 ~ createNewDefense ~ defenseExists:", defenseExists)
-
-
+    console.log("🚀 ~ createNewDefense ~ defenseExists:", defenseExists);
 
     //does not allow to create defense of a particular event that has been already created for e.g. if project I proposal defense has already been created then if we create it again it will give 409----> conflict
     if (defenseExists.length) {
@@ -633,17 +638,37 @@ const getAllProjects = async (req, res) => {
 
 const getAllStudents = async (req, res) => {
   try {
-    // Fetch all events details and populate projects
-    let students = await Student.find().sort({ createdAt: -1 });
+    // Fetch all students details and populate projects
+    const students = await Student.find().sort({ createdAt: -1 });
 
-    // If no events, return status 204
+    // If no students, return status 204
     if (!students || students.length === 0) {
       return res.sendStatus(204);
     }
 
-    // Return response with events and evaluators
+    // Return response with students 
     return res.status(200).json({
       data: students,
+    });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    return res.sendStatus(500);
+  }
+};
+
+const getAllSupervisors = async (req, res) => {
+  try {
+    // Fetch all supervisors details and populate projects
+    const supervisors = await Supervisor.find().sort({ createdAt: -1 });
+
+    // If no supervisor, return status 204
+    if (!supervisors || supervisors.length === 0) {
+      return res.sendStatus(204);
+    }
+
+    // Return response with events 
+    return res.status(200).json({
+      data: supervisors,
     });
   } catch (err) {
     console.error(`Error: ${err.message}`);
@@ -665,4 +690,5 @@ module.exports = {
   extendDeadline,
   getAllProjects,
   getAllStudents,
+  getAllSupervisors,
 };

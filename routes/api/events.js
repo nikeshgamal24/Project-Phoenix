@@ -1305,4 +1305,8 @@ router
   .route("/event/students")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllStudents);
 
+router
+  .route("/event/supervisors")
+  .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllSupervisors);
+
 module.exports = router;
