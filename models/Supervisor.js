@@ -42,10 +42,12 @@ const supervisorSchema = new Schema(
       type: Boolean,
       default: true,
     },
-    projectId: {
-      type: Schema.Types.ObjectId,
-      ref: "Project",
-    },
+    projectId: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Project",
+      },
+    ],
     OTP: String,
     timeStamps: {
       type: Date,

@@ -23,6 +23,7 @@ const { sendMailToUser } = require("./utility functions/sendMailToUser");
 const {
   initializeEventTypeBasedOnBatch,
 } = require("./utility functions/initializeEventTypeBasedOnBatch");
+const { matchProjectsToSupervisors } = require("./utility functions/Match Projects and Supervisors/matchProjectsToSupervisors");
 
 //sensitive fields that will be undefined by the funciton filterSensitiveFields
 const sensitiveFields = ["role", "password", "refreshToken"];
@@ -646,7 +647,7 @@ const getAllStudents = async (req, res) => {
       return res.sendStatus(204);
     }
 
-    // Return response with students 
+    // Return response with students
     return res.status(200).json({
       data: students,
     });
@@ -666,12 +667,23 @@ const getAllSupervisors = async (req, res) => {
       return res.sendStatus(204);
     }
 
-    // Return response with events 
+    // Return response with events
     return res.status(200).json({
       data: supervisors,
     });
   } catch (err) {
     console.error(`Error: ${err.message}`);
+    return res.sendStatus(500);
+  }
+};
+
+const matchProjects = async (req, res) => {
+  try {
+    const matches = await matchProjectsToSupervisors();
+    console.log("🚀 ~ matchProjects ~ matches:", matches)
+    return res.sendStatus(200)
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
     return res.sendStatus(500);
   }
 };
@@ -691,4 +703,5 @@ module.exports = {
   getAllProjects,
   getAllStudents,
   getAllSupervisors,
+  matchProjects
 };
