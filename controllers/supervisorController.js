@@ -8,7 +8,7 @@ const updateSupervisor = async (req, res) => {
     }
 
     const updateFields = {};
-    const allowedFields = ["institution", "designation", "skillSet"];
+    const allowedFields = ["institution", "designation", "skillSet","phoneNumber"];
 
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined && req.body[field]) {

@@ -11,18 +11,8 @@ const {
 } = require("./utility functions/initializeProgressStatus");
 
 const handleNewUser = async (req, res) => {
-  const {
-    fullname,
-    email,
-    photo,
-    password,
-    phoneNumber,
-    program,
-    role,
-    institution,
-    designation,
-    skillSet,
-  } = req.body;
+  const { fullname, email, photo, password, phoneNumber, program, role } =
+    req.body;
   console.log("🚀 ~ handleNewUser ~ req.body:", req.body);
 
   // checkCredentials(req,res,{ fullname, email, photo, password, phoneNumber, program });
@@ -84,11 +74,6 @@ const handleNewUser = async (req, res) => {
         password: hashedPassword,
         phoneNumber: phoneNumber,
         role: [role],
-        institution: institution,
-        designation: designation,
-        skillSet: skillSet.map((skill) => {
-          return skill;
-        }),
       });
     } else if (role === roleList.Admin) {
       result = await Admin.create({
