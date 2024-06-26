@@ -42,15 +42,19 @@ const googleOauthHandler = async (req, res) => {
   try {
     // get the code from qs
     const code = req.query.code;
+    console.log("🚀 ~ googleOauthHandler ~ code:", code)
     const role = Number(req.query.state);
+    console.log("🚀 ~ googleOauthHandler ~ role:", role)
     // get id and access token with code
     const { id_token, access_token } = await getGoogleOAuthTokens(
       req,
       res,
       code
     );
+    console.log("🚀 ~ googleOauthHandler ~ id_token, access_token:", id_token, access_token)
 
     const googleUser = await getGoogleUser({ id_token, access_token });
+    console.log("🚀 ~ googleOauthHandler ~ googleUser:", googleUser)
     // jwt.decode(id_token);
 
     if (!googleUser.verified_email) {
@@ -83,11 +87,13 @@ const googleOauthHandler = async (req, res) => {
       //validate super email-->boolean state
       const supervisorEmailRegex =
         /^[a-zA-Z]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*\.edu\.np$/;
-      const studentEmailRegex = /^[a-zA-Z]+\.[0-9]{6}@ncit\.edu\.np$/;
+      // const studentEmailRegex = /^[a-zA-Z]+\.[0-9]{6}@ncit\.edu\.np$/;
 
-      const isStudentEmail = studentEmailRegex.test(googleUser.email);
+      // const isStudentEmail = studentEmailRegex.test(googleUser.email);
+      // validUser =
+      //   supervisorEmailRegex.test(googleUser.email) && !isStudentEmail;
       validUser =
-        supervisorEmailRegex.test(googleUser.email) && !isStudentEmail;
+        supervisorEmailRegex.test(googleUser.email);
       validUserModel = Supervisor;
     } else {
       return res.sendStatus(401);
@@ -106,6 +112,7 @@ const googleOauthHandler = async (req, res) => {
       process.env.ACCESS_TOKEN_EXPIRATION_TIME
     );
 
+    console.log("🚀 ~ googleOauthHandler ~ accessToken:", accessToken)
     if (!accessToken) return res.status(400).send("Access Token creation fail");
     //creating refresh token
     const refreshToken = createRefreshToken(
@@ -113,6 +120,7 @@ const googleOauthHandler = async (req, res) => {
       process.env.REFRESH_TOKEN_EXPIRATION_TIME
     );
 
+    console.log("🚀 ~ googleOauthHandler ~ refreshToken:", refreshToken)
     if (!refreshToken)
       return res.status(400).send("Refresh Token creation fail");
     // upsert the user based on the role and model
@@ -124,6 +132,7 @@ const googleOauthHandler = async (req, res) => {
       refreshToken
     );
 
+    console.log("🚀 ~ googleOauthHandler ~ user:", user)
     //update rollnumber, batch number only if the googleUser is a student of the organization else skip the update function call
     if (validUserModel === Student) {
       //determine the progress status of the student on their project based on the year of their academic and setting the progress status to database
