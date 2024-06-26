@@ -204,7 +204,7 @@ const createProjectTeam = async (req, res) => {
       _id: req.userId,
     });
 
-    if (!projectName || !teamMembers || !category) {
+    if (!projectName || !teamMembers || !categories ||projectDescription) {
       return res.status(400).json({ message: "Required Fields are empty" });
     }
 
@@ -243,9 +243,7 @@ const createProjectTeam = async (req, res) => {
       teamMembers: teamMembers,
       event: eventId,
       status: eventStatusList.active,
-      categories: categories.map((category) => {
-        return category;
-      }),
+      categories: categories
     });
 
     //unable to create team
