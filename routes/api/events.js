@@ -1309,8 +1309,8 @@ router
   .route("/event/supervisors")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getAllSupervisors);
 
-// router
-//   .route("/event/matchProjects")
-//   .get(eventController.matchProjects);
+router
+  .route("/event/matchProjects")
+  .post(verifyRoles(ROLES_LIST.Admin), eventController.matchProjects);
 
 module.exports = router;

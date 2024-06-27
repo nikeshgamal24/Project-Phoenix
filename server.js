@@ -62,7 +62,6 @@ app.use("/api/event", require("./routes/api/events"));
 app.use("/api/evaluator", require("./routes/api/evaluators"));
 app.use("/api/student", require("./routes/api/students"));
 app.use("/api/supervisor", require("./routes/api/supervisors"));
-// app.use("/employee", require("./routes/api/employees"));
 
 app.all("*", (req, res) => {
   res.status(404);

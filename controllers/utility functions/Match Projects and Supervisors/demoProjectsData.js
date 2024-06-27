@@ -8,12 +8,6 @@ const demoProjectsData = [
     categories: ["Web Dev", "E-commerce"],
   },
   {
-    projectName: "Healthcare AI System",
-    projectType: "AI/ML",
-    projectDescription: "Building an AI system for healthcare data analysis",
-    categories: ["AI/ML", "Health"],
-  },
-  {
     projectName: "Mobile Game Development",
     projectType: "Game Dev",
     projectDescription: "Creating a mobile game using Unity",

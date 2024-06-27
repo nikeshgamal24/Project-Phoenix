@@ -23,7 +23,9 @@ const { sendMailToUser } = require("./utility functions/sendMailToUser");
 const {
   initializeEventTypeBasedOnBatch,
 } = require("./utility functions/initializeEventTypeBasedOnBatch");
-const { matchProjectsToSupervisors } = require("./utility functions/Match Projects and Supervisors/matchProjectsToSupervisors");
+const {
+  matchProjectsToSupervisors,
+} = require("./utility functions/Match Projects and Supervisors/matchProjectsToSupervisors");
 
 //sensitive fields that will be undefined by the funciton filterSensitiveFields
 const sensitiveFields = ["role", "password", "refreshToken"];
@@ -679,9 +681,19 @@ const getAllSupervisors = async (req, res) => {
 
 const matchProjects = async (req, res) => {
   try {
-    const matches = await matchProjectsToSupervisors();
-    console.log("🚀 ~ matchProjects ~ matches:", matches)
-    return res.sendStatus(200)
+    const { availableSupervisors, eventId } = req.body;
+
+    // when supervisors and event id is empty as we can not proceed wihtout them
+    if (!availableSupervisors || !eventId) return res.sendStatus(400);
+
+    const matches = await matchProjectsToSupervisors({
+      availableSupervisors: availableSupervisors,
+      eventId: eventId,
+    });
+
+    // const matches = await matchProjectsToSupervisors();// for demo
+    console.log("🚀 ~ matchProjects ~ matches:", matches);
+    // return res.sendStatus(200);
   } catch (err) {
     console.error(`error-message:${err.message}`);
     return res.sendStatus(500);
@@ -703,5 +715,5 @@ module.exports = {
   getAllProjects,
   getAllStudents,
   getAllSupervisors,
-  matchProjects
+  matchProjects,
 };

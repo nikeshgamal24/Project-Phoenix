@@ -1,3 +1,4 @@
+const eventStatusList = require("../../../config/eventStatusList");
 const Project = require("../../../models/Project");
 const Supervisor = require("../../../models/Supervisor");
 const { cosineSimilarity, getSkillVector } = require("./cosineSimilarity");
@@ -5,13 +6,7 @@ const { demoProjectsData } = require("./demoProjectsData");
 const { demoSupervisorsData } = require("./demoSupervisorsData");
 
 // Function to fetch all unique skills from projects and supervisors
-const getAllSkills = async () => {
-  //   const projects = await Project.find();
-  //   const supervisors = await Supervisor.find();
-
-  const projects = demoProjectsData;
-  const supervisors = demoSupervisorsData;
-
+const getAllSkills = async ({ projects, supervisors }) => {
   const allSkills = new Set();
   console.log("🚀 ~ getAllSkills before~ allSkills:", allSkills);
 
@@ -28,18 +23,29 @@ const getAllSkills = async () => {
 };
 
 // Function to match projects to supervisors
-const matchProjectsToSupervisors = async () => {
-  //   const projects = await Project.find();
-  //   const supervisors = await Supervisor.find();
-  const projects = demoProjectsData;
+const matchProjectsToSupervisors = async ({
+  availableSupervisors,
+  eventId,
+}) => {
+  // const projects = demoProjectsData; //demodata
+  // const supervisors = demoSupervisorsData; //demodata
+  
+  const projects = await Project.find({
+    event: eventId,
+    status: eventStatusList.active,
+  });
+
   console.log("🚀 ~ matchProjectsToSupervisors ~ projects:", projects);
-  const supervisors = demoSupervisorsData;
+  const supervisors = availableSupervisors;
   console.log("🚀 ~ matchProjectsToSupervisors ~ supervisors:", supervisors);
-  const allSkills = await getAllSkills();
+
+  const allSkills = await getAllSkills({
+    projects: projects,
+    supervisors: supervisors,
+  });
   console.log("🚀 ~ matchProjectsToSupervisors ~ allSkills:", allSkills);
 
   const projectVectors = projects.map((project) => {
-    console.log("🚀 ~ matchProjectsToSupervisors ~ project:", project);
     return getSkillVector(project.categories, allSkills);
   });
   console.log(
@@ -49,7 +55,6 @@ const matchProjectsToSupervisors = async () => {
   console.log("*******************************************");
 
   const supervisorVectors = supervisors.map((supervisor) => {
-    console.log("🚀 ~ matchProjectsToSupervisors ~ supervisor:", supervisor);
     return getSkillVector(supervisor.skillSet, allSkills);
   });
   console.log(
@@ -102,33 +107,34 @@ const matchProjectsToSupervisors = async () => {
       supervisorChoices
     );
     console.log("*******************************************");
+
     let assigned = false;
     for (const choice of supervisorChoices) {
       console.log("🚀 ~ projects.forEach ~ choice:", choice);
       const supervisor = supervisors[choice.index];
       console.log("🚀 ~ projects.forEach ~ supervisor:", supervisor);
 
-      if (supervisor.projects.length < 2) {
-        // Check if supervisor can take more projects
-        // Assign project to supervisor
-        project.supervisorId = supervisor.fullname;
-        console.log("🚀 ~ projects.forEach ~ project:", project);
+      // Check if supervisor can take more projects
+      // Assign project to supervisor
+      project.supervisor = supervisor.fullname;
+      // project.supervisor = supervisor._id;
+      console.log("🚀 ~ projects.forEach ~ project:", project);
 
-        // Update supervisor's projectsAssigned count
-        supervisor.projects.push(project.projectName); // should push project id
-        // await supervisor.save();
+      // Update supervisor's projectsAssigned count
+      supervisor.projects.push(project.projectName); // should push project id
+      // supervisor.projects.push(project._id);
+      // await supervisor.save();
 
-        matches.push({
-          project: project.projectName,
-          supervisor: supervisor.fullname,
-        });
-        assigned = true;
-        console.log(
-          "🚀 ~ projects.forEach inside supervisor.projectsAssigned < 2 ~ matches:",
-          matches
-        );
-        break; // Exit loop once project is assigned
-      }
+      matches.push({
+        project: project.projectName,
+        supervisor: supervisor.fullname,
+      });
+      assigned = true;
+      console.log(
+        "🚀 ~ projects.forEach inside supervisor.projectsAssigned~ matches:",
+        matches
+      );
+      break; // Exit loop once project is assigned
     }
 
     if (!assigned) {

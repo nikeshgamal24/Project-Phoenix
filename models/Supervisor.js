@@ -42,7 +42,7 @@ const supervisorSchema = new Schema(
       type: Boolean,
       default: true,
     },
-    projectId: [
+    projects: [
       {
         type: Schema.Types.ObjectId,
         ref: "Project",

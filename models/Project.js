@@ -28,9 +28,20 @@ const projectSchema = new Schema(
       type: String,
       default: "101",
     },
-    supervisorId:{
-      type: Schema.Types.ObjectId,
-      ref: "Supervisor",
+    supervisor: {
+      supervisorId: { type: Schema.Types.ObjectId, ref: "Supervisor" },
+      mid: {
+        approved: {
+          type: Boolean,
+          default: false,
+        },
+      },
+      final: {
+        approved: {
+          type: Boolean,
+          default: false,
+        },
+      },
     },
     proposal: {
       defenses: {
