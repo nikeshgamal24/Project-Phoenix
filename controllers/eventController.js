@@ -684,7 +684,7 @@ const matchProjects = async (req, res) => {
     const { availableSupervisors, eventId } = req.body;
 
     // when supervisors and event id is empty as we can not proceed wihtout them
-    if (!availableSupervisors || !eventId) return res.sendStatus(400);
+    if (!availableSupervisors.length || !eventId) return res.sendStatus(400);
 
     const matches = await matchProjectsToSupervisors({
       availableSupervisors: availableSupervisors,
@@ -692,8 +692,11 @@ const matchProjects = async (req, res) => {
     });
 
     // const matches = await matchProjectsToSupervisors();// for demo
+     console.log("**************************************************");
     console.log("🚀 ~ matchProjects ~ matches:", matches);
-    // return res.sendStatus(200);
+    return res.status(200).json({
+      data:matches
+    });
   } catch (err) {
     console.error(`error-message:${err.message}`);
     return res.sendStatus(500);
