@@ -131,11 +131,19 @@ const matchProjectsToSupervisors = async ({
         matchEntry = { supervisor: supervisor, projects: [] };
         matches.push(matchEntry);
       }
+      console.log("🚀 ~ projects.forEach ~ matchEntry.projects.length:", matchEntry.projects.length)
 
-      // Add the project to the supervisor's project array
-      matchEntry.projects.push(project);
-      assigned = true;
-      break; // Exit loop once project is assigned
+      console.log("🚀 ~ projects.forEach ~ supervisors.length):", supervisors.length)
+      console.log("🚀 ~ projects.forEach ~ projects.length:", projects.length)
+      console.log("🚀 ~ projects.forEach ~ projects.length / supervisors.length:", projects.length / supervisors.length)
+      if (matchEntry.projects.length < Math.ceil(projects.length / supervisors.length)) {
+        project.supervisor = { supervisorId: supervisor._id };
+        supervisor.projects.push(project);
+
+        matchEntry.projects.push(project);
+        assigned = true;
+        break; // Exit loop once project is assigned
+      }
     }
 
     if (!assigned) {
