@@ -43,4 +43,12 @@ router
 router
   .route("/archive/")
   .get(verifyRoles(roleList.Student), studentController.getAllArchiveProjects);
+
+router
+  .route("/progress-log/create")
+  .post(verifyRoles(roleList.Student), studentController.createProgressLog);
+
+router
+  .route("/progress-log/:id") //get projectId for the log of the project id
+  .get(verifyRoles(roleList.Student), studentController.getAllProjectLogsOfProjects);
 module.exports = router;

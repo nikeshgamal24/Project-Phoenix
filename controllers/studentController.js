@@ -34,6 +34,7 @@ const {
 const {
   determineProposalDefenseType,
 } = require("./utility functions/determineProposalDefenseType");
+const ProgressLog = require("../models/ProgressLog");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -243,7 +244,7 @@ const createProjectTeam = async (req, res) => {
       teamMembers: teamMembers,
       event: eventId,
       status: eventStatusList.active,
-      categories: categories
+      categories: categories,
     });
 
     //unable to create team
@@ -532,6 +533,63 @@ const getAllArchiveProjects = async (req, res) => {
   }
 };
 
+const createProgressLog = async (req, res) => {
+  try {
+    console.log("🚀 ~ createProgressLog ~ req.body:", req.body);
+    const { title, description, logDate, projectId } = req.body;
+
+    if (!title || !description || !logDate || !projectId)
+      return res.sendStatus(400);
+
+    //create a progress log
+    const newProgressLog = await ProgressLog.create({
+      title: title,
+      description: description,
+      logDate: logDate,
+      author: req.userId,
+      projectId: projectId,
+    });
+    console.log("🚀 ~ createProgressLog ~ newProgressLog:", newProgressLog);
+
+    if (!newProgressLog) return res.sendStatus(400);
+
+    //return success
+    return res.status(201).json({
+      data: newProgressLog,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.status(400);
+  }
+};
+
+const getAllProjectLogsOfProjects = async (req, res) => {
+  try {
+    //get the project id from the params
+    const projectId = req.params.id;
+
+    //if projectId is not found
+    if (!projectId) return res.sendStatus(400);
+
+    const progressLogs = await ProgressLog.find({
+      projectId: projectId,
+    }).populate([
+      {path:"author",},
+      {path:"projectId"}
+    ]);
+
+    //when there is no progress logs for the project
+    if (!progressLogs|| !progressLogs.length) return res.sendStatus(204);
+
+    //return success
+    return res.status(200).json({
+      data: progressLogs,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.status(400);
+  }
+};
 module.exports = {
   updateStudent,
   getAllEvents,
@@ -541,4 +599,6 @@ module.exports = {
   getProjectById,
   submitReport,
   getAllArchiveProjects,
+  createProgressLog,
+  getAllProjectLogsOfProjects,
 };
