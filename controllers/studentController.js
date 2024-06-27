@@ -328,6 +328,7 @@ const getProjectById = async (req, res) => {
   try {
     const populateOptions = [
       { path: "teamMembers" },
+      { path: "supervisor", populate: { path: "supervisorId" } },
       { path: "event" },
       {
         path: "proposal",
@@ -573,13 +574,10 @@ const getAllProjectLogsOfProjects = async (req, res) => {
 
     const progressLogs = await ProgressLog.find({
       projectId: projectId,
-    }).populate([
-      {path:"author",},
-      {path:"projectId"}
-    ]);
+    }).populate([{ path: "author" }, { path: "projectId" }]);
 
     //when there is no progress logs for the project
-    if (!progressLogs|| !progressLogs.length) return res.sendStatus(204);
+    if (!progressLogs || !progressLogs.length) return res.sendStatus(204);
 
     //return success
     return res.status(200).json({
