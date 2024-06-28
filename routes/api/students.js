@@ -50,5 +50,5 @@ router
 
 router
   .route("/progress-log/:id") //get projectId for the log of the project id
-  .get(verifyRoles(roleList.Student), studentController.getAllProjectLogsOfProjects);
+  .get(verifyRoles(roleList.Student), studentController.getAllProjectLogsOfProject);
 module.exports = router;

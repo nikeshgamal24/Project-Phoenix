@@ -328,6 +328,7 @@ const getProjectById = async (req, res) => {
   try {
     const populateOptions = [
       { path: "teamMembers" },
+      { path: "progressLogs" },
       { path: "supervisor", populate: { path: "supervisorId" } },
       { path: "event" },
       {
@@ -561,9 +562,12 @@ const createProgressLog = async (req, res) => {
     if (!newProgressLog) return res.sendStatus(400);
 
     project.progressLogs.push(newProgressLog._id);
-    
+
     await project.save();
-    console.log("🚀 ~ createProgressLog ~ project.progressLogs:", project.progressLogs)
+    console.log(
+      "🚀 ~ createProgressLog ~ project.progressLogs:",
+      project.progressLogs
+    );
     //return success
     return res.status(201).json({
       data: newProgressLog,
@@ -574,7 +578,7 @@ const createProgressLog = async (req, res) => {
   }
 };
 
-const getAllProjectLogsOfProjects = async (req, res) => {
+const getAllProjectLogsOfProject = async (req, res) => {
   try {
     //get the project id from the params
     const projectId = req.params.id;
@@ -585,6 +589,11 @@ const getAllProjectLogsOfProjects = async (req, res) => {
     const progressLogs = await ProgressLog.find({
       projectId: projectId,
     }).populate([{ path: "author" }, { path: "projectId" }]);
+
+    console.log(
+      "🚀 ~ getAllProjectLogsOfProject ~ progressLogs:",
+      progressLogs
+    );
 
     //when there is no progress logs for the project
     if (!progressLogs || !progressLogs.length) return res.sendStatus(204);
@@ -608,5 +617,5 @@ module.exports = {
   submitReport,
   getAllArchiveProjects,
   createProgressLog,
-  getAllProjectLogsOfProjects,
+  getAllProjectLogsOfProject,
 };
