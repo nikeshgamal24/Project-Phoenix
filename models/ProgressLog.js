@@ -26,7 +26,7 @@ const progressLogSchema = new Schema({
     type: Boolean,
     default: false
   },
-  approveDate: {
+  approvedDate: {
     type: Date,
     default: null
   },
