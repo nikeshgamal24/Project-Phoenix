@@ -1313,4 +1313,8 @@ router
   .route("/event/matchProjects")
   .post(verifyRoles(ROLES_LIST.Admin), eventController.matchProjects);
 
+router
+  .route("/event/saveMatchedProjects")
+  .post(verifyRoles(ROLES_LIST.Admin), eventController.saveMatchedProjects);
+
 module.exports = router;

@@ -42,12 +42,6 @@ const supervisorSchema = new Schema(
       type: Boolean,
       default: true,
     },
-    projects: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Project",
-      },
-    ],
     OTP: String,
     timeStamps: {
       type: Date,
