@@ -1,3 +1,5 @@
+const eventStatusList = require("../config/eventStatusList");
+const Project = require("../models/Project");
 const Supervisor = require("../models/Supervisor");
 
 //update student details
@@ -8,7 +10,12 @@ const updateSupervisor = async (req, res) => {
     }
 
     const updateFields = {};
-    const allowedFields = ["institution", "designation", "skillSet","phoneNumber"];
+    const allowedFields = [
+      "institution",
+      "designation",
+      "skillSet",
+      "phoneNumber",
+    ];
 
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined && req.body[field]) {
@@ -46,4 +53,57 @@ const updateSupervisor = async (req, res) => {
   }
 };
 
-module.exports = { updateSupervisor };
+const getAllProjects = async (req, res) => {
+  try {
+    //get all projects where the supervisor id inside supervirsor object is equal to current logged in supervisor id
+    const projects = await Project.find({
+      "supervisor.supervisorId": req.userId,
+      status: eventStatusList.active,
+    });
+
+    //when there is no content for the supervisor
+    if (!projects.length) return res.sendStatus(204);
+
+    return res.status(200).json({
+      data: projects,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
+
+const getProjectBydId = async (req, res) => {
+  // Check if ID is provided
+  if (!req?.params?.id) {
+    return res.status(400).json({ message: "Defense ID required." });
+  }
+  try {
+    // Find event by ID and populate the author field
+    const project = await Project.findById({
+      _id: req.params.id,
+      status: eventStatusList.active,
+    })
+      .populate("teamMembers")
+      .populate("event")
+      .populate("progressLogs")
+      .populate([
+        { path: "proposal.evaluations", populate: { path: "evaluator" } },
+        { path: "mid.evaluations", populate: { path: "evaluator" } },
+        { path: "final.evaluations", populate: { path: "evaluator" } },
+      ]);
+
+    // Check if event exists
+    if (!project) {
+      return res.sendStatus(204);
+    }
+    // Send response
+    return res.status(200).json({
+      data: project,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
+module.exports = { updateSupervisor, getAllProjects, getProjectBydId };

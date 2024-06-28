@@ -8,5 +8,12 @@ router
   .route("/supervisors/:id")
   .put(verifyRoles(roleList.Supervisor), supervisorController.updateSupervisor);
 
+router
+  .route("/projects/")
+  .get(verifyRoles(roleList.Supervisor), supervisorController.getAllProjects);
+
+router
+  .route("/project/:id")
+  .get(verifyRoles(roleList.Supervisor), supervisorController.getProjectBydId);
 
 module.exports = router;
