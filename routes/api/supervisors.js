@@ -40,4 +40,18 @@ router
     supervisorController.toogleAvailabilityOfSupervisor
   );
 
+router
+  .route("/supervisor/progress-log/verify/:id")
+  .post(
+    verifyRoles(roleList.Supervisor),
+    supervisorController.progressLogVerify
+  );
+
+router
+  .route("/supervisor/progress-log/grant-approval/:id")
+  .post(
+    verifyRoles(roleList.Supervisor),
+    supervisorController.progressLogApprovalGrant
+  );
+
 module.exports = router;

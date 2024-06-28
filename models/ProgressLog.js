@@ -28,7 +28,6 @@ const progressLogSchema = new Schema({
   },
   approvedDate: {
     type: Date,
-    default: null
   },
   approvedBy: {
     type: Schema.Types.ObjectId,

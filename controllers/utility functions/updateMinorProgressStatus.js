@@ -13,16 +13,19 @@ const updateMinorProgressStatus = (eligibility) => {
         return "1002";
       case eligibilityStatus.proposal.defensePass:
       case eligibilityStatus.mid.defenseFail:
-      case eligibilityStatus.mid.eligibeForReportSubmission:
         return "1010";
-      case eligibilityStatus.mid.eligibleForDefense:
+      case eligibilityStatus.mid.approvalFromSupervisor:
         return "1011";
+      case eligibilityStatus.mid.eligibleForDefense:
+        return "1012";
       case eligibilityStatus.mid.defensePass:
       case eligibilityStatus.final.defenseFail:
       case eligibilityStatus.final.eligibeForReportSubmission:
         return "1020";
-      case eligibilityStatus.final.eligibleForDefense:
+      case eligibilityStatus.final.approvalFromSupervisor:
         return "1021";
+      case eligibilityStatus.final.eligibleForDefense:
+        return "2022";
       case eligibilityStatus.final.defensePass:
         return "2000";
       default:
