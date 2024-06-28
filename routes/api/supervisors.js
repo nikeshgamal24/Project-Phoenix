@@ -9,8 +9,12 @@ router
   .put(verifyRoles(roleList.Supervisor), supervisorController.updateSupervisor);
 
 router
-  .route("/projects/")
-  .get(verifyRoles(roleList.Supervisor), supervisorController.getAllProjects);
+  .route("/projects/active")
+  .get(verifyRoles(roleList.Supervisor), supervisorController.getAllActiveProjects);
+
+router
+  .route("/projects/archive")
+  .get(verifyRoles(roleList.Supervisor), supervisorController.getAllArchiveProjects);
 
 router
   .route("/project/:id")

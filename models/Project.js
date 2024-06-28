@@ -41,10 +41,18 @@ const projectSchema = new Schema(
           type: Boolean,
           default: false,
         },
+        approvedDate: {
+          type: Date,
+          default: false,
+        },
       },
       final: {
         approved: {
           type: Boolean,
+          default: false,
+        },
+        approvedDate: {
+          type: Date,
           default: false,
         },
       },

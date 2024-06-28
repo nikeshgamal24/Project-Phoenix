@@ -53,12 +53,34 @@ const updateSupervisor = async (req, res) => {
   }
 };
 
-const getAllProjects = async (req, res) => {
+const getAllActiveProjects = async (req, res) => {
   try {
-    //get all projects where the supervisor id inside supervirsor object is equal to current logged in supervisor id
+    //get all projects where the supervisor id inside supervirsor object is equal to current logged in supervisor id where the project status is active
     const projects = await Project.find({
       "supervisor.supervisorId": req.userId,
       status: eventStatusList.active,
+    });
+
+    //when there is no content for the supervisor
+    if (!projects.length) return res.sendStatus(204);
+
+    return res.status(200).json({
+      data: projects,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
+
+const getAllArchiveProjects = async (req, res) => {
+  try {
+    //get all projects where the supervisor id inside supervirsor object is equal to current logged in supervisor id and is either complete or archive
+    const projects = await Project.find({
+      "supervisor.supervisorId": req.userId,
+      status: {
+        $in: [eventStatusList.complete, eventStatusList.archive],
+      },
     });
 
     //when there is no content for the supervisor
@@ -106,4 +128,10 @@ const getProjectBydId = async (req, res) => {
     return res.sendStatus(400);
   }
 };
-module.exports = { updateSupervisor, getAllProjects, getProjectBydId };
+
+module.exports = {
+  updateSupervisor,
+  getAllActiveProjects,
+  getAllArchiveProjects,
+  getProjectBydId,
+};
