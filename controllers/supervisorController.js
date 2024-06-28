@@ -1,6 +1,7 @@
 const eventStatusList = require("../config/eventStatusList");
 const Project = require("../models/Project");
 const Supervisor = require("../models/Supervisor");
+const Event = require("../models/Event");
 
 //update student details
 const updateSupervisor = async (req, res) => {
@@ -128,10 +129,67 @@ const getProjectBydId = async (req, res) => {
     return res.sendStatus(400);
   }
 };
+const getAllActiveEvents = async (req, res) => {
+  try {
+    const projects = await Project.find({
+      "supervisor.supervisorId": req.userId,
+      status: eventStatusList.active,
+    });
+    console.log("🚀 ~ getAllActiveEvents ~ projects:", projects);
+    console.log("🚀 ~ getAllActiveEvents ~ req.userId:", req.userId);
 
+    const activeEventsIds = projects
+      .filter((project) => {
+        return (
+          project.supervisor.supervisorId.toString() === req.userId.toString()
+        );
+      })
+      .map((project) => project.event);
+    //when there is no event that the supervisor is associated with
+    if (!activeEventsIds.length) return res.sendStatus(204);
+    console.log("🚀 ~ getAllActiveEvents ~ activeEventsIds:", activeEventsIds);
+
+    const events = await Event.find({
+      _id: {
+        $in: activeEventsIds,
+      },
+      eventStatus: eventStatusList.active,
+    });
+
+    return res.status(200).json({
+      data: events,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
+
+const toogleAvailabilityOfSupervisor = async (req, res) => {
+  try{
+    const {isAvailable} = req.body;
+    console.log("🚀 ~ toogleAvailabilityOfSupervisor ~ isAvailable:", isAvailable)
+
+    //get the current sueprviso
+    const updatedSupervisor = await Supervisor.findOneAndUpdate(
+      { _id: req.userId },
+      { $set: { isAvailable: isAvailable } },
+      { new: true }
+    );
+    console.log("🚀 ~ toogleAvailabilityOfSupervisor ~ updatedSupervisor:", updatedSupervisor)
+
+    return res.status(200).json({
+      data:updatedSupervisor
+    })
+  }catch(err){
+    console.error()
+  }
+};
 module.exports = {
   updateSupervisor,
   getAllActiveProjects,
   getAllArchiveProjects,
   getProjectBydId,
+  getAllActiveEvents,
+  toogleAvailabilityOfSupervisor
 };

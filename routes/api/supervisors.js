@@ -10,14 +10,34 @@ router
 
 router
   .route("/projects/active")
-  .get(verifyRoles(roleList.Supervisor), supervisorController.getAllActiveProjects);
+  .get(
+    verifyRoles(roleList.Supervisor),
+    supervisorController.getAllActiveProjects
+  );
 
 router
   .route("/projects/archive")
-  .get(verifyRoles(roleList.Supervisor), supervisorController.getAllArchiveProjects);
+  .get(
+    verifyRoles(roleList.Supervisor),
+    supervisorController.getAllArchiveProjects
+  );
 
 router
   .route("/project/:id")
   .get(verifyRoles(roleList.Supervisor), supervisorController.getProjectBydId);
+
+router
+  .route("/events/active")
+  .get(
+    verifyRoles(roleList.Supervisor),
+    supervisorController.getAllActiveEvents
+  );
+
+router
+  .route("/supervisor/availability")
+  .post(
+    verifyRoles(roleList.Supervisor),
+    supervisorController.toogleAvailabilityOfSupervisor
+  );
 
 module.exports = router;
