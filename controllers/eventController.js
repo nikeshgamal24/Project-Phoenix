@@ -190,10 +190,15 @@ const getEvent = async (req, res) => {
         match: {
           status: { $in: [eventStatusList.active, eventStatusList.complete] },
         },
-        populate: {
-          path: "teamMembers",
-          select: "-password -OTP -refreshToken",
-        },
+        populate: [
+          {
+            path: "teamMembers",
+            select: "-password -OTP -refreshToken",
+          },
+          {
+            path: "supervisor.supervisorId",
+          },
+        ],
       });
     console.log("🚀 ~ getEvent ~ event:", event);
 
@@ -566,6 +571,7 @@ const getDefenseById = async (req, res) => {
               { path: "mid.defenses.evaluators.evaluator" },
               { path: "final.evaluations" },
               { path: "final.defenses.evaluators.evaluator" },
+              { path: "supervisor.supervisorId" },
             ],
           },
         ],
@@ -622,7 +628,7 @@ const extendDeadline = async (req, res) => {
 const getAllProjects = async (req, res) => {
   try {
     // Fetch all events details and populate projects
-    let projects = await Project.find().sort({ createdAt: -1 });
+    let projects = await Project.find().sort({ createdAt: -1 }).populate("supervisor.supervisorId");
 
     // If no events, return status 204
     if (!projects || projects.length === 0) {
@@ -691,7 +697,7 @@ const matchProjects = async (req, res) => {
       eventId: eventId,
     });
 
-    if( matches.statusCode===204) return res.sendStatus(204);
+    if (matches.statusCode === 204) return res.sendStatus(204);
 
     // const matches = await matchProjectsToSupervisors();// for demo
     console.log("**************************************************");
@@ -721,22 +727,22 @@ const saveMatchedProjects = async (req, res) => {
 
       for (const project of projects) {
         project.supervisor = { supervisorId: supervisor._id };
-        
+
         const updatedProject = await Project.findByIdAndUpdate(
           project._id,
           { supervisor: { supervisorId: supervisor._id } },
           { new: true }
         );
-        
+
         updatedProjects.push(updatedProject);
       }
 
-      //this is to create an array that will save the updated projects record and push to the array 
-      // to achieve the format that is received 
+      //this is to create an array that will save the updated projects record and push to the array
+      // to achieve the format that is received
       updatedMatches.push({ supervisor, projects: updatedProjects });
     }
-    
-    console.log("🚀 ~ saveMatchedProjects ~ updatedMatches:", updatedMatches)
+
+    console.log("🚀 ~ saveMatchedProjects ~ updatedMatches:", updatedMatches);
     return res.status(200).json({ matches: updatedMatches });
   } catch (err) {
     console.error(`error-message:${err.message}`);
