@@ -43,7 +43,6 @@ const projectSchema = new Schema(
         },
         approvedDate: {
           type: Date,
-          default: false,
         },
       },
       final: {
@@ -53,7 +52,6 @@ const projectSchema = new Schema(
         },
         approvedDate: {
           type: Date,
-          default: false,
         },
       },
     },
