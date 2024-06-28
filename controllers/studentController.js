@@ -541,6 +541,12 @@ const createProgressLog = async (req, res) => {
 
     if (!title || !description || !logDate || !projectId)
       return res.sendStatus(400);
+    //ge the active project whoseteam members conains the student id
+    const project = await Project.findOne({
+      teamMembers: {
+        $in: req.userId,
+      },
+    });
 
     //create a progress log
     const newProgressLog = await ProgressLog.create({
@@ -554,6 +560,10 @@ const createProgressLog = async (req, res) => {
 
     if (!newProgressLog) return res.sendStatus(400);
 
+    project.progressLogs.push(newProgressLog._id);
+    
+    await project.save();
+    console.log("🚀 ~ createProgressLog ~ project.progressLogs:", project.progressLogs)
     //return success
     return res.status(201).json({
       data: newProgressLog,

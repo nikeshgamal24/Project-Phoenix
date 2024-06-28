@@ -28,6 +28,12 @@ const projectSchema = new Schema(
       type: String,
       default: "101",
     },
+    progressLogs: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ProgressLog",
+      },
+    ],
     supervisor: {
       supervisorId: { type: Schema.Types.ObjectId, ref: "Supervisor" },
       mid: {
