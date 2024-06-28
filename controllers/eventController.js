@@ -691,11 +691,13 @@ const matchProjects = async (req, res) => {
       eventId: eventId,
     });
 
+    if( matches.statusCode===204) return res.sendStatus(204);
+
     // const matches = await matchProjectsToSupervisors();// for demo
-     console.log("**************************************************");
+    console.log("**************************************************");
     console.log("🚀 ~ matchProjects ~ matches:", matches);
     return res.status(200).json({
-      matches
+      matches,
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
@@ -703,6 +705,44 @@ const matchProjects = async (req, res) => {
   }
 };
 
+const saveMatchedProjects = async (req, res) => {
+  try {
+    const { matchedProjects } = req.body;
+    console.log("🚀 ~ saveMatchedProjects ~ matchedProjects:", matchedProjects);
+
+    let updatedMatches = [];
+
+    for (const matchedProject of matchedProjects) {
+      const { supervisor, projects } = matchedProject;
+      console.log("🚀 ~ saveMatchedProjects ~ projects:", projects);
+      console.log("🚀 ~ saveMatchedProjects ~ supervisor:", supervisor);
+
+      let updatedProjects = [];
+
+      for (const project of projects) {
+        project.supervisor = { supervisorId: supervisor._id };
+        
+        const updatedProject = await Project.findByIdAndUpdate(
+          project._id,
+          { supervisor: { supervisorId: supervisor._id } },
+          { new: true }
+        );
+        
+        updatedProjects.push(updatedProject);
+      }
+
+      //this is to create an array that will save the updated projects record and push to the array 
+      // to achieve the format that is received 
+      updatedMatches.push({ supervisor, projects: updatedProjects });
+    }
+    
+    console.log("🚀 ~ saveMatchedProjects ~ updatedMatches:", updatedMatches)
+    return res.status(200).json({ matches: updatedMatches });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
 module.exports = {
   createNewEvent,
   getAllEvents,
@@ -719,4 +759,5 @@ module.exports = {
   getAllStudents,
   getAllSupervisors,
   matchProjects,
+  saveMatchedProjects,
 };

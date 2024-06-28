@@ -29,10 +29,20 @@ const matchProjectsToSupervisors = async ({
 }) => {
   const projects = await Project.find({
     event: eventId,
+    projectType:{
+      $in:["1","2"]
+    },
     status: eventStatusList.active,
+    "proposal.hasGraduated": true,
+    "supervisor.supervisorId": undefined,
   });
+  // will fetch the projects where event is matched, status is active, must pass the proposal defense, and  has not been assigned the supervisor yet
+  console.log("🚀 ~ matchProjectsToSupervisors ~ projects:", projects);
 
-  // console.log("🚀 ~ matchProjectsToSupervisors ~ projects:", projects);
+  // if project has not passed the proposal defense then not eligible for the supervisor assignment
+  // and if not eligible then return 204 status
+  if (!projects.length) return { statusCode: 204 };
+
   const supervisors = availableSupervisors;
   // console.log("🚀 ~ matchProjectsToSupervisors ~ supervisors:", supervisors);
 
@@ -117,28 +127,30 @@ const matchProjectsToSupervisors = async ({
       // console.log("🚀 ~ projects.forEach ~ project:", project);
 
       // Update supervisor's projectsAssigned count
-      supervisor.projects.push(project); // should push project id
+      // supervisor.projects.push(project); // should push project id
       // supervisor.projects.push(project._id);
       // await supervisor.save();
       // Find the existing supervisor entry in matches
       let matchEntry = matches.find(
         (match) => match.supervisor._id === supervisor._id
       );
-      console.log("🚀 ~ projects.forEach ~ matchEntry:", matchEntry)
+      // console.log("🚀 ~ projects.forEach ~ matchEntry:", matchEntry)
 
       if (!matchEntry) {
         // If supervisor not already in matches, add them
         matchEntry = { supervisor: supervisor, projects: [] };
         matches.push(matchEntry);
       }
-      console.log("🚀 ~ projects.forEach ~ matchEntry.projects.length:", matchEntry.projects.length)
+      // console.log("🚀 ~ projects.forEach ~ matchEntry.projects.length:", matchEntry.projects.length)
 
-      console.log("🚀 ~ projects.forEach ~ supervisors.length):", supervisors.length)
-      console.log("🚀 ~ projects.forEach ~ projects.length:", projects.length)
-      console.log("🚀 ~ projects.forEach ~ projects.length / supervisors.length:", projects.length / supervisors.length)
-      if (matchEntry.projects.length < Math.ceil(projects.length / supervisors.length)) {
+      // console.log("🚀 ~ projects.forEach ~ supervisors.length):", supervisors.length)
+      // console.log("🚀 ~ projects.forEach ~ projects.length:", projects.length)
+      // console.log("🚀 ~ projects.forEach ~ projects.length / supervisors.length:", projects.length / supervisors.length)
+      if (
+        matchEntry.projects.length <
+        Math.ceil(projects.length / supervisors.length)
+      ) {
         project.supervisor = { supervisorId: supervisor._id };
-        supervisor.projects.push(project);
 
         matchEntry.projects.push(project);
         assigned = true;
