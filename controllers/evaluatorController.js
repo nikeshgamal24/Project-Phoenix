@@ -32,6 +32,23 @@ const {
 const {
   determineAllProjectsEvaluatedByEvaluator,
 } = require("./utility functions/evaluation section/determineAllProjectsEvaluatedByEvaluator");
+require("dotenv").config();
+
+const Queue = require("bull");
+const {
+  REDIS_URI,
+  REDIS_PORT,
+  REDIS_TOKEN,
+} = require("../config/redisCredentials");
+
+const evaluatorQueue = new Queue("evaluatorqueue", {
+  redis: {
+    port: REDIS_PORT,
+    host: REDIS_URI,
+    password: REDIS_TOKEN,
+    tls: {},
+  },
+});
 
 const getDefenseBydId = async (req, res) => {
   // Check if ID is provided
@@ -179,7 +196,7 @@ const getProjectBydId = async (req, res) => {
   }
 };
 
-const submitEvaluation = async (req, res) => {
+const submitEvaluation = async ({ req, res, userId, evaluationData }) => {
   try {
     //request body received
     const {
@@ -191,7 +208,8 @@ const submitEvaluation = async (req, res) => {
       eventId,
       evaluationType,
       roomId,
-    } = req.body;
+    } = evaluationData;
+    console.log("🚀 ~ submitEvaluation ~ evaluationData:", evaluationData);
 
     if (
       !Array.isArray(individualEvaluation) ||
@@ -203,12 +221,12 @@ const submitEvaluation = async (req, res) => {
       !eventId ||
       !roomId
     ) {
-      return res.status(400).json({
-        message: "Required Credentials Missing",
-      });
-    }
+      // return res.status(400).json({
+      //   message: "Required Credentials Missing",
+      // });
 
-    console.log(req.body);
+      return { statusCode: 400 };
+    }
 
     const project = await Project.findOne({ _id: projectId });
     console.log("🚀 ~ submitEvaluation ~ project:", project);
@@ -242,9 +260,10 @@ const submitEvaluation = async (req, res) => {
 
       console.log("🚀 ~ submitEvaluation ~ conflictExists:", conflictExists);
       if (conflictExists) {
-        return res.status(409).json({
-          message: "Conflict data",
-        });
+        // return res.status(409).json({
+        //   message: "Conflict data",
+        // });
+        return { statusCode: 409 };
       }
     }
 
@@ -270,7 +289,8 @@ const submitEvaluation = async (req, res) => {
     console.log("🚀 ~ obj ~ obj:", obj);
 
     //if no matching object is found
-    if (!obj) return res.status(404).json({ message: "Defense Not Found" });
+    // if (!obj) return res.status(404).json({ message: "Defense Not Found" });
+    if (!obj) return { statusCode: 404 };
 
     //if object is found and isGraded is false i.e. all evaluation is not updated
     //if obj.isGraded is tru then go directly to end section
@@ -288,16 +308,10 @@ const submitEvaluation = async (req, res) => {
       const allEvaluatedResult = obj.evaluators.every(
         (evaluatorObj) => evaluatorObj.hasEvaluated
       );
-      console.log(
-        "🚀 ~ submitEvaluation ~ allEvaluatedResult:",
-        allEvaluatedResult
-      );
+
       obj.isGraded = allEvaluatedResult;
-      console.log("🚀 ~ obj after allEvaluatedResult section ~ obj:", obj);
       await project.save();
-      console.log(
-        "**********************PROJECT AFTER SAVE**********************"
-      );
+
       console.log("🚀 ~ project after save ~ obj:", obj);
       console.log(
         "**********************PROJECT AFTER SAVE**********************"
@@ -369,7 +383,6 @@ const submitEvaluation = async (req, res) => {
                   break;
               }
               return student.save();
-              
             }
           );
           await Promise.all(studentSavePromises);
@@ -452,7 +465,6 @@ const submitEvaluation = async (req, res) => {
                   break;
               }
               return student.save();
-             
             }
           }
         );
@@ -464,7 +476,7 @@ const submitEvaluation = async (req, res) => {
             projectJudgement === finalJudgementConfig["RE-DEFENSE"] ||
             projectJudgement === proposalJudgementConfig.ABSENT ||
             projectJudgement === midJudgementConfig.ABSENT ||
-            projectJudgement === finalJudgementConfig.ABSENT )
+            projectJudgement === finalJudgementConfig.ABSENT)
         ) {
           console.log(
             "🚀 ~ submitEvaluation ~before  project[evaluationType].report :",
@@ -547,7 +559,8 @@ const submitEvaluation = async (req, res) => {
           evaluationType: evaluationType,
         });
 
-        if (!newEvaluation) return res.sendStatus(400);
+        // if (!newEvaluation) return res.sendStatus(400);
+        if (!newEvaluation) return { statusCode: 400 };
         break;
       case "mid":
         console.log("MidEvaluation Section");
@@ -567,7 +580,7 @@ const submitEvaluation = async (req, res) => {
               : projectEvaluation.documentation,
           })
         );
-
+        console.log("MidEvaluation Section");
         newEvaluation = await Evaluation.create({
           individualEvaluation: formattedIndividualEvaluations,
           projectEvaluation: projectEvaluation,
@@ -577,7 +590,10 @@ const submitEvaluation = async (req, res) => {
           event: eventId,
           evaluationType: evaluationType,
         });
-        if (!newEvaluation) return res.sendStatus(400);
+        console.log("MidEvaluation Section");
+        // if (!newEvaluation) return res.sendStatus(400);
+        if (!newEvaluation) return { statusCode: 400 };
+        console.log("MidEvaluation Section");
         break;
       case "final":
         console.log("FinalEvaluation Section");
@@ -620,13 +636,16 @@ const submitEvaluation = async (req, res) => {
           event: eventId,
           evaluationType: evaluationType,
         });
-        if (!newEvaluation) return res.sendStatus(400);
+        // if (!newEvaluation) return res.sendStatus(400);
+        if (!newEvaluation) return { statusCode: 400 };
         break;
       default:
-        return res.sendStaus(400);
+        // return res.sendStaus(400);
+        return { statusCode: 400 };
     }
 
-    if (!newEvaluation) return res.sendStatus(400);
+    // if (!newEvaluation)  return {statusCode:400}
+    if (!newEvaluation) return { statusCode: 400 };
 
     defense.evaluations.push(newEvaluation._id);
     projectSubEvent.evaluations.push(newEvaluation._id);
@@ -634,12 +653,56 @@ const submitEvaluation = async (req, res) => {
     //update the documenta here
     await defense.save();
     await project.save();
-    return res.status(201).json({
-      data:newEvaluation
-    })
+    // return res.status(201).json({
+    //   data: newEvaluation,
+    // });
+    return { statusCode: 201, newEvaluation };
   } catch (err) {
     console.error(`error-message:${err.message}`);
-    res.status(500).send({ message: err.message });
+    return { statusCode: 400 };
   }
 };
-module.exports = { getDefenseBydId, getProjectBydId, submitEvaluation };
+
+const submitDemo = async ({ req, res, userId, evaluationData }) => {
+  console.log("control here userId");
+  console.log("🚀 ~ submitDemo ~ userId:", userId);
+  console.log("🚀 ~ submitDemo ~ evaluationData:", evaluationData);
+};
+
+// Function to handle submission of evaluations
+const submitEvaluationThroughQueue = async (req, res) => {
+  try {
+    console.log("🚀 ~ submitEvaluationThroughQueue ~ evaluatorQueue:");
+    console.log("🚀 ~ redis token  ~ redis host:", REDIS_URI);
+    console.log("🚀 ~ redis token  ~ redis port:", REDIS_PORT);
+    console.log("🚀 ~ redis token  ~ redis password:", REDIS_TOKEN);
+
+    // Add the evaluation task to the queue
+    // Add the evaluation task to the queue
+    const job = await evaluatorQueue.add({
+      userId: req.userId,
+      evaluationData: req.body,
+    });
+    // Wait for the job to complete and get the result
+    job
+      .finished()
+      .then((result) => {
+        console.log("🚀 ~ submitEvaluationThroughQueue ~ result:", result);
+        return res.status(result.statusCode).json(result.data);
+      })
+      .catch((err) => {
+        console.error(`Job failed: ${err.message}`);
+        return res.sendStatus(500);
+      });
+  } catch (err) {
+    console.error(`Error message: ${err.message}`);
+    res.sendStatus(400);
+  }
+};
+module.exports = {
+  getDefenseBydId,
+  getProjectBydId,
+  submitEvaluation,
+  submitEvaluationThroughQueue,
+  submitDemo,
+};
