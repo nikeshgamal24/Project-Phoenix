@@ -656,7 +656,7 @@ const submitEvaluation = async ({ req, res, userId, evaluationData }) => {
     // return res.status(201).json({
     //   data: newEvaluation,
     // });
-    return { statusCode: 201, newEvaluation };
+    return { statusCode: 201 };
   } catch (err) {
     console.error(`error-message:${err.message}`);
     return { statusCode: 400 };
@@ -691,7 +691,7 @@ const submitEvaluationThroughQueue = async (req, res) => {
       .finished()
       .then((result) => {
         console.log("🚀 ~ submitEvaluationThroughQueue ~ result:", result);
-        return res.status(result.statusCode).json(result.newEvaluation);
+        return res.sendStatus(result.statusCode)
       })
       .catch((err) => {
         console.error(`Job failed: ${err.message}`);

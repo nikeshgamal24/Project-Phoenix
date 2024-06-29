@@ -21,14 +21,13 @@ const evaluatorQueueProcessor = async (job,done) => {
   // Here you would update your database with the evaluation data
   console.log(`Processing evaluation for user ${userId}`);
   // Perform the database update (pseudo-code)
-  const { statusCode, newEvaluation } =
+  const { statusCode } =
     await evaluatorController.submitEvaluation({ userId, evaluationData });
-  console.log("🚀 ~ evaluatorQueueProcessor ~ newEvaluation:", newEvaluation);
-  console.log("🚀 ~ evaluatorQueueProcessor ~ statusCode:", statusCode);
+  console.log("🚀 ~ inside index in processor evaluatorQueueProcessor ~ statusCode:", statusCode);
   setTimeout(() => {
     done();
   }, 2000);
-  return { statusCode, newEvaluation };
+  return { statusCode };
 };
 
 // Set up the queue processor
