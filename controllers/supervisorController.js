@@ -43,7 +43,7 @@ const updateSupervisor = async (req, res) => {
       {
         new: true,
         runValidators: true,
-        select: "-refreshToken -role -password",
+        select: "-refreshToken -password -OTP",
       } // Exclude fields
     ).exec();
 
@@ -58,7 +58,7 @@ const updateSupervisor = async (req, res) => {
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
-    return res.sendStatus(500);
+    return res.sendStatus(400);
   }
 };
 
