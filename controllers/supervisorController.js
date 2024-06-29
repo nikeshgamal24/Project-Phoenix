@@ -90,6 +90,9 @@ const getAllArchiveProjects = async (req, res) => {
       status: {
         $in: [eventStatusList.complete, eventStatusList.archive],
       },
+    }).populate({
+      path:"supervisor.supervisorId",
+      select:"-OTP -refreshToken -password"
     });
 
     //when there is no content for the supervisor
