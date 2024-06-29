@@ -13,7 +13,7 @@ const mongoose = require("mongoose");
 const connectDB = require("./config/dbConn");
 const { swaggerDocs } = require("./utils/swagger");
 const PORT = process.env.PORT || 3500;
-require('./processor/index');
+// require('./processor/index');
 
 //connect mongoDB
 connectDB();
