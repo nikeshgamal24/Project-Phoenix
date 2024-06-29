@@ -679,10 +679,13 @@ const submitEvaluationThroughQueue = async (req, res) => {
 
     // Add the evaluation task to the queue
     // Add the evaluation task to the queue
-    const job = await evaluatorQueue.add({
-      userId: req.userId,
-      evaluationData: req.body,
-    });
+    const job = await evaluatorQueue.add(
+      {
+        userId: req.userId,
+        evaluationData: req.body,
+      },
+      { delay: 2000, attempts: 1 }
+    );
     // Wait for the job to complete and get the result
     job
       .finished()
