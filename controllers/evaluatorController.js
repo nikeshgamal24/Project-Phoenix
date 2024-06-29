@@ -690,8 +690,13 @@ const submitEvaluationThroughQueue = async (req, res) => {
     job
       .finished()
       .then((statusCode) => {
-        console.log("🚀 ~ submitEvaluationThroughQueue ~ statusCode:", statusCode);
-        return res.sendStatus(statusCode)
+        console.log(
+          "🚀 ~ submitEvaluationThroughQueue ~ statusCode:",
+          statusCode
+        );
+        return res.status(statusCode).json({
+          message: "Created Successfully",
+        });
       })
       .catch((err) => {
         console.error(`Job failed: ${err.message}`);
