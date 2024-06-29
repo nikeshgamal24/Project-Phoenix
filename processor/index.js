@@ -22,10 +22,27 @@ const evaluatorQueueProcessor = async (job) => {
   console.log(`Processing evaluation for user ${userId}`);
   // Perform the database update (pseudo-code)
   const { statusCode, newEvaluation } =
-  await evaluatorController.submitEvaluation({ userId, evaluationData });
-  console.log("🚀 ~ evaluatorQueueProcessor ~ newEvaluation:", newEvaluation)
-  console.log("🚀 ~ evaluatorQueueProcessor ~ statusCode:", statusCode)
-  return { statusCode, newEvaluation }
+    // Perform the database update
+    evaluatorController
+      .submitEvaluation({ userId, evaluationData })
+      .then(({ statusCode, newEvaluation }) => {
+        // Log the results of the evaluation submission
+        console.log(
+          "🚀 ~ evaluatorQueueProcessor ~ newEvaluation:",
+          newEvaluation
+        );
+        console.log("🚀 ~ evaluatorQueueProcessor ~ statusCode:", statusCode);
+
+        // Call done() to indicate successful completion
+        done(null, { statusCode, newEvaluation });
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during processing
+        console.error(`Error processing evaluation for user ${userId}:`, error);
+
+        // Call done() with the error to indicate failure
+        done(error);
+      });
 };
 
 // Set up the queue processor
