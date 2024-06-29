@@ -14,17 +14,17 @@ const updateMajorProgressStatus = (eligibility) => {
       case eligibilityStatus.proposal.eligibleForDefense:
         return "2002";
       case eligibilityStatus.proposal.defensePass:
-      case eligibilityStatus.mid.defenseFail:
         return "2010";
       case eligibilityStatus.mid.approvalFromSupervisor:
+      case eligibilityStatus.mid.defenseFail:
         return "2011";
       case eligibilityStatus.mid.eligibleForDefense:
         return "2012";
       case eligibilityStatus.mid.defensePass:
-      case eligibilityStatus.final.defenseFail:
       case eligibilityStatus.final.eligibeForReportSubmission:
         return "2020";
       case eligibilityStatus.final.approvalFromSupervisor:
+      case eligibilityStatus.final.defenseFail:
         return "2021";
       case eligibilityStatus.final.eligibleForDefense:
         return "2022";
