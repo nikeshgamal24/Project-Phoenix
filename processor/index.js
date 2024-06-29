@@ -16,7 +16,7 @@ const evaluatorQueue = new Queue("evaluatorqueue", {
 });
 
 // Define the processing function
-const evaluatorQueueProcessor = async (job) => {
+const evaluatorQueueProcessor = async (job,done) => {
   const { userId, evaluationData } = job.data;
   // Here you would update your database with the evaluation data
   console.log(`Processing evaluation for user ${userId}`);
