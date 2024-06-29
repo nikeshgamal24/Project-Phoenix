@@ -117,7 +117,13 @@ const getProjectBydId = async (req, res) => {
     })
       .populate("teamMembers")
       .populate("event")
-      .populate("progressLogs")
+      .populate({
+        path: "progressLogs",
+        populate: {
+          path: "author",
+          select:"-OTP -refreshToken -password"
+        },
+      })
       .populate([
         { path: "proposal.evaluations", populate: { path: "evaluator" } },
         { path: "mid.evaluations", populate: { path: "evaluator" } },
