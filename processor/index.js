@@ -25,11 +25,13 @@ const evaluatorQueueProcessor = async (job,done) => {
     await evaluatorController.submitEvaluation({ userId, evaluationData });
   console.log("🚀 ~ inside index in processor evaluatorQueueProcessor ~ statusCode:", statusCode);
   setTimeout(() => {
-    done();
-  }, 2000);
-  return { statusCode };
+    done(null, statusCode);
+  }, 1000);
 };
 
 // Set up the queue processor
 evaluatorQueue.process(evaluatorQueueProcessor);
+evaluatorQueue.on('complete',(job) => {
+  console.log(`Completed #${job.id} Job`);
+})
 module.exports = evaluatorQueueProcessor;

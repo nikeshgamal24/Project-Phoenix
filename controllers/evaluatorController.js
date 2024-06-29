@@ -689,9 +689,9 @@ const submitEvaluationThroughQueue = async (req, res) => {
     // Wait for the job to complete and get the result
     job
       .finished()
-      .then((result) => {
-        console.log("🚀 ~ submitEvaluationThroughQueue ~ result:", result);
-        return res.sendStatus(result.statusCode)
+      .then((statusCode) => {
+        console.log("🚀 ~ submitEvaluationThroughQueue ~ statusCode:", statusCode);
+        return res.sendStatus(statusCode)
       })
       .catch((err) => {
         console.error(`Job failed: ${err.message}`);
