@@ -4,7 +4,7 @@ const allowedOrigins = [
   "https://project-phoenix-omega.vercel.app",
   "capacitor://localhost", // iOS
   "https://localhost", // Android
-  "projectphoenix.vercel.app"
+  "https://projectphoenix.vercel.app"
 ];
 
 module.exports = allowedOrigins;
