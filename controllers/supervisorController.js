@@ -91,8 +91,8 @@ const getAllArchiveProjects = async (req, res) => {
         $in: [eventStatusList.complete, eventStatusList.archive],
       },
     }).populate({
-      path:"supervisor.supervisorId",
-      select:"-OTP -refreshToken -password"
+      path: "supervisor.supervisorId",
+      select: "-OTP -refreshToken -password",
     });
 
     //when there is no content for the supervisor
@@ -124,7 +124,7 @@ const getProjectBydId = async (req, res) => {
         path: "progressLogs",
         populate: {
           path: "author",
-          select:"-OTP -refreshToken -password"
+          select: "-OTP -refreshToken -password",
         },
       })
       .populate([

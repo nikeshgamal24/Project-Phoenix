@@ -328,7 +328,7 @@ const getProjectById = async (req, res) => {
   try {
     const populateOptions = [
       { path: "teamMembers" },
-      { path: "progressLogs" },
+      { path: "progressLogs", populate: { path: "author" } },
       { path: "supervisor", populate: { path: "supervisorId" } },
       { path: "event" },
       {
@@ -547,9 +547,10 @@ const createProgressLog = async (req, res) => {
       teamMembers: {
         $in: req.userId,
       },
+      status: eventStatusList.active,
     });
 
-    //create a progress log
+    // create a progress log
     const newProgressLog = await ProgressLog.create({
       title: title,
       description: description,
@@ -560,15 +561,23 @@ const createProgressLog = async (req, res) => {
     console.log("🚀 ~ createProgressLog ~ newProgressLog:", newProgressLog);
 
     if (!newProgressLog) return res.sendStatus(400);
+    console.log(
+      "🚀 ~ createProgressLog ~ newProgressLog Id:",
+      newProgressLog._id
+    );
 
+    console.log(
+      "🚀 ~ createProgressLog ~  project.progressLogs:",
+      project.progressLogs
+    );
     project.progressLogs.push(newProgressLog._id);
 
     await project.save();
     console.log(
-      "🚀 ~ createProgressLog ~ project.progressLogs:",
+      "🚀 ~ createProgressLog ~  project.progressLogs:",
       project.progressLogs
     );
-    //return success
+    console.log("🚀 ~ createProgressLog ~ project:", project);
     return res.status(201).json({
       data: newProgressLog,
     });
@@ -582,6 +591,7 @@ const getAllProjectLogsOfProject = async (req, res) => {
   try {
     //get the project id from the params
     const projectId = req.params.id;
+    console.log("🚀 ~ getAllProjectLogsOfProject ~ projectId:", projectId);
 
     //if projectId is not found
     if (!projectId) return res.sendStatus(400);
