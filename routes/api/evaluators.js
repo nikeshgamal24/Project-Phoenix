@@ -726,8 +726,26 @@ router
 //   .route("/defense/evaluation")
 //   .post(verifyRoles(ROLES_LIST.Evaluator), evaluatorController.submitEvaluation);
 
+
+/**
+ * @openapi
+ * '/api/evaluator/defense/evaluation':
+ *   post:
+ *     tags:
+ *       - Evaluator API
+ *     summary: submit defense evaluation
+ *     responses:
+ *       200:
+ *         description: Ok
+ *       204:
+ *         description: No Content
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
 router
   .route("/defense/evaluation")
   .post(verifyRoles(ROLES_LIST.Evaluator), evaluatorController.submitEvaluation);
 
-module.exports = router;
+module.exports = router; 
