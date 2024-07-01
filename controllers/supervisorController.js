@@ -186,7 +186,8 @@ const toogleAvailabilityOfSupervisor = async (req, res) => {
       data: updatedSupervisor,
     });
   } catch (err) {
-    console.error();
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400)
   }
 };
 
