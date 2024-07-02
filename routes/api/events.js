@@ -1322,11 +1322,7 @@ router
   .get(verifyRoles(ROLES_LIST.Admin), eventController.dashboardDetails);
 
 router
-  .route("/event/dashboard/project/:id")
+  .route("/event/project/:id")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getProjectById);
-
-router
-  .route("/event/dashboard/defense/:id")
-  .get(verifyRoles(ROLES_LIST.Admin), eventController.getDefenseById);
 
 module.exports = router;
