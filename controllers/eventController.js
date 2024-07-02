@@ -775,16 +775,42 @@ const dashboardDetails = async (req, res) => {
 };
 
 const getProjectById = async (req, res) => {
+  // Check if ID is provided
+  if (!req?.params?.id) {
+    return res.status(400).json({ message: "Defense ID required." });
+  }
   try {
-    if (!req?.params?.id) return res.sendStatus(404);
-    console.log(req.params.id);
-    const project = await Project.find({
+    // Find event by ID and populate the author field
+    const project = await Project.findById({
       _id: req.params.id,
       status: eventStatusList.active,
-    });
+    })
+      .populate("teamMembers")
+      .populate("event")
+      .populate({
+        path: "supervisor",
+        populate: {
+          path: "supervisorId",
+        },
+      })
+      .populate({
+        path: "progressLogs",
+        populate: {
+          path: "author",
+          select: "-OTP -refreshToken -password",
+        },
+      })
+      .populate([
+        { path: "proposal.evaluations", populate: { path: "evaluator" } },
+        { path: "mid.evaluations", populate: { path: "evaluator" } },
+        { path: "final.evaluations", populate: { path: "evaluator" } },
+      ]);
 
-    if (!project || !project.length) return res.sendStatus(400);
-
+    // Check if event exists
+    if (!project) {
+      return res.sendStatus(204);
+    }
+    // Send response
     return res.status(200).json({
       data: project,
     });

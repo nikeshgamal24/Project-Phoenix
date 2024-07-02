@@ -107,7 +107,7 @@ const getAllArchiveProjects = async (req, res) => {
   }
 };
 
-const getProjectBydId = async (req, res) => {
+const getProjectById = async (req, res) => {
   // Check if ID is provided
   if (!req?.params?.id) {
     return res.status(400).json({ message: "Defense ID required." });
@@ -187,7 +187,7 @@ const toogleAvailabilityOfSupervisor = async (req, res) => {
     });
   } catch (err) {
     console.error(`error-message:${err.message}`);
-    return res.sendStatus(400)
+    return res.sendStatus(400);
   }
 };
 
@@ -321,7 +321,7 @@ module.exports = {
   updateSupervisor,
   getAllActiveProjects,
   getAllArchiveProjects,
-  getProjectBydId,
+  getProjectById,
   getAllActiveEvents,
   toogleAvailabilityOfSupervisor,
   progressLogVerify,

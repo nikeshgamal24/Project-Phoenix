@@ -638,7 +638,7 @@ router
 
 router
   .route("/project/:id")
-  .get(verifyRoles(roleList.Supervisor), supervisorController.getProjectBydId);
+  .get(verifyRoles(roleList.Supervisor), supervisorController.getProjectById);
 
 /**
  * @openapi
