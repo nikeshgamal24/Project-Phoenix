@@ -628,7 +628,9 @@ const extendDeadline = async (req, res) => {
 const getAllProjects = async (req, res) => {
   try {
     // Fetch all events details and populate projects
-    let projects = await Project.find().sort({ createdAt: -1 }).populate("supervisor.supervisorId");
+    let projects = await Project.find()
+      .sort({ createdAt: -1 })
+      .populate("supervisor.supervisorId");
 
     // If no events, return status 204
     if (!projects || projects.length === 0) {
@@ -749,6 +751,48 @@ const saveMatchedProjects = async (req, res) => {
     return res.sendStatus(400);
   }
 };
+
+const dashboardDetails = async (req, res) => {
+  try {
+    const activeEvents = await Event.find({
+      eventStatus: eventStatusList.active,
+    });
+
+    const activeDefenses = await Defense.find({
+      status: eventStatusList.active,
+    });
+
+    return res.status(200).json({
+      data: {
+        activeEvents,
+        activeDefenses,
+      },
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
+
+const getProjectById = async (req, res) => {
+  try {
+    if (!req?.params?.id) return res.sendStatus(404);
+    console.log(req.params.id);
+    const project = await Project.find({
+      _id: req.params.id,
+      status: eventStatusList.active,
+    });
+
+    if (!project || !project.length) return res.sendStatus(400);
+
+    return res.status(200).json({
+      data: project,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
 module.exports = {
   createNewEvent,
   getAllEvents,
@@ -766,4 +810,6 @@ module.exports = {
   getAllSupervisors,
   matchProjects,
   saveMatchedProjects,
+  dashboardDetails,
+  getProjectById,
 };
