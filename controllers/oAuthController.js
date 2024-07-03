@@ -44,7 +44,7 @@ const googleOauthHandler = async (req, res) => {
     const code = req.query.code;
     const { state } = req.query;
     const decodedState = decodeURIComponent(state);
-    const { role, home_path:homePath } = JSON.parse(decodedState);
+    const { role, home_path } = JSON.parse(decodedState);
     console.log("🚀 ~ googleOauthHandler ~ role:", role)
     const origin = req.get("host");
     console.log("****************************");
@@ -54,7 +54,7 @@ const googleOauthHandler = async (req, res) => {
     // const role = Number(req.query.state);
     console.log("****************************");
     // const homePath = req.query;
-    console.log("🚀 ~ googleOauthHandler ~ homePath:", homePath);
+    console.log("🚀 ~ googleOauthHandler ~ homePath:", home_path);
     console.log("****************************");
     // get id and access token with code
     const { id_token, access_token } = await getGoogleOAuthTokens(
@@ -166,11 +166,13 @@ const googleOauthHandler = async (req, res) => {
     // saving refreshToken to the cookie
     setCookie(res, refreshToken);
 
+    console.log("🚀 ~ googleOauthHandler ~ home_path:", home_path)
     // redirect back to client
-    res.redirect(`${homePath}/${role}`);
+    res.redirect(`${home_path}/${role}`);
   } catch (err) {
+    console.log("🚀 ~ googleOauthHandler ~ home_path:", home_path)
     console.error(err.message);
-    return res.redirect(`${homePath}`);
+    return res.redirect(`${home_path}`);
   }
 };
 
