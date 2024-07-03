@@ -39,12 +39,12 @@ const updateUserDetails = async (userModel, googleUser, role, refreshToken) => {
 };
 
 const googleOauthHandler = async (req, res) => {
+  const { state } = req.query;
+  const decodedState = decodeURIComponent(state);
+  const { role, home_path } = JSON.parse(decodedState);
   try {
     // get the code from qs
     const code = req.query.code;
-    const { state } = req.query;
-    const decodedState = decodeURIComponent(state);
-    const { role, home_path } = JSON.parse(decodedState);
     console.log("🚀 ~ googleOauthHandler ~ role:", role)
     const origin = req.get("host");
     console.log("****************************");
