@@ -168,7 +168,7 @@ const googleOauthHandler = async (req, res) => {
 
     console.log("🚀 ~ googleOauthHandler ~ home_path:", home_path)
     // redirect back to client
-    res.redirect(`${home_path}/${role}`);
+    res.redirect(`${home_path}/${Number(role)}`);
   } catch (err) {
     console.log("🚀 ~ googleOauthHandler ~ home_path:", home_path)
     console.error(err.message);
