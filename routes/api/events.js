@@ -1325,4 +1325,8 @@ router
   .route("/event/project/:id")
   .get(verifyRoles(ROLES_LIST.Admin), eventController.getProjectById);
 
+router
+  .route("/event/result/:id")
+  .get(verifyRoles(ROLES_LIST.Admin), eventController.getResultDetails);
+
 module.exports = router;
