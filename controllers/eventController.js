@@ -829,6 +829,9 @@ const getResultDetails = async (req, res) => {
       _id: req.params.id,
     }).populate({
       path: "projects",
+      match: {
+        $or: [{ status: eventStatusList.active },{ status:  eventStatusList.complete }],
+      },
       populate: [
         {
           path: "proposal",
