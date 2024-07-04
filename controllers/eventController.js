@@ -819,6 +819,52 @@ const getProjectById = async (req, res) => {
     return res.sendStatus(400);
   }
 };
+
+const getResultDetails = async (req, res) => {
+  try {
+    console.log("🚀 ~ getResultDetails ~ req?.parama?.id:", req?.params?.id);
+    if (!req?.params?.id) return res.sendStatus(404);
+
+    const event = await Event.findOne({
+      _id: req.params.id,
+    }).populate({
+      path: "projects",
+      populate: [
+        {
+          path: "proposal",
+          populate: {
+            path: "evaluations",
+            populate: { path: "individualEvaluation.student" },
+          },
+        },
+        {
+          path: "mid",
+          populate: {
+            path: "evaluations",
+            populate: { path: "individualEvaluation.student" },
+          },
+        },
+        {
+          path: "final",
+          populate: {
+            path: "evaluations",
+            populate: { path: "individualEvaluation.student" },
+          },
+        },
+      ],
+    });
+
+    if (!event) return res.sendStatus(400);
+    console.log("🚀 ~ getResultDetails ~ event:", event);
+
+    return res.status(200).json({
+      data: event,
+    });
+  } catch (err) {
+    console.error(`error-message:${err.message}`);
+    return res.sendStatus(400);
+  }
+};
 module.exports = {
   createNewEvent,
   getAllEvents,
@@ -838,4 +884,5 @@ module.exports = {
   saveMatchedProjects,
   dashboardDetails,
   getProjectById,
+  getResultDetails,
 };
