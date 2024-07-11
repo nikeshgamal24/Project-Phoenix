@@ -851,7 +851,7 @@ const getResultDetails = async (req, res) => {
           path: "final",
           populate: {
             path: "evaluations",
-            populate: { path: "individualEvaluation.student" },
+            populate: { path: "individualEvaluation.student"   },
           },
         },
       ],
@@ -868,6 +868,7 @@ const getResultDetails = async (req, res) => {
     return res.sendStatus(400);
   }
 };
+
 module.exports = {
   createNewEvent,
   getAllEvents,

@@ -57,6 +57,7 @@ app.use("/api/forgotPassword/password", require("./routes/passwordReset"));
 //excute the swagger docs function
 swaggerDocs(app, PORT);
 app.use(verifyJWT);
+
 app.use("/api/user", require("./routes/getUserInformation"));
 app.use("/api/event", require("./routes/api/events"));
 app.use("/api/evaluator", require("./routes/api/evaluators"));
