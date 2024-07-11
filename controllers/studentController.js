@@ -35,6 +35,9 @@ const {
   determineProposalDefenseType,
 } = require("./utility functions/determineProposalDefenseType");
 const ProgressLog = require("../models/ProgressLog");
+const {
+  progressStatusValidityForEvent,
+} = require("../config/progressStatusValidityForEvent");
 
 //update student details
 const updateStudent = async (req, res) => {
@@ -117,7 +120,7 @@ const getMyEvent = async (req, res) => {
     const allowedEventType = initializeEventTypeBasedOnBatch(batchNumber);
 
     //based on the status and the program select the event that the student is eligible
-    let studentCurrentEvent = await Event.findOne({
+    const studentCurrentEvent = await Event.findOne({
       eventType: allowedEventType,
       eventTarget: { $in: [program, "72354"] },
       eventStatus: eventStatusList.active,
@@ -125,6 +128,18 @@ const getMyEvent = async (req, res) => {
 
     if (!studentCurrentEvent) return res.sendStatus(204);
 
+    //filter student's progress status particular eventtype's status ko range ma para ki nai pardaiina 204
+
+    console.log("🚀 ~ getMyEvent ~ allowedEventType:", allowedEventType);
+    const withinRange = progressStatusValidityForEvent({
+      allowedEventType: allowedEventType,
+      studentProgressStatus: currectStudent.progressStatus,
+    });
+
+    console.log("🚀 ~ getMyEvent ~ withinRange:", withinRange);
+    //if wihthinrange is false then return 204
+    if (!withinRange) return res.sendStatus(204);
+    
     //hide sensitive details of author
     const sensitiveDetails = ["role", "refreshToken", "password", "OTP"];
     studentCurrentEvent.author = filterSensitiveFields(
