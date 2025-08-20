@@ -1,86 +1,176 @@
 require("dotenv").config();
 const express = require("express");
-const app = express();
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const path = require("path");
 const cors = require("cors");
-const corsOptions = require("./config/corsOptions");
-const errorHandler = require("./middleware/errorHandler");
-const verifyJWT = require("./middleware/verifyJWT");
+const corsOptions = require("./src/config/corsOptions");
+const { errorHandler } = require("./src/middleware/errorHandler");
+const verifyJWT = require("./src/middleware/auth/verifyJWT");
 const cookieParser = require("cookie-parser");
-const { logger } = require("./middleware/logEvents");
-const credentials = require("./middleware/credentials");
+// const { logger } = require("./src/middleware/logging/logEvents");
+const credentials = require("./src/middleware/security/credentials");
 const mongoose = require("mongoose");
-const connectDB = require("./config/dbConn");
-const { swaggerDocs } = require("./utils/swagger");
+const connectDB = require("./src/config/database");
+// const { swaggerDocs } = require("./src/config/swagger");
+
+// Configuration
 const PORT = process.env.PORT || 3500;
-// require('./processor/index');
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
-//connect mongoDB
-connectDB();
+// Initialize Express app
+const app = express();
 
-//custom middle-ware logger
-// app.use(logger);
-//code becomes more cleaner
+// Rate limiting configuration
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: {
+    error: "Too many requests from this IP, please try again later."
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-//middleware for access-control-allow credentials
+// Auth-specific rate limiting
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 login requests per windowMs
+  message: {
+    error: "Too many login attempts, please try again later."
+  },
+  skipSuccessfulRequests: true,
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED PROMISE REJECTION! 💥 Shutting down...');
+  console.error(err.name, err.message);
+  process.exit(1);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+  console.error(err.name, err.message);
+  process.exit(1);
+});
+
+// Connect to MongoDB
+connectDB().catch(err => {
+  console.error('Failed to connect to MongoDB:', err);
+  process.exit(1);
+});
+
+
+// Security middleware (should be early in the middleware stack)
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for API
+  crossOriginEmbedderPolicy: false
+}));
+
+// Apply rate limiting to all requests
+app.use(limiter);
+
+// Trust proxy (important for rate limiting behind reverse proxy)
+app.set('trust proxy', 1);
+
+// Middleware for access-control-allow credentials
 app.use(credentials);
 
-//Cross Origin Resource Sharing
+// Cross Origin Resource Sharing
 app.use(cors(corsOptions));
 
-//for built-in middle-ware for urlencoded data
-// data from the form data
-// content-type: application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: false }));
+// Body parsing middleware
+app.use(express.urlencoded({ 
+  extended: false,
+  limit: '10mb' // Add size limit for security
+}));
 
-//built-in middleware for json data
-  app.use(express.json());
+app.use(express.json({ 
+  limit: '10mb' // Add size limit for security
+}));
 
-//middleware for cookie
+// Cookie parser middleware
 app.use(cookieParser());
 
-//server static files
-app.use(express.static(path.join(__dirname, "/public")));
+// Custom logger middleware (enable in development)
+// if (NODE_ENV === 'development') {
+//   app.use(logger);
 
-//routes middleware
-app.use("/", require("./routes/root"));
+// }
 
-app.use("/api/register", require("./routes/register"));
-app.use("/api/oauth/google", require("./routes/oauth"));
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/refresh", require("./routes/refresh"));
-app.use("/api/forgotPassword/email", require("./routes/forgotPassword"));
-app.use("/api/logout", require("./routes/logout"));
-app.use("/api/forgotPassword/OTP", require("./routes/matchOTP"));
-app.use("/api/forgotPassword/password", require("./routes/passwordReset"));
+// Serve static files
+// app.use(express.static(path.join(__dirname, "/public")));
 
-//excute the swagger docs function
-swaggerDocs(app, PORT);
-app.use(verifyJWT);
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    environment: NODE_ENV,
+    uptime: process.uptime()
+  });
+});
 
-app.use("/api/user", require("./routes/getUserInformation"));
-app.use("/api/event", require("./routes/api/events"));
-app.use("/api/evaluator", require("./routes/api/evaluators"));
-app.use("/api/student", require("./routes/api/students"));
-app.use("/api/supervisor", require("./routes/api/supervisors"));
+// API Documentation
+// swaggerDocs(app, PORT);
 
+// Import all routes
+const routes = require("./src/routes");
+
+// Use centralized routing
+app.use("/", routes);
+
+// 404 handler for undefined routes
 app.all("*", (req, res) => {
+  const error = {
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server`,
+    timestamp: new Date().toISOString()
+  };
+
   res.status(404);
+  
   if (req.accepts("html")) {
     res.sendFile(path.join(__dirname, "views", "404.html"));
   } else if (req.accepts("json")) {
-    res.json({
-      error: "404 NOT FOUND",
-    });
+    res.json(error);
   } else {
     res.type("txt").send("404 NOT FOUND");
   }
 });
 
-//middleware for error handling
-// app.use(errorHandler);
+// Global error handling middleware (must be last)
+app.use(errorHandler);
 
+// Database connection and server startup
 mongoose.connection.once("open", () => {
-  console.log("Connected to MongoDB");
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  console.log("✅ Server: MongoDB connection established");
+  
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT} in ${NODE_ENV} mode`);
+    // console.log(`📚 API Documentation: http://localhost:${PORT}/api/v1/api-docs`);
+    console.log(`💓 Health Check: http://localhost:${PORT}/api/health`);
+  });
+
+  // Handle server errors
+  server.on('error', (error) => {
+    if (error.syscall !== 'listen') {
+      throw error;
+    }
+
+    switch (error.code) {
+      case 'EACCES':
+        console.error(`Port ${PORT} requires elevated privileges`);
+        process.exit(1);
+        break;
+      case 'EADDRINUSE':
+        console.error(`Port ${PORT} is already in use`);
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
+  });
 });
